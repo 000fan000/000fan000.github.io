@@ -22,12 +22,12 @@
     <itunes:keywords>flutter,dart,github,vr,ar,web</itunes:keywords>
     <copyright>Rody Davis Productions 2020</copyright>
     <description>Exploring Flutter, VR, AR, Cross-Platform Projects</description>
-    <googleplay:image href="https://rodydavis.github.io/podcast-player/img/icon.jpg" />
+    <googleplay:image href="https://000fan000.github.io/podcast-player/img/icon.jpg" />
     <language>en-us</language>
     <itunes:explicit>no</itunes:explicit>
     <pubDate>Mon, 13 Apr 2020 13:00:00 PDT</pubDate>
-    <link>https://rodydavis.github.io/podcast-player/feed.xml</link>
-    <itunes:image href="https://rodydavis.github.io/podcast-player/img/icon.jpg" />
+    <link>https://000fan000.github.io/podcast-player/feed.xml</link>
+    <itunes:image href="https://000fan000.github.io/podcast-player/img/icon.jpg" />
     <item>
       <author>Iris lee</author>
       <itunes:author>Iris lee</itunes:author>
