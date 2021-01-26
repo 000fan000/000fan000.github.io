@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <rss xmlns:googleplay="http://www.google.com/schemas/play-podcasts/1.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:rawvoice="http://www.rawvoice.com/rawvoiceRssModule/" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0">
   <channel>
-    <title>Alternate Reality</title>
+    <title>另类现实</title>
     <googleplay:author>Iris Lee</googleplay:author>
     <rawvoice:rating>TV-G</rawvoice:rating>
     <rawvoice:location>Shanghai</rawvoice:location>
@@ -12,16 +12,16 @@
     <itunes:category text="Technology" />
     <image>
       <url>https://000fan000.github.io/podcast-player/img/icon.jpg</url>
-      <title>Creative Engineering</title>
+      <title>Alternate Reality</title>
       <link>https://000fan000.github.io/podcast-player/</link>
     </image>
     <itunes:owner>
       <itunes:name>Iris lee</itunes:name>
       <itunes:email>iris.lee1986@gmail.com</itunes:email>
     </itunes:owner>
-    <itunes:keywords>flutter,dart,github,vr,ar,web</itunes:keywords>
-    <copyright>Rody Davis Productions 2020</copyright>
-    <description>Exploring Flutter, VR, AR, Cross-Platform Projects</description>
+    <itunes:keywords>技术哲学, 美学和艺术, 认知科学</itunes:keywords>
+    <copyright>Iris Lee Productions 2020</copyright>
+    <description>Exploring future of technology</description>
     <googleplay:image href="https://000fan000.github.io/podcast-player/img/icon.jpg" />
     <language>en-us</language>
     <itunes:explicit>no</itunes:explicit>
