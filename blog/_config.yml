@@ -16,7 +16,7 @@ avatar: /avatar/avatar.png
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://example.com/child' and root as '/child/'
-url: http://example.com
+url: https://000fan000.github.io/blog
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
