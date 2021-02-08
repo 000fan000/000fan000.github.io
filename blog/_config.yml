@@ -8,7 +8,7 @@ subtitle: '艾睿思的奇想世界'
 description: ''
 keywords: blog, podcast
 author: Iris Lee
-language: en, chs
+language: en
 timezone: ''
 
 # Avatar
@@ -101,7 +101,8 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: landscape
+# theme: landscape
+theme: next
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
@@ -120,3 +121,4 @@ sitemap:
   path: sitemap.xml
 baidusitemap:
   path: baidusitemap.xml
+
