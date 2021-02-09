@@ -46525,7 +46525,7 @@ T.Nh.prototype={
 $1:function(a){return new B.kB(this.a,null)},
 $S:309}
 T.Nd.prototype={
-$0:function(){T.wN("feed:https://rodydavis.github.io/podcast-player/feed.xml")},
+$0:function(){T.wN("feed:https://000fan000.github.io/podcast-player/feed.xml")},
 $C:"$0",
 $R:0,
 $S:0}
