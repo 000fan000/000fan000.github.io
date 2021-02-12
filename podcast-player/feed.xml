@@ -31,11 +31,11 @@
     <item>
       <author>Iris lee</author>
       <itunes:author>Iris lee</itunes:author>
-      <title>First episode test</title>
-      <pubDate>Mon, 25 Jan 2021 13:00:00 GMT</pubDate>
-      <enclosure url="https://000fan000.github.io/podcast-player/audio/01-create-eng.mp3" type="audio/mpeg" length="34216300" />
-      <itunes:duration>54:08</itunes:duration>
-      <guid isPermaLink="false">cepod01</guid>
+      <title>EP01：人工智能伦理</title>
+      <pubDate>Fri, 12 Feb 2021 13:00:00 GMT</pubDate>
+      <enclosure url="https://000fan000.github.io/podcast-player/audio/Ep01-AI-ethics.mp3" type="audio/mpeg" length="34216300" />
+      <itunes:duration>01:16:52</itunes:duration>
+      <guid isPermaLink="false">podcast01</guid>
       <itunes:explicit>no</itunes:explicit>
       <description>
 ========= show notes here!!!! =============
