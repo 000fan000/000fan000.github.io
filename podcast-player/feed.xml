@@ -20,7 +20,7 @@
       <itunes:email>iris.lee1986@gmail.com</itunes:email>
     </itunes:owner>
     <itunes:keywords>技术哲学, 美学和艺术, 认知科学</itunes:keywords>
-    <copyright>Iris Lee Productions 2020</copyright>
+    <copyright>Iris Lee Productions 2021</copyright>
     <description>Exploring future of technology</description>
     <googleplay:image href="https://000fan000.github.io/podcast-player/img/icon.jpg" />
     <language>en-us</language>
@@ -31,14 +31,16 @@
     <item>
       <author>Iris lee</author>
       <itunes:author>Iris lee</itunes:author>
-      <title>EP01：人工智能伦理</title>
+      <title>EP01.人工智能伦理</title>
       <pubDate>Fri, 12 Feb 2021 13:00:00 GMT</pubDate>
       <enclosure url="https://000fan000.github.io/podcast-player/audio/Ep01-AI-ethics.mp3" type="audio/mpeg" length="34216300" />
       <itunes:duration>01:16:52</itunes:duration>
       <guid isPermaLink="false">podcast01</guid>
       <itunes:explicit>no</itunes:explicit>
       <description>
-========= show notes here!!!! =============
+=== show notes here!!!! ===
+1. xxx
+2. xxx
   	  </description>
     </item>
   </channel>
