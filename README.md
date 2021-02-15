@@ -1,5 +1,9 @@
 ## Welcome to GitHub Pages
 
+
+[podcast: EP01 AI ethics](podcast-player/audio/Ep01-AI-ethics.mp3)
+
+
 You can use the [editor on GitHub](https://github.com/000fan000/000fan000.github.io/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
 
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
@@ -24,7 +28,6 @@ Syntax highlighted code block
 **Bold** and _Italic_ and `Code` text
 
 [Link](url) and ![Image](src)
-[podcast](podcast-player/audio/01-create-eng.mp3)
 ```
 
 For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
