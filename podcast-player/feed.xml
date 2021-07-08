@@ -43,5 +43,21 @@
 2. xxx
   	  </description>
     </item>
+    <item>
+      <author>Rich Roll Podcast</author>
+      <itunes:author>Rich Roll Podcast</itunes:author>
+      <title>EP02.Change Your Brain</title>
+      <pubDate>Fri, 12 Feb 2021 13:00:00 GMT</pubDate>
+      <enclosure url="https://000fan000.github.io/podcast-player/audio/Change Your Brain- Neuroscientist Dr. Andrew Huberman | Rich Roll Podcast.mp3" type="audio/mpeg" length="13241300" />
+      <itunes:duration>02:12:41</itunes:duration>
+      <guid isPermaLink="false">podcast02</guid>
+      <itunes:explicit>no</itunes:explicit>
+      <description>
+=== show notes ===
+1. 搬运自：yt
+2. Rich Roll Podcast
+  	  </description>
+    </item>
+    
   </channel>
 </rss>
