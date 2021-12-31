@@ -28,6 +28,7 @@
     <pubDate>Mon, 13 Apr 2020 13:00:00 PDT</pubDate>
     <link>https://000fan000.github.io/podcast-player/feed.xml</link>
     <itunes:image href="https://000fan000.github.io/podcast-player/img/icon.jpg" />
+    
     <item>
       <author>Iris lee</author>
       <itunes:author>Iris lee</itunes:author>
@@ -38,9 +39,9 @@
       <guid isPermaLink="false">podcast01</guid>
       <itunes:explicit>no</itunes:explicit>
       <description>
-=== show notes here!!!! ===
-1. xxx
-2. xxx
+        === show notes here!!!! ===
+        1. xxx
+        2. xxx
   	  </description>
     </item>
     <item>
@@ -53,9 +54,9 @@
       <guid isPermaLink="false">podcast02</guid>
       <itunes:explicit>no</itunes:explicit>
       <description>
-=== show notes ===
-1. offCamera
-2. Rich Roll Podcast
+        === show notes ===s
+        1. offCamera
+        2. Rich Roll Podcast
   	  </description>
     </item>
     
