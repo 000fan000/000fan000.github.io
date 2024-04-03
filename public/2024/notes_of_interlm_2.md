@@ -253,7 +253,8 @@ python /root/demo/InternLM-XComposer/examples/gradio_demo_chat.py  \
 
 
 ```
-![[http://000fan000.github.io/public/2024/WechatIMG785.jpg]]
+完成
+![]([http://000fan000.github.io/public/2024/WechatIMG785.jpg)
 
 
 
