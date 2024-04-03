@@ -253,7 +253,7 @@ python /root/demo/InternLM-XComposer/examples/gradio_demo_chat.py  \
 
 
 ```
-![[Pasted image 20240403153539.png]]
+![[WechatIMG785.jpg]]
 
 
 
