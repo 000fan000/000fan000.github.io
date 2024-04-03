@@ -253,7 +253,7 @@ python /root/demo/InternLM-XComposer/examples/gradio_demo_chat.py  \
 
 
 ```
-![[WechatIMG785.jpg]]
+![[./WechatIMG785.jpg]]
 
 
 
