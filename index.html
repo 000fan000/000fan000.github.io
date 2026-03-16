@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>阅读虾 Read-again</title>
+  <meta name="description" content="阅读虾 Read-again 是一个 AI 读书笔记助手，专注提取 PDF 高亮与批注，自动生成复习型笔记并同步到飞书。">
+  <meta property="og:title" content="阅读虾 Read-again">
+  <meta property="og:description" content="把散落的 PDF 高亮，变成结构化的复习资料。">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#0f3d3e">
+  <style>
+    :root {
+      --bg: #f6f2e8;
+      --bg-deep: #efe3c5;
+      --panel: rgba(255, 252, 245, 0.84);
+      --panel-strong: #fff9ee;
+      --text: #14211f;
+      --muted: #5b655f;
+      --line: rgba(20, 33, 31, 0.14);
+      --brand: #0f3d3e;
+      --brand-soft: #1c6660;
+      --accent: #ff7a28;
+      --accent-soft: #ffd2ab;
+      --shadow: 0 24px 70px rgba(21, 41, 37, 0.12);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --content-width: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 122, 40, 0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(15, 61, 62, 0.14), transparent 24%),
+        linear-gradient(180deg, #f9f4ea 0%, var(--bg) 40%, #f4efe3 100%);
+      min-height: 100vh;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .shell {
+      width: min(100% - 32px, var(--content-width));
+      margin: 0 auto;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+      background: rgba(246, 242, 232, 0.72);
+      border-bottom: 1px solid rgba(20, 33, 31, 0.08);
+    }
+
+    .site-header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 18px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--accent) 0%, #ffb067 100%);
+      color: white;
+      box-shadow: 0 10px 24px rgba(255, 122, 40, 0.28);
+      font-size: 24px;
+    }
+
+    .brand-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-copy strong {
+      font-size: 1rem;
+    }
+
+    .brand-copy span {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .lang-toggle {
+      display: inline-flex;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(15, 61, 62, 0.08);
+      border: 1px solid rgba(15, 61, 62, 0.08);
+    }
+
+    .lang-toggle button {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      padding: 10px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+    }
+
+    .lang-toggle button.active {
+      background: var(--brand);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .cta-link,
+    .ghost-link,
+    .copy-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 13px 18px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+      cursor: pointer;
+    }
+
+    .cta-link:hover,
+    .ghost-link:hover,
+    .copy-button:hover {
+      transform: translateY(-2px);
+    }
+
+    .cta-link {
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 14px 28px rgba(15, 61, 62, 0.18);
+    }
+
+    .ghost-link,
+    .copy-button {
+      background: rgba(255, 255, 255, 0.54);
+      color: var(--text);
+      border-color: rgba(20, 33, 31, 0.1);
+    }
+
+    .hero {
+      padding: 48px 0 36px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .hero-card,
+    .panel,
+    .story-card,
+    .steps-card,
+    .compare-table,
+    .sample-card,
+    .faq-card {
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .hero-card {
+      border-radius: 32px;
+      padding: 42px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: "";
+      position: absolute;
+      inset: auto -40px -60px auto;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 122, 40, 0.24), transparent 70%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(15, 61, 62, 0.08);
+      color: var(--brand);
+      font-weight: 700;
+      font-size: 0.88rem;
+      letter-spacing: 0.02em;
+    }
+
+    h1 {
+      margin: 18px 0 16px;
+      font-size: clamp(2.7rem, 6vw, 5rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+    }
+
+    .hero-lead {
+      font-size: 1.12rem;
+      line-height: 1.72;
+      color: var(--muted);
+      max-width: 38rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .hero-points {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 30px;
+    }
+
+    .hero-point {
+      padding: 16px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 249, 238, 0.8);
+      border: 1px solid rgba(20, 33, 31, 0.06);
+    }
+
+    .hero-point strong {
+      display: block;
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+    }
+
+    .hero-point span {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .panel {
+      border-radius: 32px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .note-preview {
+      padding: 22px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, #fffdf8 0%, #f8f1df 100%);
+      border: 1px solid rgba(20, 33, 31, 0.08);
+    }
+
+    .note-preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #8e4f12;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .note-lines {
+      display: grid;
+      gap: 12px;
+    }
+
+    .line {
+      height: 12px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(15, 61, 62, 0.14), rgba(15, 61, 62, 0.04));
+    }
+
+    .line.short {
+      width: 66%;
+    }
+
+    .line.mid {
+      width: 82%;
+    }
+
+    .mindmap {
+      padding: 18px;
+      border-radius: 22px;
+      background: #103d3f;
+      color: #f7f2e6;
+    }
+
+    .mindmap strong {
+      display: block;
+      margin-bottom: 14px;
+      font-size: 0.98rem;
+      letter-spacing: 0.02em;
+    }
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .map-node {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.08);
+      min-height: 86px;
+    }
+
+    .map-node b {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    section {
+      padding: 18px 0 8px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      letter-spacing: -0.04em;
+    }
+
+    .section-head p {
+      max-width: 34rem;
+      color: var(--muted);
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    .feature-grid,
+    .story-grid,
+    .steps-grid,
+    .faq-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .feature-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .story-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .steps-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .faq-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .story-card,
+    .steps-card,
+    .sample-card,
+    .faq-card {
+      border-radius: var(--radius-xl);
+      padding: 26px;
+    }
+
+    .story-card h3,
+    .steps-card h3,
+    .sample-card h3,
+    .faq-card h3,
+    .feature-card h3 {
+      margin: 0 0 12px;
+      font-size: 1.15rem;
+    }
+
+    .story-card p,
+    .steps-card p,
+    .sample-card p,
+    .faq-card p,
+    .feature-card p,
+    .story-card li,
+    .sample-card li {
+      color: var(--muted);
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    .feature-card {
+      border-radius: var(--radius-xl);
+      padding: 26px;
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      box-shadow: var(--shadow);
+    }
+
+    .feature-icon,
+    .step-no {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: rgba(15, 61, 62, 0.1);
+      color: var(--brand);
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .tag-list,
+    .chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .tag,
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(15, 61, 62, 0.08);
+      color: var(--brand);
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .compare-table,
+    .install-panel {
+      border-radius: 32px;
+      padding: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 18px 18px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--line);
+      line-height: 1.6;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 0.88rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    td strong {
+      color: var(--brand);
+    }
+
+    .sample-card ul {
+      margin: 16px 0 0;
+      padding-left: 18px;
+    }
+
+    .install-panel {
+      background: linear-gradient(180deg, rgba(15, 61, 62, 0.96), rgba(16, 49, 50, 0.96));
+      color: #edf6f3;
+      box-shadow: 0 28px 80px rgba(15, 61, 62, 0.22);
+    }
+
+    .install-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .install-copy p,
+    .install-copy li {
+      color: rgba(237, 246, 243, 0.78);
+      line-height: 1.7;
+    }
+
+    .check-list {
+      margin: 18px 0 0;
+      padding-left: 18px;
+    }
+
+    .code-block {
+      position: relative;
+      background: rgba(248, 244, 231, 0.08);
+      border: 1px solid rgba(248, 244, 231, 0.12);
+      border-radius: 24px;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    .code-block + .code-block {
+      margin-top: 14px;
+    }
+
+    .code-label {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    pre {
+      margin: 14px 0 0;
+      overflow: auto;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      font-family: "SFMono-Regular", "Menlo", "Consolas", monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .copy-button {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      color: #eef6f3;
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .copy-button.copied {
+      background: rgba(255, 122, 40, 0.2);
+      color: #ffe8d4;
+    }
+
+    .closing {
+      padding: 36px 0 64px;
+    }
+
+    .closing-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      align-items: center;
+      padding: 30px;
+      border-radius: 30px;
+      background: linear-gradient(135deg, rgba(255, 122, 40, 0.12), rgba(15, 61, 62, 0.1));
+      border: 1px solid rgba(20, 33, 31, 0.08);
+    }
+
+    .closing-card h2 {
+      margin: 0 0 10px;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      letter-spacing: -0.04em;
+    }
+
+    .closing-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 40rem;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 600ms ease, transform 600ms ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .lang-block {
+      display: none;
+    }
+
+    html[data-lang="zh"] .lang-block.lang-zh,
+    html[data-lang="en"] .lang-block.lang-en {
+      display: block;
+    }
+
+    @media (max-width: 1080px) {
+      .hero-grid,
+      .install-grid,
+      .story-grid,
+      .closing-card {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-grid,
+      .steps-grid,
+      .faq-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .site-header-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .hero-card,
+      .panel,
+      .story-card,
+      .steps-card,
+      .sample-card,
+      .faq-card,
+      .compare-table,
+      .install-panel {
+        padding: 22px;
+        border-radius: 24px;
+      }
+
+      .hero-points,
+      .feature-grid,
+      .steps-grid,
+      .faq-grid,
+      .map-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      .copy-button {
+        position: static;
+        margin-top: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell site-header-inner">
+      <a class="brand" href="#top" aria-label="Read-again home">
+        <div class="brand-mark">🦐</div>
+        <div class="brand-copy">
+          <strong>阅读虾 Read-again</strong>
+          <span class="lang-block lang-zh">把散落高亮整理成复习笔记</span>
+          <span class="lang-block lang-en">Turn scattered highlights into review notes</span>
+        </div>
+      </a>
+      <div class="header-actions">
+        <div class="lang-toggle" aria-label="Language switcher">
+          <button class="active" data-lang-button="zh" type="button">中文</button>
+          <button data-lang-button="en" type="button">EN</button>
+        </div>
+        <a class="cta-link lang-block lang-zh" href="#install">立即安装</a>
+        <a class="cta-link lang-block lang-en" href="#install">Install Now</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="shell hero-grid">
+        <article class="hero-card reveal">
+          <div class="eyebrow lang-block lang-zh">AI 读书笔记助手</div>
+          <div class="eyebrow lang-block lang-en">AI reading review assistant</div>
+
+          <div class="lang-block lang-zh">
+            <h1>不是替你读书。<br>是帮你再读自己的思考。</h1>
+            <p class="hero-lead">
+              把你以前读过的 PDF 发给阅读虾。它只提取你的高亮和批注，不碰整本书，然后自动生成一份适合复习的结构化笔记，并保存到飞书「AI 读书笔记」文件夹。
+            </p>
+          </div>
+
+          <div class="lang-block lang-en">
+            <h1>It does not read for you.<br>It helps you reread your own thinking.</h1>
+            <p class="hero-lead">
+              Send a previously read PDF to Read-again. It extracts only your highlights and annotations, skips the rest of the book, then turns them into a structured review note and saves it to your Feishu folder automatically.
+            </p>
+          </div>
+
+          <div class="hero-actions">
+            <a class="cta-link lang-block lang-zh" href="#install">获取技能</a>
+            <a class="cta-link lang-block lang-en" href="#install">Get the Skill</a>
+            <a class="ghost-link lang-block lang-zh" href="#example">查看生成效果</a>
+            <a class="ghost-link lang-block lang-en" href="#example">See an Example</a>
+          </div>
+
+          <div class="hero-points">
+            <div class="hero-point">
+              <strong>3 min</strong>
+              <span class="lang-block lang-zh">发送 PDF 后，几分钟内拿到复习型笔记</span>
+              <span class="lang-block lang-en">Get a review-ready note a few minutes after upload</span>
+            </div>
+            <div class="hero-point">
+              <strong>7 parts</strong>
+              <span class="lang-block lang-zh">自动生成 7 个模块，覆盖摘录到行动建议</span>
+              <span class="lang-block lang-en">Seven structured sections from highlights to actions</span>
+            </div>
+            <div class="hero-point">
+              <strong>Feishu</strong>
+              <span class="lang-block lang-zh">自动同步到「AI 读书笔记」文件夹</span>
+              <span class="lang-block lang-en">Auto-synced to your “AI Reading Notes” folder</span>
+            </div>
+          </div>
+        </article>
+
+        <aside class="panel reveal">
+          <div class="note-preview">
+            <div class="note-preview-header">
+              <div>
+                <div class="badge lang-block lang-zh">复习型笔记输出</div>
+                <div class="badge lang-block lang-en">Review Note Output</div>
+              </div>
+              <div class="tag">#Read-again</div>
+            </div>
+            <div class="note-lines">
+              <div class="line"></div>
+              <div class="line mid"></div>
+              <div class="line short"></div>
+              <div class="line"></div>
+              <div class="line short"></div>
+            </div>
+          </div>
+
+          <div class="mindmap">
+            <strong class="lang-block lang-zh">自动生成思维导图</strong>
+            <strong class="lang-block lang-en">Mind map generated automatically</strong>
+            <div class="map-grid">
+              <div class="map-node">
+                <b class="lang-block lang-zh">你的高亮</b>
+                <b class="lang-block lang-en">Your Highlights</b>
+                <span class="lang-block lang-zh">只处理你真正标记过的内容</span>
+                <span class="lang-block lang-en">Only the passages you actually marked</span>
+              </div>
+              <div class="map-node">
+                <b class="lang-block lang-zh">核心解读</b>
+                <b class="lang-block lang-en">Key Interpretations</b>
+                <span class="lang-block lang-zh">解释每条高亮的重要性</span>
+                <span class="lang-block lang-en">Explain why each highlight matters</span>
+              </div>
+              <div class="map-node">
+                <b class="lang-block lang-zh">关联思考</b>
+                <b class="lang-block lang-en">Linked Thinking</b>
+                <span class="lang-block lang-zh">把零散知识点连成网</span>
+                <span class="lang-block lang-en">Connect isolated ideas into a network</span>
+              </div>
+              <div class="map-node">
+                <b class="lang-block lang-zh">行动建议</b>
+                <b class="lang-block lang-en">Action Suggestions</b>
+                <span class="lang-block lang-zh">给出下一步阅读与实践方向</span>
+                <span class="lang-block lang-en">Suggest what to read or do next</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-head reveal">
+          <div>
+            <h2 class="lang-block lang-zh">阅读虾能做什么</h2>
+            <h2 class="lang-block lang-en">What Read-again Does</h2>
+          </div>
+          <p class="lang-block lang-zh">重点不是重新概括一本书，而是帮你回收、理解、组织你曾经认真标记过的内容。</p>
+          <p class="lang-block lang-en">The point is not to summarize a whole book again. It is to recover, explain, and organize what you already cared enough to mark.</p>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature-card reveal">
+            <div class="feature-icon">01</div>
+            <h3 class="lang-block lang-zh">只提取你的笔记</h3>
+            <h3 class="lang-block lang-en">Extracts only your notes</h3>
+            <p class="lang-block lang-zh">阅读虾只读取你高亮、下划线和批注的部分，不处理整本书，避免把注意力稀释在无关内容里。</p>
+            <p class="lang-block lang-en">Read-again processes highlights, underlines, and annotations only. It ignores the rest of the book so the result stays personal and relevant.</p>
+          </article>
+
+          <article class="feature-card reveal">
+            <div class="feature-icon">02</div>
+            <h3 class="lang-block lang-zh">生成复习型笔记</h3>
+            <h3 class="lang-block lang-en">Builds review-oriented notes</h3>
+            <p class="lang-block lang-zh">输出不是泛泛的摘要，而是一份围绕“你之前关注了什么”的复习资料，适合二次学习和快速回顾。</p>
+            <p class="lang-block lang-en">The output is not a generic summary. It is a review note centered on what you paid attention to before, ready for rereading and recall.</p>
+          </article>
+
+          <article class="feature-card reveal">
+            <div class="feature-icon">03</div>
+            <h3 class="lang-block lang-zh">自动同步到飞书</h3>
+            <h3 class="lang-block lang-en">Saves directly to Feishu</h3>
+            <p class="lang-block lang-zh">生成后的笔记会自动保存到飞书「AI 读书笔记」文件夹里，方便归档、检索、分享和长期沉淀。</p>
+            <p class="lang-block lang-en">Generated notes are stored automatically in the Feishu folder “AI Reading Notes” for archive, search, sharing, and long-term reuse.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="example">
+      <div class="shell">
+        <div class="section-head reveal">
+          <div>
+            <h2 class="lang-block lang-zh">实际效果</h2>
+            <h2 class="lang-block lang-en">Example Output</h2>
+          </div>
+          <p class="lang-block lang-zh">阅读虾把你之前划过的重点，重新组织成一套能复习、能回忆、能继续行动的资料。</p>
+          <p class="lang-block lang-en">Read-again turns previously highlighted fragments into material you can review, recall, and act on.</p>
+        </div>
+
+        <div class="story-grid">
+          <article class="sample-card reveal">
+            <h3 class="lang-block lang-zh">案例：《脑力劳动与体力劳动》</h3>
+            <h3 class="lang-block lang-en">Case: Mental Labor and Physical Labor</h3>
+            <ul class="lang-block lang-zh">
+              <li>自动整理 20+ 条历史高亮与重点摘录</li>
+              <li>提炼标签：#认识论 #劳动 #抽象 #辩证法 #社会历史</li>
+              <li>解释每条高亮背后的核心含义</li>
+              <li>输出关键概念表、关联思考、行动建议与思维导图</li>
+            </ul>
+            <ul class="lang-block lang-en">
+              <li>Collected 20+ previously highlighted passages from the PDF</li>
+              <li>Generated topic tags such as epistemology, labor, abstraction, dialectics, and social history</li>
+              <li>Explained the meaning behind each highlight instead of flattening them into a summary</li>
+              <li>Produced concept tables, linked reflections, action suggestions, and a mind map</li>
+            </ul>
+          </article>
+
+          <article class="sample-card reveal">
+            <h3 class="lang-block lang-zh">标准输出共 7 个部分</h3>
+            <h3 class="lang-block lang-en">Seven-part review package</h3>
+            <div class="chip-list">
+              <span class="chip lang-block lang-zh">你的高亮</span>
+              <span class="chip lang-block lang-zh">核心解读</span>
+              <span class="chip lang-block lang-zh">关键概念表</span>
+              <span class="chip lang-block lang-zh">关联思考</span>
+              <span class="chip lang-block lang-zh">行动建议</span>
+              <span class="chip lang-block lang-zh">思维导图</span>
+              <span class="chip lang-block lang-zh">自动标签</span>
+
+              <span class="chip lang-block lang-en">Highlights</span>
+              <span class="chip lang-block lang-en">Interpretations</span>
+              <span class="chip lang-block lang-en">Concept Table</span>
+              <span class="chip lang-block lang-en">Connected Thinking</span>
+              <span class="chip lang-block lang-en">Actions</span>
+              <span class="chip lang-block lang-en">Mind Map</span>
+              <span class="chip lang-block lang-en">Tags</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-head reveal">
+          <div>
+            <h2 class="lang-block lang-zh">核心区别</h2>
+            <h2 class="lang-block lang-en">Why It Feels Different</h2>
+          </div>
+          <p class="lang-block lang-zh">传统 AI 读书产品常常替你读完全书，阅读虾则回到你的高亮和思考本身。</p>
+          <p class="lang-block lang-en">Typical AI reading tools read the whole book for you. Read-again returns to your own highlights and thinking.</p>
+        </div>
+
+        <div class="compare-table reveal">
+          <table>
+            <thead>
+              <tr>
+                <th class="lang-block lang-zh">维度</th>
+                <th class="lang-block lang-en">Dimension</th>
+                <th class="lang-block lang-zh">传统 AI 读书</th>
+                <th class="lang-block lang-en">Typical AI Reading</th>
+                <th>Read-again</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="lang-block lang-zh">处理范围</td>
+                <td class="lang-block lang-en">Scope</td>
+                <td class="lang-block lang-zh">提取整本书内容</td>
+                <td class="lang-block lang-en">Extracts the whole book</td>
+                <td><strong class="lang-block lang-zh">只提取你的高亮笔记</strong><strong class="lang-block lang-en">Extracts only your highlighted notes</strong></td>
+              </tr>
+              <tr>
+                <td class="lang-block lang-zh">输出形式</td>
+                <td class="lang-block lang-en">Output</td>
+                <td class="lang-block lang-zh">生成书籍摘要</td>
+                <td class="lang-block lang-en">Produces a book summary</td>
+                <td><strong class="lang-block lang-zh">生成复习型笔记</strong><strong class="lang-block lang-en">Produces review-oriented notes</strong></td>
+              </tr>
+              <tr>
+                <td class="lang-block lang-zh">角色定位</td>
+                <td class="lang-block lang-en">Role</td>
+                <td class="lang-block lang-zh">替你读书</td>
+                <td class="lang-block lang-en">Reads for you</td>
+                <td><strong class="lang-block lang-zh">帮你复习</strong><strong class="lang-block lang-en">Helps you review</strong></td>
+              </tr>
+              <tr>
+                <td class="lang-block lang-zh">思考来源</td>
+                <td class="lang-block lang-en">Thinking Source</td>
+                <td class="lang-block lang-zh">你的痕迹较弱</td>
+                <td class="lang-block lang-en">Weak personal trace</td>
+                <td><strong class="lang-block lang-zh">保留你的关注与思考</strong><strong class="lang-block lang-en">Keeps your attention and interpretation central</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-head reveal">
+          <div>
+            <h2 class="lang-block lang-zh">它适合谁</h2>
+            <h2 class="lang-block lang-en">Who It Is For</h2>
+          </div>
+          <p class="lang-block lang-zh">尤其适合那些愿意划重点、记批注、并且真的会回头复习的人。</p>
+          <p class="lang-block lang-en">Especially useful for people who annotate seriously and actually want to revisit what they learned.</p>
+        </div>
+
+        <div class="story-grid">
+          <article class="story-card reveal">
+            <h3 class="lang-block lang-zh">典型用户</h3>
+            <h3 class="lang-block lang-en">Typical users</h3>
+            <div class="tag-list">
+              <span class="tag lang-block lang-zh">爱读书且会做笔记的人</span>
+              <span class="tag lang-block lang-zh">学术研究者</span>
+              <span class="tag lang-block lang-zh">终身学习者</span>
+              <span class="tag lang-block lang-zh">读书博主</span>
+              <span class="tag lang-block lang-zh">AI 工具爱好者</span>
+
+              <span class="tag lang-block lang-en">Avid readers with annotation habits</span>
+              <span class="tag lang-block lang-en">Researchers and students</span>
+              <span class="tag lang-block lang-en">Lifelong learners</span>
+              <span class="tag lang-block lang-en">Book creators and reviewers</span>
+              <span class="tag lang-block lang-en">AI tool explorers</span>
+            </div>
+          </article>
+
+          <article class="story-card reveal">
+            <h3 class="lang-block lang-zh">为什么叫“阅读虾”</h3>
+            <h3 class="lang-block lang-en">Why the name “Read-again”</h3>
+            <p class="lang-block lang-zh">“再读一遍”对应 Read-again；虾虽小但灵活，能快速啃下难读的硬骨头。这是一个偏轻巧、偏实用、但很贴学习过程的工具命名。</p>
+            <p class="lang-block lang-en">The name points to rereading, not replacing reading. The shrimp metaphor suggests something small, nimble, and unexpectedly capable of helping with hard texts.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="install">
+      <div class="shell">
+        <div class="section-head reveal">
+          <div>
+            <h2 class="lang-block lang-zh">安装与使用</h2>
+            <h2 class="lang-block lang-en">Install and Use</h2>
+          </div>
+          <p class="lang-block lang-zh">准备好 OpenClaw、飞书账号和 Python 环境后，安装 `read-again`，然后直接在对话中发送 PDF 即可。</p>
+          <p class="lang-block lang-en">Once OpenClaw, Feishu, and Python are available, install `read-again` and simply send a PDF in chat.</p>
+        </div>
+
+        <div class="install-panel reveal">
+          <div class="install-grid">
+            <div class="install-copy">
+              <h3 class="lang-block lang-zh">前提条件</h3>
+              <h3 class="lang-block lang-en">Requirements</h3>
+              <ul class="check-list lang-block lang-zh">
+                <li>OpenClaw 已安装并运行</li>
+                <li>飞书账号，用于云端同步</li>
+                <li>本地 Python 环境</li>
+              </ul>
+              <ul class="check-list lang-block lang-en">
+                <li>OpenClaw installed and running</li>
+                <li>A Feishu account for cloud sync</li>
+                <li>A local Python environment</li>
+              </ul>
+
+              <h3 class="lang-block lang-zh" style="margin-top: 24px;">使用方式</h3>
+              <h3 class="lang-block lang-en" style="margin-top: 24px;">How to use it</h3>
+              <p class="lang-block lang-zh">在对话中发送你之前读过并做过标注的 PDF，阅读虾会提取高亮，生成复习资料，并自动保存到飞书。</p>
+              <p class="lang-block lang-en">Send a previously read and annotated PDF in chat. Read-again extracts your highlights, builds the review package, and saves it to Feishu automatically.</p>
+            </div>
+
+            <div>
+              <div class="code-block">
+                <span class="code-label lang-block lang-zh">安装依赖</span>
+                <span class="code-label lang-block lang-en">Dependencies</span>
+                <button class="copy-button" type="button" data-copy-target="deps" data-copy-label-zh="复制" data-copy-label-en="Copy" data-copied-label-zh="已复制" data-copied-label-en="Copied">Copy</button>
+                <pre id="deps">pip install pdfminer.six beautifulsoup4 pypdf</pre>
+              </div>
+
+              <div class="code-block">
+                <span class="code-label lang-block lang-zh">安装技能</span>
+                <span class="code-label lang-block lang-en">Install skill</span>
+                <button class="copy-button" type="button" data-copy-target="install-command" data-copy-label-zh="复制" data-copy-label-en="Copy" data-copied-label-zh="已复制" data-copied-label-en="Copied">Copy</button>
+                <pre id="install-command">clawhub install read-again</pre>
+              </div>
+
+              <div class="code-block">
+                <span class="code-label lang-block lang-zh">示例对话</span>
+                <span class="code-label lang-block lang-en">Example chat</span>
+                <pre class="lang-block lang-zh">你：帮我看看这本书之前读了什么 📎 [发送 PDF]
+阅读虾：已提取你的高亮笔记，正在生成复习资料...
+阅读虾：✅ 完成！已保存到飞书「AI 读书笔记」文件夹</pre>
+                <pre class="lang-block lang-en">You: Help me see what I focused on in this book before. 📎 [Attach PDF]
+Read-again: Your highlights have been extracted. Building review materials...
+Read-again: ✅ Done. Saved to the Feishu folder “AI Reading Notes”.</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell">
+        <div class="section-head reveal">
+          <div>
+            <h2 class="lang-block lang-zh">技术实现与计划</h2>
+            <h2 class="lang-block lang-en">Tech Stack and Roadmap</h2>
+          </div>
+          <p class="lang-block lang-zh">核心逻辑已经完整跑通，下一步更适合扩展输出渠道与批量处理能力。</p>
+          <p class="lang-block lang-en">The core workflow is already in place. The next sensible expansions are output destinations and batch workflows.</p>
+        </div>
+
+        <div class="story-grid">
+          <article class="story-card reveal">
+            <h3 class="lang-block lang-zh">技术实现</h3>
+            <h3 class="lang-block lang-en">How it works</h3>
+            <div class="tag-list">
+              <span class="tag lang-block lang-zh">PDF 提取</span>
+              <span class="tag lang-block lang-zh">AI 联想加工</span>
+              <span class="tag lang-block lang-zh">结构化输出</span>
+              <span class="tag lang-block lang-zh">飞书同步</span>
+
+              <span class="tag lang-block lang-en">PDF extraction</span>
+              <span class="tag lang-block lang-en">AI interpretation</span>
+              <span class="tag lang-block lang-en">Structured output</span>
+              <span class="tag lang-block lang-en">Feishu sync</span>
+            </div>
+            <p class="lang-block lang-zh" style="margin-top: 16px;">基于 OpenClaw 平台开发，使用 `pypdf` 与 `pdfminer.six` 提取高亮和笔记，再由 AI 组织成七段式复习资料。</p>
+            <p class="lang-block lang-en" style="margin-top: 16px;">Built on OpenClaw, using `pypdf` and `pdfminer.six` to recover highlights and notes, then shaping them into a seven-part review asset with AI.</p>
+          </article>
+
+          <article class="story-card reveal">
+            <h3 class="lang-block lang-zh">后续计划</h3>
+            <h3 class="lang-block lang-en">Planned next steps</h3>
+            <div class="tag-list">
+              <span class="tag lang-block lang-zh">更多输出格式</span>
+              <span class="tag lang-block lang-zh">多语言支持</span>
+              <span class="tag lang-block lang-zh">批量处理</span>
+              <span class="tag lang-block lang-zh">笔记关联推荐</span>
+              <span class="tag lang-block lang-zh">阅读进度追踪</span>
+
+              <span class="tag lang-block lang-en">More output formats</span>
+              <span class="tag lang-block lang-en">Multilingual support</span>
+              <span class="tag lang-block lang-en">Batch processing</span>
+              <span class="tag lang-block lang-en">Related note suggestions</span>
+              <span class="tag lang-block lang-en">Reading progress tracking</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="shell faq-grid">
+        <article class="faq-card reveal">
+          <h3 class="lang-block lang-zh">为什么这不是摘要工具？</h3>
+          <h3 class="lang-block lang-en">Why is this not just another summarizer?</h3>
+          <p class="lang-block lang-zh">因为输入的核心不是整本书，而是你留下的阅读痕迹。阅读虾的任务是重组你的关注点，而不是代替你的阅读过程。</p>
+          <p class="lang-block lang-en">Because the core input is not the whole book. It is your reading trace. Read-again reorganizes what you cared about instead of pretending to replace the reading process.</p>
+        </article>
+
+        <article class="faq-card reveal">
+          <h3 class="lang-block lang-zh">适合难书吗？</h3>
+          <h3 class="lang-block lang-en">Is it good for difficult books?</h3>
+          <p class="lang-block lang-zh">很适合。哲学、社会学、技术理论这类难书，往往需要回头看重点和概念关系，阅读虾在这里价值很高。</p>
+          <p class="lang-block lang-en">Yes. It is especially useful for philosophy, sociology, theory, and technical texts where revisiting highlights and conceptual links matters.</p>
+        </article>
+
+        <article class="faq-card reveal">
+          <h3 class="lang-block lang-zh">为什么要同步飞书？</h3>
+          <h3 class="lang-block lang-en">Why save to Feishu?</h3>
+          <p class="lang-block lang-zh">因为一份真正会被复习的笔记，必须先能被找到。自动保存让你的复习资料持续可检索、可积累、可分享。</p>
+          <p class="lang-block lang-en">Because notes only matter if you can find them later. Automatic saving makes the review archive searchable, accumulative, and shareable.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="closing">
+      <div class="shell">
+        <div class="closing-card reveal">
+          <div>
+            <h2 class="lang-block lang-zh">帮助你复习自己之前的思考，这才是真正的学习。</h2>
+            <h2 class="lang-block lang-en">Helping you revisit your own prior thinking is where real learning starts.</h2>
+            <p class="lang-block lang-zh">如果你已经读过很多书，也做过不少标记，阅读虾能把那些散落的瞬间重新变成一套清晰、可复用、可继续推进的知识资产。</p>
+            <p class="lang-block lang-en">If you already read a lot and annotate seriously, Read-again turns those scattered moments into a reusable, structured asset you can keep building on.</p>
+          </div>
+          <a class="cta-link lang-block lang-zh" href="#install">去 ClawHub 安装</a>
+          <a class="cta-link lang-block lang-en" href="#install">Install from ClawHub</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var buttons = document.querySelectorAll("[data-lang-button]");
+      var storedLang = localStorage.getItem("read-again-lang");
+      var browserLang = (navigator.language || "").toLowerCase();
+      var initialLang = storedLang || (browserLang.indexOf("zh") === 0 ? "zh" : "en");
+
+      function syncCopyButtons(lang) {
+        document.querySelectorAll("[data-copy-target]").forEach(function (button) {
+          if (!button.classList.contains("copied")) {
+            button.textContent = button.getAttribute(lang === "zh" ? "data-copy-label-zh" : "data-copy-label-en");
+          }
+        });
+      }
+
+      function setLang(lang) {
+        root.setAttribute("data-lang", lang);
+        root.setAttribute("lang", lang === "zh" ? "zh-CN" : "en");
+        buttons.forEach(function (button) {
+          button.classList.toggle("active", button.getAttribute("data-lang-button") === lang);
+        });
+        syncCopyButtons(lang);
+        localStorage.setItem("read-again-lang", lang);
+      }
+
+      buttons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          setLang(button.getAttribute("data-lang-button"));
+        });
+      });
+
+      setLang(initialLang);
+
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+
+      document.querySelectorAll(".reveal").forEach(function (element) {
+        observer.observe(element);
+      });
+
+      document.querySelectorAll("[data-copy-target]").forEach(function (button) {
+        button.addEventListener("click", function () {
+          var targetId = button.getAttribute("data-copy-target");
+          var target = document.getElementById(targetId);
+          if (!target) return;
+          navigator.clipboard.writeText(target.textContent.trim()).then(function () {
+            var currentLang = root.getAttribute("data-lang") || "en";
+            var copiedLabel = button.getAttribute(currentLang === "zh" ? "data-copied-label-zh" : "data-copied-label-en");
+            button.textContent = copiedLabel;
+            button.classList.add("copied");
+            window.setTimeout(function () {
+              button.classList.remove("copied");
+              syncCopyButtons(root.getAttribute("data-lang") || "en");
+            }, 1200);
+          });
+        });
+      });
+    }());
+  </script>
+</body>
+</html>
