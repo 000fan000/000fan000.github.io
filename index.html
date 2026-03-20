@@ -10,21 +10,18 @@
   <meta property="og:type" content="website">
   <meta name="theme-color" content="#2a2a1f">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap');
 
     :root {
-      --bg: #f4f0e6;
-      --bg-2: #ece5d6;
-      --ink: #1e1e18;
-      --muted: #5c5c50;
-      --accent: #e35d3a;
-      --accent-2: #1f4a3c;
-      --card: rgba(255, 255, 255, 0.7);
-      --line: rgba(30, 30, 24, 0.12);
-      --shadow: 0 24px 60px rgba(30, 30, 24, 0.14);
-      --radius-lg: 24px;
-      --radius-md: 18px;
-      --radius-sm: 12px;
+      --bg: #fafafa;
+      --ink: #111111;
+      --muted: #6b6b6b;
+      --card: #ffffff;
+      --line: #e5e5e5;
+      --accent: #111111;
+      --sprinkle: #f4c9a8;
+      --radius-lg: 20px;
+      --radius-md: 14px;
       --content-width: 1160px;
     }
 
@@ -35,11 +32,8 @@
     body {
       margin: 0;
       color: var(--ink);
-      font-family: "Space Grotesk", "PingFang SC", "Microsoft YaHei", sans-serif;
-      background:
-        radial-gradient(circle at 15% 10%, rgba(227, 93, 58, 0.2), transparent 35%),
-        radial-gradient(circle at 85% 0%, rgba(31, 74, 60, 0.18), transparent 30%),
-        linear-gradient(160deg, var(--bg) 0%, var(--bg-2) 60%, #f7f2e7 100%);
+      font-family: "IBM Plex Sans", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
       min-height: 100vh;
     }
 
@@ -66,20 +60,19 @@
       align-items: center;
       gap: 14px;
       font-weight: 600;
-      letter-spacing: 0.01em;
+      letter-spacing: -0.01em;
     }
 
     .brand-mark {
       width: 44px;
       height: 44px;
       border-radius: 14px;
-      background: linear-gradient(135deg, var(--accent), #f2b777);
+      background: #111111;
       display: grid;
       place-items: center;
       color: #fff;
       font-size: 20px;
       font-weight: 700;
-      box-shadow: 0 16px 30px rgba(227, 93, 58, 0.28);
     }
 
     .brand-text {
@@ -105,32 +98,28 @@
       padding: 36px;
       border-radius: var(--radius-lg);
       background: var(--card);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.7);
-      box-shadow: var(--shadow);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-card::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(120deg, rgba(227, 93, 58, 0.08), transparent 60%);
-      pointer-events: none;
+      border: 1px solid var(--line);
     }
 
     .hero h1 {
-      font-family: "Fraunces", "Georgia", serif;
-      font-size: clamp(2.6rem, 3vw, 3.4rem);
+      font-size: clamp(2.4rem, 3vw, 3rem);
       margin: 0 0 12px;
+      letter-spacing: -0.02em;
     }
 
     .hero p {
       margin: 0;
       color: var(--muted);
       line-height: 1.6;
-      font-size: 1.05rem;
+      font-size: 1.02rem;
+    }
+
+    .sprinkle {
+      height: 3px;
+      width: 42px;
+      background: linear-gradient(90deg, transparent, var(--sprinkle), transparent);
+      border-radius: 999px;
+      margin: 14px 0 18px;
     }
 
     .hero-cta {
@@ -147,25 +136,25 @@
       gap: 8px;
       padding: 12px 18px;
       border-radius: 999px;
-      border: 1px solid transparent;
+      border: 1px solid var(--line);
       font-weight: 600;
-      transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+      background: #fff;
+      transition: transform 160ms ease, background 160ms ease;
     }
 
     .btn:hover {
-      transform: translateY(-2px);
+      transform: translateY(-1px);
+      background: #f5f5f5;
     }
 
     .btn-primary {
-      background: var(--accent-2);
+      background: var(--accent);
       color: #fff;
-      box-shadow: 0 14px 28px rgba(31, 74, 60, 0.24);
+      border-color: var(--accent);
     }
 
-    .btn-ghost {
-      background: rgba(255, 255, 255, 0.6);
-      border-color: var(--line);
-      color: var(--ink);
+    .btn-primary:hover {
+      background: #000;
     }
 
     .hero-side {
@@ -177,9 +166,8 @@
     .mini-card {
       padding: 22px 24px;
       border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.8);
-      box-shadow: 0 16px 30px rgba(30, 30, 24, 0.12);
+      background: #fff;
+      border: 1px solid var(--line);
     }
 
     .mini-card h3 {
@@ -204,35 +192,17 @@
     .module {
       padding: 26px;
       border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.9);
-      box-shadow: var(--shadow);
+      background: #fff;
+      border: 1px solid var(--line);
       display: flex;
       flex-direction: column;
       gap: 16px;
-      min-height: 280px;
-      position: relative;
-      overflow: hidden;
-      animation: rise 800ms ease forwards;
-      opacity: 0;
-      transform: translateY(20px);
-    }
-
-    .module:nth-child(1) {
-      animation-delay: 120ms;
-    }
-
-    .module:nth-child(2) {
-      animation-delay: 220ms;
-    }
-
-    .module:nth-child(3) {
-      animation-delay: 320ms;
+      min-height: 260px;
     }
 
     .module h2 {
       margin: 0;
-      font-size: 1.4rem;
+      font-size: 1.3rem;
     }
 
     .module p {
@@ -266,13 +236,6 @@
       border-top: 1px solid var(--line);
     }
 
-    @keyframes rise {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
     @media (max-width: 980px) {
       .hero {
         grid-template-columns: 1fr;
@@ -304,6 +267,7 @@
     <section class="hero">
       <div class="hero-card">
         <h1>Small rituals, long projects.</h1>
+        <div class="sprinkle" aria-hidden="true"></div>
         <p>This is a calm landing page for everything I am building: handwritten diary notes, photo fragments, and experiments in code. Each module below is a doorway to a different part of my work.</p>
         <div class="hero-cta">
           <a class="btn btn-primary" href="/diary/">Go to My Diary</a>

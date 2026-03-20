@@ -6,24 +6,24 @@
   <title>My Codings</title>
   <meta name="description" content="Coding projects and experiments.">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Space+Grotesk:wght@400;500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap');
 
     :root {
-      --bg: #f4f1ea;
-      --ink: #1d1d17;
-      --muted: #5b5b4f;
+      --bg: #fafafa;
+      --ink: #111111;
+      --muted: #6b6b6b;
       --card: #ffffff;
-      --line: rgba(29, 29, 23, 0.12);
-      --radius: 18px;
-      --accent: #1f4a3c;
+      --line: #e5e5e5;
+      --radius: 14px;
+      --sprinkle: #f4c9a8;
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      font-family: "Space Grotesk", "PingFang SC", "Microsoft YaHei", sans-serif;
-      background: linear-gradient(180deg, #f4f1ea 0%, #ebe4d6 100%);
+      font-family: "IBM Plex Sans", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
       color: var(--ink);
     }
 
@@ -36,9 +36,17 @@
     }
 
     h1 {
-      font-family: "Fraunces", "Georgia", serif;
       margin: 0 0 10px;
-      font-size: 2.4rem;
+      font-size: 2.2rem;
+      letter-spacing: -0.02em;
+    }
+
+    .sprinkle {
+      height: 3px;
+      width: 42px;
+      background: linear-gradient(90deg, transparent, var(--sprinkle), transparent);
+      border-radius: 999px;
+      margin: 12px 0 20px;
     }
 
     p { color: var(--muted); margin: 0 0 28px; }
@@ -49,11 +57,10 @@
     }
 
     .card {
-      padding: 20px 22px;
+      padding: 18px 20px;
       border-radius: var(--radius);
       background: var(--card);
-      border: 1px solid rgba(255, 255, 255, 0.7);
-      box-shadow: 0 10px 24px rgba(29, 29, 23, 0.08);
+      border: 1px solid var(--line);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -65,10 +72,11 @@
     .tag {
       padding: 4px 10px;
       border-radius: 999px;
-      background: rgba(31, 74, 60, 0.1);
-      color: var(--accent);
+      background: #f2f2f2;
+      color: var(--ink);
       font-size: 0.85rem;
       font-weight: 600;
+      border: 1px solid var(--line);
     }
 
     .nav {
@@ -89,6 +97,7 @@
 <body>
   <div class="shell">
     <h1>My Codings</h1>
+    <div class="sprinkle" aria-hidden="true"></div>
     <p>Projects and experiments with clear documentation.</p>
 
     <div class="grid">

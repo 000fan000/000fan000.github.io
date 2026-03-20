@@ -6,23 +6,24 @@
   <title>My Diary</title>
   <meta name="description" content="Diary entries written in markdown.">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Space+Grotesk:wght@400;500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap');
 
     :root {
-      --bg: #f7f3eb;
-      --ink: #1c1c16;
-      --muted: #5c5c50;
-      --card: #fffdf7;
-      --line: rgba(28, 28, 22, 0.12);
-      --radius: 18px;
+      --bg: #fafafa;
+      --ink: #111111;
+      --muted: #6b6b6b;
+      --card: #ffffff;
+      --line: #e5e5e5;
+      --radius: 14px;
+      --sprinkle: #f4c9a8;
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      font-family: "Space Grotesk", "PingFang SC", "Microsoft YaHei", sans-serif;
-      background: linear-gradient(180deg, #f7f3eb 0%, #efe7d9 100%);
+      font-family: "IBM Plex Sans", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
       color: var(--ink);
     }
 
@@ -35,24 +36,31 @@
     }
 
     h1 {
-      font-family: "Fraunces", "Georgia", serif;
       margin: 0 0 10px;
-      font-size: 2.4rem;
+      font-size: 2.2rem;
+      letter-spacing: -0.02em;
+    }
+
+    .sprinkle {
+      height: 3px;
+      width: 42px;
+      background: linear-gradient(90deg, transparent, var(--sprinkle), transparent);
+      border-radius: 999px;
+      margin: 12px 0 20px;
     }
 
     p { color: var(--muted); margin: 0 0 28px; }
 
     .list {
       display: grid;
-      gap: 14px;
+      gap: 12px;
     }
 
     .entry {
-      padding: 18px 20px;
+      padding: 16px 18px;
       background: var(--card);
       border-radius: var(--radius);
-      border: 1px solid rgba(255, 255, 255, 0.8);
-      box-shadow: 0 10px 24px rgba(28, 28, 22, 0.08);
+      border: 1px solid var(--line);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -79,6 +87,7 @@
 <body>
   <div class="shell">
     <h1>My Diary</h1>
+    <div class="sprinkle" aria-hidden="true"></div>
     <p>Markdown entries, listed from newest to oldest.</p>
 
     <div class="list">

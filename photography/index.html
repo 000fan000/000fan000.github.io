@@ -7,25 +7,26 @@
   <meta name="description" content="Photo archive and gallery.">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Space+Grotesk:wght@400;500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap');
 
     :root {
-      --bg: #f6f2ea;
-      --ink: #1c1b16;
-      --muted: #5a5950;
-      --card: rgba(255, 255, 255, 0.8);
-      --line: rgba(28, 27, 22, 0.12);
-      --radius: 20px;
-      --accent: #1f4a3c;
-      --accent-soft: rgba(31, 74, 60, 0.12);
+      --bg: #f6f6f6;
+      --ink: #111111;
+      --muted: #6b6b6b;
+      --card: #ffffff;
+      --line: #e5e5e5;
+      --radius: 14px;
+      --accent: #111111;
+      --accent-soft: #f2f2f2;
+      --sprinkle: #f4c9a8;
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      font-family: "Space Grotesk", "PingFang SC", "Microsoft YaHei", sans-serif;
-      background: linear-gradient(180deg, #f6f2ea 0%, #ece3d3 100%);
+      font-family: "IBM Plex Sans", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #fafafa 0%, #f3f3f3 100%);
       color: var(--ink);
     }
 
@@ -38,9 +39,10 @@
     }
 
     h1 {
-      font-family: "Fraunces", "Georgia", serif;
+      font-family: "IBM Plex Sans", "Helvetica Neue", sans-serif;
       margin: 0 0 12px;
-      font-size: 2.4rem;
+      font-size: 2.2rem;
+      letter-spacing: -0.02em;
     }
 
     h2 {
@@ -51,11 +53,10 @@
     p { color: var(--muted); margin: 0 0 26px; }
 
     .panel {
-      padding: 22px 24px;
+      padding: 20px 22px;
       border-radius: var(--radius);
       background: var(--card);
-      border: 1px solid rgba(255, 255, 255, 0.7);
-      box-shadow: 0 14px 28px rgba(28, 27, 22, 0.1);
+      border: 1px solid var(--line);
       margin-bottom: 22px;
     }
 
@@ -69,10 +70,9 @@
 
     .album {
       padding: 24px;
-      border-radius: 24px;
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.8);
-      box-shadow: 0 20px 40px rgba(28, 27, 22, 0.12);
+      border-radius: 20px;
+      background: var(--card);
+      border: 1px solid var(--line);
     }
 
     .album-head {
@@ -93,16 +93,15 @@
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
 
     .album-btn {
       width: 64px;
       height: 64px;
       border-radius: 16px;
-      border: 2px solid transparent;
+      border: 1px solid var(--line);
       background: #fff;
-      box-shadow: 0 10px 20px rgba(28, 27, 22, 0.12);
       cursor: pointer;
       overflow: hidden;
       display: grid;
@@ -119,6 +118,7 @@
 
     .album-btn.active {
       border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.08);
     }
 
     .gallery {
@@ -153,7 +153,7 @@
       height: 100%;
       object-fit: cover;
       border-radius: 10px;
-      border: 2px solid transparent;
+      border: 1px solid transparent;
     }
 
     .thumbs-swiper .swiper-slide-thumb-active img {
@@ -177,10 +177,11 @@
       width: 100%;
       max-width: 620px;
       aspect-ratio: 1 / 1;
-      background: #f1ede4;
-      border-radius: 20px;
+      background: #fafafa;
+      border-radius: 16px;
       overflow: hidden;
       justify-self: start;
+      border: 1px solid var(--line);
     }
 
     .main-swiper .swiper-slide {
@@ -218,23 +219,25 @@
 
     .action-btn {
       border: 0;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.96);
       color: var(--ink);
       padding: 6px 10px;
       border-radius: 999px;
       font-weight: 600;
       cursor: pointer;
       font-size: 0.85rem;
+      border: 1px solid var(--line);
     }
 
     .action-btn.active {
-      background: var(--accent);
+      background: var(--ink);
       color: #fff;
+      border-color: var(--ink);
     }
 
     .effect-select {
-      border: 0;
-      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.96);
       color: var(--ink);
       padding: 6px 10px;
       border-radius: 999px;
@@ -255,6 +258,14 @@
       background: #fff;
       border: 1px solid var(--line);
       font-weight: 600;
+    }
+
+    .sprinkle {
+      height: 3px;
+      width: 42px;
+      background: linear-gradient(90deg, transparent, var(--sprinkle), transparent);
+      border-radius: 999px;
+      margin: 8px 0 18px;
     }
 
     @media (max-width: 860px) {
@@ -284,6 +295,7 @@
   <div class="shell">
     <h1>My Photography</h1>
     <p>A simple home for JPG photo sets.</p>
+    <div class="sprinkle" aria-hidden="true"></div>
 
     <div class="panel">
       <h3>How to use this gallery</h3>
