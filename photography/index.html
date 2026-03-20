@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Photography</title>
+  <meta name="description" content="Photo archive and gallery.">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Space+Grotesk:wght@400;500&display=swap');
+
+    :root {
+      --bg: #f6f2ea;
+      --ink: #1c1b16;
+      --muted: #5a5950;
+      --card: rgba(255, 255, 255, 0.8);
+      --line: rgba(28, 27, 22, 0.12);
+      --radius: 20px;
+      --accent: #1f4a3c;
+      --accent-soft: rgba(31, 74, 60, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #f6f2ea 0%, #ece3d3 100%);
+      color: var(--ink);
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .shell {
+      width: min(100% - 32px, 1080px);
+      margin: 0 auto;
+      padding: 40px 0 60px;
+    }
+
+    h1 {
+      font-family: "Fraunces", "Georgia", serif;
+      margin: 0 0 12px;
+      font-size: 2.4rem;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 1.4rem;
+    }
+
+    p { color: var(--muted); margin: 0 0 26px; }
+
+    .panel {
+      padding: 22px 24px;
+      border-radius: var(--radius);
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      box-shadow: 0 14px 28px rgba(28, 27, 22, 0.1);
+      margin-bottom: 22px;
+    }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+      color: var(--muted);
+    }
+
+    .steps strong { color: var(--ink); }
+
+    .album {
+      padding: 24px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 20px 40px rgba(28, 27, 22, 0.12);
+    }
+
+    .album-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .album-meta {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .thumbs-swiper {
+      width: 120px;
+      height: 620px;
+    }
+
+    .thumbs-swiper .swiper-slide {
+      height: 100px;
+      opacity: 0.5;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .thumbs-swiper .swiper-slide-thumb-active {
+      opacity: 1;
+    }
+
+    .thumbs-swiper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 2px solid transparent;
+    }
+
+    .thumbs-swiper .swiper-slide-thumb-active img {
+      border-color: var(--accent);
+    }
+
+    .main-swiper {
+      width: 100%;
+      max-width: 620px;
+      aspect-ratio: 1 / 1;
+      background: #f1ede4;
+      border-radius: 20px;
+      overflow: hidden;
+      justify-self: start;
+    }
+
+    .main-swiper .swiper-slide {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .main-swiper img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .main-swiper .swiper-button-prev,
+    .main-swiper .swiper-button-next {
+      color: var(--ink);
+    }
+
+    .main-swiper .swiper-button-prev::after,
+    .main-swiper .swiper-button-next::after {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .nav {
+      margin-top: 28px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line);
+      font-weight: 600;
+    }
+
+    @media (max-width: 860px) {
+      .gallery {
+        grid-template-columns: 1fr;
+      }
+
+      .thumbs-swiper {
+        width: 100%;
+        height: 90px;
+      }
+
+      .thumbs-swiper .swiper-slide {
+        height: 70px;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .album-head {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <h1>My Photography</h1>
+    <p>A simple home for JPG photo sets.</p>
+
+    <div class="panel">
+      <h3>How to use this gallery</h3>
+      <div class="steps">
+        <div><strong>1.</strong> Add your JPG files to <code>photography/jpgs</code>.</div>
+        <div><strong>2.</strong> Refresh this page when you add new sets.</div>
+        <div><strong>3.</strong> Keep originals untouched and organize with folders if needed.</div>
+      </div>
+    </div>
+
+    <section class="album">
+      <div class="album-head">
+        <div>
+          <h2>雪狸</h2>
+          <div class="album-meta">6 photos · folder: <code>photography/jpgs/雪狸</code></div>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <div class="swiper thumbs-swiper">
+          <div class="swiper-wrapper" id="thumbs-wrapper"></div>
+        </div>
+        <div class="swiper main-swiper">
+          <div class="swiper-wrapper" id="main-wrapper"></div>
+          <div class="swiper-button-prev" aria-label="Previous"></div>
+          <div class="swiper-button-next" aria-label="Next"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="panel" style="margin-top: 26px;">
+      <h3>JPG folder</h3>
+      <p><a href="/photography/jpgs/">Open the JPG directory</a></p>
+    </div>
+
+    <div class="nav">
+      <a class="btn" href="/">Back to Home</a>
+      <a class="btn" href="/codings/">Go to Codings</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+    const photos = [
+      {
+        src: "./jpgs/雪狸/WechatIMG230.jpg",
+        name: "WechatIMG230"
+      },
+      {
+        src: "./jpgs/雪狸/WechatIMG231.jpg",
+        name: "WechatIMG231"
+      },
+      {
+        src: "./jpgs/雪狸/WechatIMG232.jpg",
+        name: "WechatIMG232"
+      },
+      {
+        src: "./jpgs/雪狸/WechatIMG233.jpg",
+        name: "WechatIMG233"
+      },
+      {
+        src: "./jpgs/雪狸/WechatIMG235.jpg",
+        name: "WechatIMG235"
+      },
+      {
+        src: "./jpgs/雪狸/WechatIMG236.jpg",
+        name: "WechatIMG236"
+      }
+    ];
+
+    const thumbsWrapper = document.getElementById('thumbs-wrapper');
+    const mainWrapper = document.getElementById('main-wrapper');
+
+    photos.forEach((photo) => {
+      const thumbSlide = document.createElement('div');
+      thumbSlide.className = 'swiper-slide';
+      thumbSlide.innerHTML = `<img src="${photo.src}" alt="${photo.name}">`;
+      thumbsWrapper.appendChild(thumbSlide);
+
+      const mainSlide = document.createElement('div');
+      mainSlide.className = 'swiper-slide';
+      mainSlide.innerHTML = `<img src="${photo.src}" alt="${photo.name}">`;
+      mainWrapper.appendChild(mainSlide);
+    });
+
+    const thumbsSwiper = new Swiper('.thumbs-swiper', {
+      direction: 'vertical',
+      slidesPerView: 5,
+      spaceBetween: 10,
+      watchSlidesProgress: true,
+      breakpoints: {
+        0: {
+          direction: 'horizontal',
+          slidesPerView: 4
+        },
+        860: {
+          direction: 'vertical',
+          slidesPerView: 5
+        }
+      }
+    });
+
+    new Swiper('.main-swiper', {
+      spaceBetween: 10,
+      navigation: {
+        nextEl: '.main-swiper .swiper-button-next',
+        prevEl: '.main-swiper .swiper-button-prev'
+      },
+      thumbs: {
+        swiper: thumbsSwiper
+      }
+    });
+  </script>
+</body>
+</html>
