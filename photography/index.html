@@ -89,6 +89,38 @@
       font-size: 0.95rem;
     }
 
+    .album-nav {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .album-btn {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      border: 2px solid transparent;
+      background: #fff;
+      box-shadow: 0 10px 20px rgba(28, 27, 22, 0.12);
+      cursor: pointer;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      padding: 0;
+    }
+
+    .album-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .album-btn.active {
+      border-color: var(--accent);
+    }
+
     .gallery {
       display: grid;
       grid-template-columns: 120px minmax(0, 1fr);
@@ -160,6 +192,42 @@
       font-weight: 700;
     }
 
+    .main-actions {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .action-btn {
+      border: 0;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--ink);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .action-btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .effect-select {
+      border: 0;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--ink);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
     .nav {
       margin-top: 28px;
       display: flex;
@@ -212,10 +280,11 @@
     </div>
 
     <section class="album">
+      <div class="album-nav" id="album-nav"></div>
       <div class="album-head">
         <div>
-          <h2>雪狸</h2>
-          <div class="album-meta">6 photos · folder: <code>photography/jpgs/雪狸</code></div>
+          <h2 id="album-title">雪狸</h2>
+          <div class="album-meta" id="album-meta">6 photos · folder: <code>photography/jpgs/雪狸</code></div>
         </div>
       </div>
 
@@ -223,8 +292,20 @@
         <div class="swiper thumbs-swiper">
           <div class="swiper-wrapper" id="thumbs-wrapper"></div>
         </div>
-        <div class="swiper main-swiper">
+        <div class="swiper main-swiper" id="main-swiper">
           <div class="swiper-wrapper" id="main-wrapper"></div>
+          <div class="main-actions">
+            <button class="action-btn" id="autoplay-btn" type="button">Autoplay</button>
+            <button class="action-btn" id="fullscreen-btn" type="button">Fullscreen</button>
+            <select class="effect-select" id="effect-select" aria-label="Transition effect">
+              <option value="slide">Slide</option>
+              <option value="fade">Fade</option>
+              <option value="coverflow">Coverflow</option>
+              <option value="cube">Cube</option>
+              <option value="flip">Flip</option>
+              <option value="creative">Creative</option>
+            </select>
+          </div>
           <div class="swiper-button-prev" aria-label="Previous"></div>
           <div class="swiper-button-next" aria-label="Next"></div>
         </div>
@@ -244,73 +325,176 @@
 
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <script>
-    const photos = [
-      {
-        src: "./jpgs/雪狸/WechatIMG230.jpg",
-        name: "WechatIMG230"
-      },
-      {
-        src: "./jpgs/雪狸/WechatIMG231.jpg",
-        name: "WechatIMG231"
-      },
-      {
-        src: "./jpgs/雪狸/WechatIMG232.jpg",
-        name: "WechatIMG232"
-      },
-      {
-        src: "./jpgs/雪狸/WechatIMG233.jpg",
-        name: "WechatIMG233"
-      },
-      {
-        src: "./jpgs/雪狸/WechatIMG235.jpg",
-        name: "WechatIMG235"
-      },
-      {
-        src: "./jpgs/雪狸/WechatIMG236.jpg",
-        name: "WechatIMG236"
-      }
-    ];
+    let albums = {};
 
     const thumbsWrapper = document.getElementById('thumbs-wrapper');
     const mainWrapper = document.getElementById('main-wrapper');
+    const albumNav = document.getElementById('album-nav');
+    const albumTitle = document.getElementById('album-title');
+    const albumMeta = document.getElementById('album-meta');
+    let thumbsSwiper = null;
+    let mainSwiper = null;
+    const autoplayBtn = document.getElementById('autoplay-btn');
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
+    const mainSwiperEl = document.getElementById('main-swiper');
+    const effectSelect = document.getElementById('effect-select');
+    let autoplayWanted = false;
+    let activeAlbum = null;
 
-    photos.forEach((photo) => {
-      const thumbSlide = document.createElement('div');
-      thumbSlide.className = 'swiper-slide';
-      thumbSlide.innerHTML = `<img src="${photo.src}" alt="${photo.name}">`;
-      thumbsWrapper.appendChild(thumbSlide);
+    function buildSlides(folderName, files) {
+      thumbsWrapper.innerHTML = '';
+      mainWrapper.innerHTML = '';
 
-      const mainSlide = document.createElement('div');
-      mainSlide.className = 'swiper-slide';
-      mainSlide.innerHTML = `<img src="${photo.src}" alt="${photo.name}">`;
-      mainWrapper.appendChild(mainSlide);
-    });
+      files.forEach((file) => {
+        const src = `./jpgs/${folderName}/${file}`;
+        const alt = file.replace(/\\.[^.]+$/, '');
 
-    const thumbsSwiper = new Swiper('.thumbs-swiper', {
-      direction: 'vertical',
-      slidesPerView: 5,
-      spaceBetween: 10,
-      watchSlidesProgress: true,
-      breakpoints: {
-        0: {
-          direction: 'horizontal',
-          slidesPerView: 4
-        },
-        860: {
-          direction: 'vertical',
-          slidesPerView: 5
+        const thumbSlide = document.createElement('div');
+        thumbSlide.className = 'swiper-slide';
+        thumbSlide.innerHTML = `<img src="${src}" alt="${alt}">`;
+        thumbsWrapper.appendChild(thumbSlide);
+
+        const mainSlide = document.createElement('div');
+        mainSlide.className = 'swiper-slide';
+        mainSlide.innerHTML = `<img src="${src}" alt="${alt}">`;
+        mainWrapper.appendChild(mainSlide);
+      });
+    }
+
+    function initSwipers(effect = 'slide') {
+      if (thumbsSwiper) thumbsSwiper.destroy(true, true);
+      if (mainSwiper) mainSwiper.destroy(true, true);
+
+      thumbsSwiper = new Swiper('.thumbs-swiper', {
+        direction: 'vertical',
+        slidesPerView: 5,
+        spaceBetween: 10,
+        watchSlidesProgress: true,
+        breakpoints: {
+          0: {
+            direction: 'horizontal',
+            slidesPerView: 4
+          },
+          860: {
+            direction: 'vertical',
+            slidesPerView: 5
+          }
         }
+      });
+
+      mainSwiper = new Swiper('.main-swiper', {
+        spaceBetween: 10,
+        effect,
+        creativeEffect: {
+          prev: { translate: ['-20%', 0, -1], opacity: 0.5 },
+          next: { translate: ['20%', 0, -1], opacity: 0.5 }
+        },
+        autoplay: {
+          delay: 2500,
+          disableOnInteraction: false
+        },
+        navigation: {
+          nextEl: '.main-swiper .swiper-button-next',
+          prevEl: '.main-swiper .swiper-button-prev'
+        },
+        thumbs: {
+          swiper: thumbsSwiper
+        }
+      });
+
+      // Start paused by default
+      if (autoplayWanted) {
+        mainSwiper.autoplay.start();
+        autoplayBtn.classList.add('active');
+      } else {
+        mainSwiper.autoplay.stop();
+        autoplayBtn.classList.remove('active');
+      }
+    }
+
+    function renderAlbum(name) {
+      const files = albums[name] || [];
+      activeAlbum = name;
+      albumTitle.textContent = name;
+      albumMeta.innerHTML = `${files.length} photos · folder: <code>photography/jpgs/${name}</code>`;
+      buildSlides(name, files);
+      initSwipers(effectSelect.value || 'slide');
+
+      [...albumNav.children].forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.album === name);
+      });
+    }
+
+    async function loadAlbums() {
+      try {
+        const response = await fetch('./albums.json', { cache: 'no-cache' });
+        if (!response.ok) throw new Error('Failed to load albums.json');
+        albums = await response.json();
+      } catch (error) {
+        albumTitle.textContent = 'Albums not loaded';
+        albumMeta.textContent = 'Run `node scripts/build-albums.js` to refresh albums.json.';
+        return;
+      }
+
+      albumNav.innerHTML = '';
+      Object.keys(albums).forEach((name) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'album-btn';
+        button.dataset.album = name;
+
+        const files = albums[name] || [];
+        const cover = files[0] ? `./jpgs/${name}/${files[0]}` : '';
+        button.innerHTML = cover ? `<img src="${cover}" alt="${name}">` : name;
+
+        button.addEventListener('click', () => {
+          renderAlbum(name);
+        });
+
+        albumNav.appendChild(button);
+      });
+
+      const defaultAlbum = Object.keys(albums)[0];
+      if (defaultAlbum) renderAlbum(defaultAlbum);
+    }
+
+    loadAlbums();
+
+    autoplayBtn.addEventListener('click', () => {
+      if (!mainSwiper) return;
+      if (mainSwiper.autoplay.running) {
+        mainSwiper.autoplay.stop();
+        autoplayBtn.classList.remove('active');
+        autoplayWanted = false;
+      } else {
+        mainSwiper.autoplay.start();
+        autoplayBtn.classList.add('active');
+        autoplayWanted = true;
       }
     });
 
-    new Swiper('.main-swiper', {
-      spaceBetween: 10,
-      navigation: {
-        nextEl: '.main-swiper .swiper-button-next',
-        prevEl: '.main-swiper .swiper-button-prev'
-      },
-      thumbs: {
-        swiper: thumbsSwiper
+    fullscreenBtn.addEventListener('click', async () => {
+      if (!document.fullscreenElement) {
+        await mainSwiperEl.requestFullscreen();
+        fullscreenBtn.classList.add('active');
+      } else {
+        await document.exitFullscreen();
+        fullscreenBtn.classList.remove('active');
+      }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) {
+        fullscreenBtn.classList.remove('active');
+      }
+    });
+
+    effectSelect.addEventListener('change', () => {
+      const currentIndex = mainSwiper ? mainSwiper.activeIndex : 0;
+      initSwipers(effectSelect.value);
+      if (mainSwiper) {
+        mainSwiper.slideTo(currentIndex, 0);
+        if (autoplayWanted) mainSwiper.autoplay.start();
       }
     });
   </script>
