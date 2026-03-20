@@ -131,6 +131,8 @@
     .thumbs-swiper {
       width: 120px;
       height: 620px;
+      padding-right: 10px;
+      overflow: hidden;
     }
 
     .thumbs-swiper .swiper-slide {
@@ -161,6 +163,9 @@
     .thumbs-swiper .swiper-scrollbar {
       background: rgba(0, 0, 0, 0.08);
       border-radius: 999px;
+      width: 6px;
+      right: 2px;
+      left: auto;
     }
 
     .thumbs-swiper .swiper-scrollbar-drag {
@@ -381,8 +386,12 @@
         slidesPerView: 5,
         spaceBetween: 10,
         watchSlidesProgress: true,
-        mousewheel: true,
+        mousewheel: {
+          forceToAxis: true,
+          sensitivity: 1
+        },
         freeMode: true,
+        nested: true,
         scrollbar: {
           el: '.thumbs-swiper .swiper-scrollbar',
           draggable: true
