@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diary Entry</title>
+  <meta name="description" content="Rendered diary entry">
+  <meta name="theme-color" content="#f5f1ea">
+  <style>
+    :root {
+      --bg: #f5f1ea;
+      --paper: #fcfaf6;
+      --text: #1f1b18;
+      --muted: #71685f;
+      --line: #ddd4c8;
+      --link: #25463f;
+      --link-hover: #16312c;
+      --width: 760px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #faf7f1 0%, var(--bg) 100%);
+      color: var(--text);
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      line-height: 1.75;
+    }
+
+    a {
+      color: var(--link);
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--link-hover);
+      text-decoration: underline;
+    }
+
+    .page {
+      width: min(calc(100% - 32px), var(--width));
+      margin: 0 auto;
+      padding: 48px 0 72px;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .topbar nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    article {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 32px 28px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin: 1.4em 0 0.5em;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+    }
+
+    h2 {
+      font-size: clamp(1.45rem, 3vw, 2rem);
+    }
+
+    h3 {
+      font-size: clamp(1.15rem, 2.5vw, 1.4rem);
+    }
+
+    p {
+      margin: 0 0 1em;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 1.4rem 0;
+      border-radius: 12px;
+    }
+
+    .error {
+      color: #8a3a2d;
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        width: min(calc(100% - 24px), var(--width));
+        padding-top: 32px;
+      }
+
+      article {
+        padding: 24px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="topbar">
+      <span id="entry-label">Diary Entry</span>
+      <nav>
+        <a href="/diary/">Back to Diary</a>
+        <a href="/">Home</a>
+      </nav>
+    </div>
+    <article id="content">
+      <p>Loading entry...</p>
+    </article>
+  </main>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var file = params.get("file");
+      var content = document.getElementById("content");
+      var label = document.getElementById("entry-label");
+
+      function escapeHtml(text) {
+        return text
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function escapeAttr(text) {
+        return escapeHtml(text).replace(/`/g, "&#96;");
+      }
+
+      function renderInline(text, baseDir) {
+        var html = escapeHtml(text);
+        html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, function (_, alt, src) {
+          var resolved = new URL(src, baseDir).toString();
+          return '<img src="' + escapeAttr(resolved) + '" alt="' + escapeAttr(alt) + '">';
+        });
+        html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function (_, labelText, href) {
+          var resolved = new URL(href, baseDir).toString();
+          return '<a href="' + escapeAttr(resolved) + '">' + escapeHtml(labelText) + "</a>";
+        });
+        return html;
+      }
+
+      function renderMarkdown(markdown, fileName) {
+        var baseDir = new URL(fileName, window.location.href);
+        var lines = markdown.replace(/\r\n/g, "\n").split("\n");
+        var html = [];
+        var paragraph = [];
+
+        function flushParagraph() {
+          if (!paragraph.length) return;
+          html.push("<p>" + renderInline(paragraph.join(" "), baseDir) + "</p>");
+          paragraph = [];
+        }
+
+        lines.forEach(function (line) {
+          var trimmed = line.trim();
+
+          if (!trimmed) {
+            flushParagraph();
+            return;
+          }
+
+          if (/^###\s+/.test(trimmed)) {
+            flushParagraph();
+            html.push("<h3>" + renderInline(trimmed.replace(/^###\s+/, ""), baseDir) + "</h3>");
+            return;
+          }
+
+          if (/^##\s+/.test(trimmed)) {
+            flushParagraph();
+            html.push("<h2>" + renderInline(trimmed.replace(/^##\s+/, ""), baseDir) + "</h2>");
+            return;
+          }
+
+          if (/^#\s+/.test(trimmed)) {
+            flushParagraph();
+            html.push("<h1>" + renderInline(trimmed.replace(/^#\s+/, ""), baseDir) + "</h1>");
+            return;
+          }
+
+          paragraph.push(trimmed);
+        });
+
+        flushParagraph();
+
+        if (!html.length) {
+          return "<p>This entry is empty.</p>";
+        }
+
+        return html.join("\n");
+      }
+
+      if (!file || !/^[a-zA-Z0-9._-]+\.md$/.test(file)) {
+        content.innerHTML = '<p class="error">Missing or invalid diary file.</p>';
+        return;
+      }
+
+      label.textContent = file.replace(/\.md$/, "");
+
+      fetch(file)
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error("Unable to load entry.");
+          }
+          return response.text();
+        })
+        .then(function (markdown) {
+          content.innerHTML = renderMarkdown(markdown, file);
+          var firstHeading = content.querySelector("h1");
+          if (firstHeading) {
+            document.title = firstHeading.textContent + " | Diary";
+          }
+        })
+        .catch(function () {
+          content.innerHTML = '<p class="error">Unable to load this diary entry.</p>';
+        });
+    }());
+  </script>
+</body>
+</html>
