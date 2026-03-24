@@ -57,16 +57,8 @@
       border-radius: var(--radius);
       background: var(--card);
       border: 1px solid var(--line);
-      margin-bottom: 22px;
+      margin-top: 26px;
     }
-
-    .steps {
-      display: grid;
-      gap: 10px;
-      color: var(--muted);
-    }
-
-    .steps strong { color: var(--ink); }
 
     .album {
       padding: 24px;
@@ -177,11 +169,8 @@
       width: 100%;
       max-width: 620px;
       aspect-ratio: 1 / 1;
-      background: #fafafa;
-      border-radius: 16px;
       overflow: hidden;
       justify-self: start;
-      border: 1px solid var(--line);
     }
 
     .main-swiper .swiper-slide {
@@ -297,15 +286,6 @@
     <p>A simple home for JPG photo sets.</p>
     <div class="sprinkle" aria-hidden="true"></div>
 
-    <div class="panel">
-      <h3>How to use this gallery</h3>
-      <div class="steps">
-        <div><strong>1.</strong> Add your JPG files to <code>photography/jpgs</code>.</div>
-        <div><strong>2.</strong> Refresh this page when you add new sets.</div>
-        <div><strong>3.</strong> Keep originals untouched and organize with folders if needed.</div>
-      </div>
-    </div>
-
     <section class="album">
       <div class="album-nav" id="album-nav"></div>
       <div class="album-head">
@@ -340,7 +320,7 @@
       </div>
     </section>
 
-    <div class="panel" style="margin-top: 26px;">
+    <div class="panel">
       <h3>JPG folder</h3>
       <p><a href="/photography/jpgs/">Open the JPG directory</a></p>
     </div>
