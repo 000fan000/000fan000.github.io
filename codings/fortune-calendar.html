@@ -56,6 +56,10 @@
       transition:all .2s ease;
     }
     button:hover{background:#f7f0e5}
+    .btn-accent{
+      border-color: var(--accent);
+      background: var(--accent-2);
+    }
     .layout{
       display:grid;
       grid-template-columns: 1.4fr 1fr;
@@ -190,6 +194,51 @@
       .lunar-text,.gz-text{font-size:11px}
       .jieqi{font-size:10px}
     }
+    .modal{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(0,0,0,0.35);
+      padding:16px;
+      z-index:999;
+    }
+    .modal.open{display:flex}
+    .modal-card{
+      width:min(980px, 96vw);
+      max-height:90vh;
+      overflow:auto;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.15);
+    }
+    .modal-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin-bottom:10px;
+    }
+    .table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:14px;
+    }
+    .table th, .table td{
+      border:1px solid var(--line);
+      padding:8px 10px;
+      vertical-align:top;
+    }
+    .table th{
+      background:#f7f0e5;
+      text-align:left;
+    }
+    .muted{
+      color:var(--muted);
+    }
   </style>
 </head>
 <body>
@@ -203,6 +252,7 @@
         <label>时辰：
           <select id="hourSelect"></select>
         </label>
+        <button id="openMingli" class="btn-accent">四柱命理表</button>
       </div>
     </div>
 
@@ -244,6 +294,28 @@
     </div>
   </div>
 
+  <div id="mingliModal" class="modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="mingliTitle">
+      <div class="modal-head">
+        <div id="mingliTitle" class="title">四柱命理 · 十神表</div>
+        <button id="closeMingli">关闭</button>
+      </div>
+      <div id="mingliMeta" class="muted" style="margin-bottom:8px;"></div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>项目</th>
+            <th>年柱</th>
+            <th>月柱</th>
+            <th>日柱</th>
+            <th>时柱</th>
+          </tr>
+        </thead>
+        <tbody id="mingliTable"></tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- lunar-javascript CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lunar-javascript/1.7.4/lunar.min.js"></script>
   <script>
@@ -260,6 +332,19 @@
     const ZHI_WUXING = {
       "子":"水","丑":"土","寅":"木","卯":"木","辰":"土","巳":"火",
       "午":"火","未":"土","申":"金","酉":"金","戌":"土","亥":"水"
+    };
+    const GAN_INFO = {
+      "甲":{wx:"木",yy:"阳"},"乙":{wx:"木",yy:"阴"},
+      "丙":{wx:"火",yy:"阳"},"丁":{wx:"火",yy:"阴"},
+      "戊":{wx:"土",yy:"阳"},"己":{wx:"土",yy:"阴"},
+      "庚":{wx:"金",yy:"阳"},"辛":{wx:"金",yy:"阴"},
+      "壬":{wx:"水",yy:"阳"},"癸":{wx:"水",yy:"阴"}
+    };
+    const ZHI_CANGGAN = {
+      "子":["癸"], "丑":["己","癸","辛"], "寅":["甲","丙","戊"], "卯":["乙"],
+      "辰":["戊","乙","癸"], "巳":["丙","戊","庚"], "午":["丁","己"],
+      "未":["己","丁","乙"], "申":["庚","壬","戊"], "酉":["辛"],
+      "戌":["戊","辛","丁"], "亥":["壬","甲"]
     };
 
     // 60甲子纳音表（按顺序）
@@ -312,6 +397,58 @@
       if (!gz || gz.length < 2) return {gan:"", zhi:""};
       return {gan: gz[0], zhi: gz[1]};
     }
+    function getTenGod(dayGan, otherGan){
+      const d = GAN_INFO[dayGan];
+      const o = GAN_INFO[otherGan];
+      if (!d || !o) return "-";
+      const sameYY = d.yy === o.yy;
+      if (d.wx === o.wx) return sameYY ? "比肩" : "劫财";
+      const gen = {木:"火",火:"土",土:"金",金:"水",水:"木"};
+      const ke = {木:"土",土:"水",水:"火",火:"金",金:"木"};
+      if (gen[d.wx] === o.wx) return sameYY ? "食神" : "伤官";
+      if (gen[o.wx] === d.wx) return sameYY ? "偏印" : "正印";
+      if (ke[d.wx] === o.wx) return sameYY ? "偏财" : "正财";
+      if (ke[o.wx] === d.wx) return sameYY ? "七杀" : "正官";
+      return "-";
+    }
+    function getPillarsData(){
+      const zhi = hourSelect.value;
+      const hour = ZHI_HOUR[zhi] ?? 0;
+      const solar = Solar.fromYmdHms(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth()+1,
+        selectedDate.getDate(),
+        hour, 0, 0
+      );
+      const lunar = solar.getLunar();
+      const eightChar = safeCall(lunar, "getEightChar", null);
+
+      const yGz = eightChar ? safeCall(eightChar, "getYear", "-")
+        : safeCall(lunar, "getYearInGanZhiByLiChun", safeCall(lunar, "getYearInGanZhi", "-"));
+      const mGz = eightChar ? safeCall(eightChar, "getMonth", "-")
+        : safeCall(lunar, "getMonthInGanZhiExact", safeCall(lunar, "getMonthInGanZhi", "-"));
+      const dGz = eightChar ? safeCall(eightChar, "getDay", "-")
+        : safeCall(lunar, "getDayInGanZhi", "-");
+      const tGz = eightChar ? safeCall(eightChar, "getTime", "-")
+        : safeCall(lunar, "getTimeInGanZhi", "-");
+
+      const pillars = [
+        {label:"年柱", gz: yGz, gan: eightChar ? safeCall(eightChar, "getYearGan", "") : splitGanZhi(yGz).gan,
+          zhi: eightChar ? safeCall(eightChar, "getYearZhi", "") : splitGanZhi(yGz).zhi,
+          wx: eightChar ? safeCall(eightChar, "getYearWuXing", "") : "" },
+        {label:"月柱", gz: mGz, gan: eightChar ? safeCall(eightChar, "getMonthGan", "") : splitGanZhi(mGz).gan,
+          zhi: eightChar ? safeCall(eightChar, "getMonthZhi", "") : splitGanZhi(mGz).zhi,
+          wx: eightChar ? safeCall(eightChar, "getMonthWuXing", "") : "" },
+        {label:"日柱", gz: dGz, gan: eightChar ? safeCall(eightChar, "getDayGan", "") : splitGanZhi(dGz).gan,
+          zhi: eightChar ? safeCall(eightChar, "getDayZhi", "") : splitGanZhi(dGz).zhi,
+          wx: eightChar ? safeCall(eightChar, "getDayWuXing", "") : "" },
+        {label:"时柱", gz: tGz, gan: eightChar ? safeCall(eightChar, "getTimeGan", "") : splitGanZhi(tGz).gan,
+          zhi: eightChar ? safeCall(eightChar, "getTimeZhi", "") : splitGanZhi(tGz).zhi,
+          wx: eightChar ? safeCall(eightChar, "getTimeWuXing", "") : "" }
+      ];
+
+      return {solar, lunar, eightChar, yGz, mGz, dGz, tGz, pillars};
+    }
 
     // ====== 状态 ======
     let selectedDate = new Date();
@@ -323,6 +460,11 @@
     const monthTitle = document.getElementById("monthTitle");
     const calendarGrid = document.getElementById("calendarGrid");
     const hourSelect = document.getElementById("hourSelect");
+    const openMingli = document.getElementById("openMingli");
+    const mingliModal = document.getElementById("mingliModal");
+    const closeMingli = document.getElementById("closeMingli");
+    const mingliTable = document.getElementById("mingliTable");
+    const mingliMeta = document.getElementById("mingliMeta");
 
     const yearGz = document.getElementById("yearGz");
     const monthGz = document.getElementById("monthGz");
@@ -426,26 +568,7 @@
     }
 
     function renderPanel(){
-      const zhi = hourSelect.value;
-      const hour = ZHI_HOUR[zhi] ?? 0;
-
-      const solar = Solar.fromYmdHms(
-        selectedDate.getFullYear(),
-        selectedDate.getMonth()+1,
-        selectedDate.getDate(),
-        hour, 0, 0
-      );
-      const lunar = solar.getLunar();
-      const eightChar = safeCall(lunar, "getEightChar", null);
-
-      const yGz = eightChar ? safeCall(eightChar, "getYear", "-")
-        : safeCall(lunar, "getYearInGanZhiByLiChun", safeCall(lunar, "getYearInGanZhi", "-"));
-      const mGz = eightChar ? safeCall(eightChar, "getMonth", "-")
-        : safeCall(lunar, "getMonthInGanZhiExact", safeCall(lunar, "getMonthInGanZhi", "-"));
-      const dGz = eightChar ? safeCall(eightChar, "getDay", "-")
-        : safeCall(lunar, "getDayInGanZhi", "-");
-      const tGz = eightChar ? safeCall(eightChar, "getTime", "-")
-        : safeCall(lunar, "getTimeInGanZhi", "-");
+      const {lunar, eightChar, yGz, mGz, dGz, tGz, pillars} = getPillarsData();
 
       yearGz.textContent = yGz;
       monthGz.textContent = mGz;
@@ -473,21 +596,6 @@
       ji.textContent = Array.isArray(jiArr) ? jiArr.join("、") : jiArr;
 
       // 八字排盘
-      const pillars = [
-        {label:"年柱", gz: yGz, gan: eightChar ? safeCall(eightChar, "getYearGan", "") : splitGanZhi(yGz).gan,
-          zhi: eightChar ? safeCall(eightChar, "getYearZhi", "") : splitGanZhi(yGz).zhi,
-          wx: eightChar ? safeCall(eightChar, "getYearWuXing", "") : "" },
-        {label:"月柱", gz: mGz, gan: eightChar ? safeCall(eightChar, "getMonthGan", "") : splitGanZhi(mGz).gan,
-          zhi: eightChar ? safeCall(eightChar, "getMonthZhi", "") : splitGanZhi(mGz).zhi,
-          wx: eightChar ? safeCall(eightChar, "getMonthWuXing", "") : "" },
-        {label:"日柱", gz: dGz, gan: eightChar ? safeCall(eightChar, "getDayGan", "") : splitGanZhi(dGz).gan,
-          zhi: eightChar ? safeCall(eightChar, "getDayZhi", "") : splitGanZhi(dGz).zhi,
-          wx: eightChar ? safeCall(eightChar, "getDayWuXing", "") : "" },
-        {label:"时柱", gz: tGz, gan: eightChar ? safeCall(eightChar, "getTimeGan", "") : splitGanZhi(tGz).gan,
-          zhi: eightChar ? safeCall(eightChar, "getTimeZhi", "") : splitGanZhi(tGz).zhi,
-          wx: eightChar ? safeCall(eightChar, "getTimeWuXing", "") : "" }
-      ];
-
       baziGrid.innerHTML = "";
       pillars.forEach(p=>{
         const item = document.createElement("div");
@@ -514,6 +622,35 @@
         tag.textContent = `${k} ${count[k]}`;
         wuxingCount.appendChild(tag);
       });
+    }
+
+    function renderMingliTable(){
+      const {solar, pillars} = getPillarsData();
+      const dayGan = pillars[2]?.gan || "";
+      const metaDate = `${solar.getYear()}-${pad(solar.getMonth())}-${pad(solar.getDay())}`;
+      const metaTime = hourSelect.options[hourSelect.selectedIndex]?.textContent || "";
+      mingliMeta.textContent = `公历：${metaDate}  ${metaTime} · 日主：${dayGan || "-"}`;
+
+      const ganRow = pillars.map(p=>`${p.gan || "-"}${p.zhi || ""}`);
+      const shiShenRow = pillars.map(p=>getTenGod(dayGan, p.gan));
+      const zhiRow = pillars.map(p=>p.zhi || "-");
+      const cangganRow = pillars.map(p=>{
+        const list = ZHI_CANGGAN[p.zhi] || [];
+        return list.length ? list.join("、") : "-";
+      });
+      const cangganShenRow = pillars.map(p=>{
+        const list = ZHI_CANGGAN[p.zhi] || [];
+        if (!list.length) return "-";
+        return list.map(g=>`${g}(${getTenGod(dayGan, g)})`).join("、");
+      });
+
+      mingliTable.innerHTML = `
+        <tr><td>天干地支</td><td>${ganRow[0]}</td><td>${ganRow[1]}</td><td>${ganRow[2]}</td><td>${ganRow[3]}</td></tr>
+        <tr><td>天干十神</td><td>${shiShenRow[0]}</td><td>${shiShenRow[1]}</td><td>${shiShenRow[2]}</td><td>${shiShenRow[3]}</td></tr>
+        <tr><td>地支</td><td>${zhiRow[0]}</td><td>${zhiRow[1]}</td><td>${zhiRow[2]}</td><td>${zhiRow[3]}</td></tr>
+        <tr><td>藏干</td><td>${cangganRow[0]}</td><td>${cangganRow[1]}</td><td>${cangganRow[2]}</td><td>${cangganRow[3]}</td></tr>
+        <tr><td>藏干十神</td><td>${cangganShenRow[0]}</td><td>${cangganShenRow[1]}</td><td>${cangganShenRow[2]}</td><td>${cangganShenRow[3]}</td></tr>
+      `;
     }
 
     // ====== 事件 ======
@@ -547,6 +684,22 @@
 
     hourSelect.addEventListener("change", ()=>{
       renderPanel();
+    });
+
+    openMingli.addEventListener("click", ()=>{
+      renderMingliTable();
+      mingliModal.classList.add("open");
+      mingliModal.setAttribute("aria-hidden","false");
+    });
+    closeMingli.addEventListener("click", ()=>{
+      mingliModal.classList.remove("open");
+      mingliModal.setAttribute("aria-hidden","true");
+    });
+    mingliModal.addEventListener("click", (e)=>{
+      if (e.target === mingliModal){
+        mingliModal.classList.remove("open");
+        mingliModal.setAttribute("aria-hidden","true");
+      }
     });
 
     // ====== 启动 ======
