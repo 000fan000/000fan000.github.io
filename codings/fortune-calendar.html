@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>万年历 · 天干地支看板</title>
+  <style>
+    :root{
+      --bg:#f6f3ee;
+      --card:#fffdf9;
+      --muted:#8b8b8b;
+      --text:#222;
+      --accent:#c79b4b;
+      --accent-2:#e6d2a9;
+      --line:#e8e1d6;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: "Noto Serif SC","Source Han Serif SC","PingFang SC","Microsoft YaHei",serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    .wrap{
+      max-width:1200px;
+      margin:24px auto;
+      padding:0 16px 32px;
+    }
+    .header{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:16px;
+    }
+    .title{
+      font-size:22px;
+      letter-spacing:1px;
+    }
+    .controls{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    button, input[type="date"], select{
+      border:1px solid var(--line);
+      background:#fff;
+      padding:8px 10px;
+      border-radius:10px;
+      font-size:14px;
+    }
+    button{
+      cursor:pointer;
+      transition:all .2s ease;
+    }
+    button:hover{background:#f7f0e5}
+    .layout{
+      display:grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap:16px;
+    }
+    @media (max-width: 900px){
+      .layout{grid-template-columns:1fr}
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      box-shadow:0 6px 18px rgba(0,0,0,0.04);
+    }
+    .month-title{
+      font-size:18px;
+      margin:6px 0 10px;
+    }
+    .week{
+      display:grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap:8px;
+      margin-bottom:8px;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap:8px;
+    }
+    .cell{
+      min-height:88px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:8px;
+      background:#fff;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      transition:all .15s ease;
+      cursor:pointer;
+    }
+    .cell:hover{border-color:var(--accent)}
+    .cell.muted{opacity:.45; cursor:default}
+    .cell.selected{
+      background:var(--accent-2);
+      border-color:var(--accent);
+    }
+    .date-num{
+      font-weight:600;
+      font-size:16px;
+    }
+    .lunar-text{
+      font-size:12px;
+      color:#444;
+    }
+    .gz-text{
+      font-size:12px;
+      color:#444;
+    }
+    .jieqi{
+      font-size:11px;
+      color:#fff;
+      background:var(--accent);
+      align-self:flex-start;
+      padding:2px 6px;
+      border-radius:8px;
+    }
+    .panel h3{
+      margin:8px 0 6px;
+      font-size:15px;
+      border-left:4px solid var(--accent);
+      padding-left:8px;
+    }
+    .kv{
+      display:grid;
+      grid-template-columns: 80px 1fr;
+      gap:6px 10px;
+      font-size:14px;
+      line-height:1.5;
+    }
+    .kv .k{color:var(--muted)}
+    .tag{
+      display:inline-block;
+      padding:2px 6px;
+      border:1px solid var(--line);
+      border-radius:8px;
+      margin-right:6px;
+      font-size:12px;
+      background:#fff;
+    }
+    .bazi-grid{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:8px;
+      margin-top:6px;
+    }
+    .bazi-item{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:8px;
+      background:#fff;
+    }
+    .bazi-title{
+      font-size:12px;
+      color:var(--muted);
+    }
+    .bazi-gz{
+      font-size:20px;
+      font-weight:600;
+      margin-top:2px;
+    }
+    .bazi-wx{
+      font-size:12px;
+      color:#444;
+      margin-top:2px;
+    }
+    .wuxing-count{
+      margin-top:8px;
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    @media (max-width: 600px){
+      .cell{
+        min-height:64px;
+        padding:6px;
+      }
+      .date-num{font-size:14px}
+      .lunar-text,.gz-text{font-size:11px}
+      .jieqi{font-size:10px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div class="title">万年历 · 天干地支一页看板</div>
+      <div class="controls">
+        <button id="prevMonth">上一月</button>
+        <button id="nextMonth">下一月</button>
+        <input id="dateInput" type="date" />
+        <label>时辰：
+          <select id="hourSelect"></select>
+        </label>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="card">
+        <div class="month-title" id="monthTitle"></div>
+        <div class="week">
+          <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+        </div>
+        <div class="grid" id="calendarGrid"></div>
+      </div>
+
+      <div class="card panel">
+        <h3>干支信息</h3>
+        <div class="kv">
+          <div class="k">年柱</div><div id="yearGz">-</div>
+          <div class="k">月柱</div><div id="monthGz">-</div>
+          <div class="k">日柱</div><div id="dayGz">-</div>
+          <div class="k">时柱</div><div id="timeGz">-</div>
+        </div>
+
+        <h3>命理要素</h3>
+        <div class="kv">
+          <div class="k">生肖</div><div id="shengxiao">-</div>
+          <div class="k">纳音</div><div id="nayin">-</div>
+          <div class="k">日五行</div><div id="dayWuXing">-</div>
+        </div>
+
+        <h3>宜忌</h3>
+        <div class="kv">
+          <div class="k">宜</div><div id="yi">-</div>
+          <div class="k">忌</div><div id="ji">-</div>
+        </div>
+
+        <h3>八字排盘</h3>
+        <div id="baziGrid" class="bazi-grid"></div>
+        <div id="wuxingCount" class="wuxing-count"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- lunar-javascript CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lunar-javascript/1.7.4/lunar.min.js"></script>
+  <script>
+    // ====== 基础数据 ======
+    const ZHI_LIST = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+    const ZHI_HOUR = {
+      "子":23,"丑":1,"寅":3,"卯":5,"辰":7,"巳":9,
+      "午":11,"未":13,"申":15,"酉":17,"戌":19,"亥":21
+    };
+    const GAN_WUXING = {
+      "甲":"木","乙":"木","丙":"火","丁":"火","戊":"土",
+      "己":"土","庚":"金","辛":"金","壬":"水","癸":"水"
+    };
+    const ZHI_WUXING = {
+      "子":"水","丑":"土","寅":"木","卯":"木","辰":"土","巳":"火",
+      "午":"火","未":"土","申":"金","酉":"金","戌":"土","亥":"水"
+    };
+
+    // 60甲子纳音表（按顺序）
+    const GANZHI_60 = [
+      "甲子","乙丑","丙寅","丁卯","戊辰","己巳","庚午","辛未","壬申","癸酉",
+      "甲戌","乙亥","丙子","丁丑","戊寅","己卯","庚辰","辛巳","壬午","癸未",
+      "甲申","乙酉","丙戌","丁亥","戊子","己丑","庚寅","辛卯","壬辰","癸巳",
+      "甲午","乙未","丙申","丁酉","戊戌","己亥","庚子","辛丑","壬寅","癸卯",
+      "甲辰","乙巳","丙午","丁未","戊申","己酉","庚戌","辛亥","壬子","癸丑",
+      "甲寅","乙卯","丙辰","丁巳","戊午","己未","庚申","辛酉","壬戌","癸亥"
+    ];
+    const NAYIN_60 = [
+      "海中金","海中金","炉中火","炉中火","大林木","大林木","路旁土","路旁土","剑锋金","剑锋金",
+      "山头火","山头火","涧下水","涧下水","城头土","城头土","白蜡金","白蜡金","杨柳木","杨柳木",
+      "泉中水","泉中水","屋上土","屋上土","霹雳火","霹雳火","松柏木","松柏木","长流水","长流水",
+      "砂石金","砂石金","山下火","山下火","平地木","平地木","壁上土","壁上土","金箔金","金箔金",
+      "灯头火","灯头火","天河水","天河水","大驿土","大驿土","钗钏金","钗钏金","桑柘木","桑柘木",
+      "大溪水","大溪水","沙中土","沙中土","天上火","天上火","石榴木","石榴木","大海水","大海水"
+    ];
+
+    // ====== 工具函数 ======
+    function pad(n){return n<10?("0"+n):(n+"")}
+    function formatDateInput(d){
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    }
+    function getLunarDayName(lunar){
+      if (lunar && typeof lunar.getDayInChinese === "function") {
+        return lunar.getDayInChinese();
+      }
+      // 兜底映射
+      const day = lunar.getDay();
+      const tens = ["初","十","廿","卅"];
+      const units = ["一","二","三","四","五","六","七","八","九","十"];
+      if (day === 10) return "初十";
+      if (day === 20) return "二十";
+      if (day === 30) return "三十";
+      const t = Math.floor((day-1)/10);
+      const u = (day-1)%10;
+      return tens[t] + units[u];
+    }
+    function getNaYin(ganZhi){
+      const idx = GANZHI_60.indexOf(ganZhi);
+      return idx >= 0 ? NAYIN_60[idx] : "暂无";
+    }
+    function safeCall(obj, method, fallback){
+      if (obj && typeof obj[method] === "function") return obj[method]();
+      return fallback;
+    }
+    function splitGanZhi(gz){
+      if (!gz || gz.length < 2) return {gan:"", zhi:""};
+      return {gan: gz[0], zhi: gz[1]};
+    }
+
+    // ====== 状态 ======
+    let selectedDate = new Date();
+    let currentYear = selectedDate.getFullYear();
+    let currentMonth = selectedDate.getMonth() + 1;
+
+    // ====== DOM ======
+    const dateInput = document.getElementById("dateInput");
+    const monthTitle = document.getElementById("monthTitle");
+    const calendarGrid = document.getElementById("calendarGrid");
+    const hourSelect = document.getElementById("hourSelect");
+
+    const yearGz = document.getElementById("yearGz");
+    const monthGz = document.getElementById("monthGz");
+    const dayGz = document.getElementById("dayGz");
+    const timeGz = document.getElementById("timeGz");
+    const shengxiao = document.getElementById("shengxiao");
+    const nayin = document.getElementById("nayin");
+    const dayWuXing = document.getElementById("dayWuXing");
+    const yi = document.getElementById("yi");
+    const ji = document.getElementById("ji");
+    const baziGrid = document.getElementById("baziGrid");
+    const wuxingCount = document.getElementById("wuxingCount");
+
+    // ====== 初始化时辰选项 ======
+    function initHourSelect(){
+      hourSelect.innerHTML = "";
+      const nowHour = new Date().getHours();
+      let defaultZhi = "子";
+      for (const zhi of ZHI_LIST){
+        const h = ZHI_HOUR[zhi];
+        const end = (h + 2) % 24;
+        const inRange = h < end
+          ? (h <= nowHour && nowHour < end)
+          : (nowHour >= h || nowHour < end);
+        if (inRange) {
+          defaultZhi = zhi;
+        }
+        const opt = document.createElement("option");
+        opt.value = zhi;
+        const hh = h.toString().padStart(2,"0");
+        const eh = end.toString().padStart(2,"0");
+        opt.textContent = `${zhi}时（${hh}:00-${eh}:00）`;
+        hourSelect.appendChild(opt);
+      }
+      hourSelect.value = defaultZhi;
+    }
+
+    // ====== 渲染 ======
+    function renderCalendar(){
+      monthTitle.textContent = `${currentYear}年 ${currentMonth}月`;
+      calendarGrid.innerHTML = "";
+
+      const firstDay = new Date(currentYear, currentMonth-1, 1);
+      const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+      const startWeekday = firstDay.getDay(); // 周日=0
+
+      // 前置空白
+      for (let i=0; i<startWeekday; i++){
+        const cell = document.createElement("div");
+        cell.className = "cell muted";
+        calendarGrid.appendChild(cell);
+      }
+
+      // 本月日期
+      for (let d=1; d<=daysInMonth; d++){
+        const solar = Solar.fromYmd(currentYear, currentMonth, d);
+        const lunar = solar.getLunar();
+
+        const cell = document.createElement("div");
+        cell.className = "cell";
+
+        const isSelected =
+          selectedDate.getFullYear()===currentYear &&
+          (selectedDate.getMonth()+1)===currentMonth &&
+          selectedDate.getDate()===d;
+        if (isSelected) cell.classList.add("selected");
+
+        const dateNum = document.createElement("div");
+        dateNum.className = "date-num";
+        dateNum.textContent = d;
+
+        const lunarText = document.createElement("div");
+        lunarText.className = "lunar-text";
+        lunarText.textContent = getLunarDayName(lunar);
+
+        const gzText = document.createElement("div");
+        gzText.className = "gz-text";
+        gzText.textContent = safeCall(lunar, "getDayInGanZhi", "-");
+
+        const jieqi = safeCall(lunar, "getJieQi", "");
+        if (jieqi){
+          const tag = document.createElement("div");
+          tag.className = "jieqi";
+          tag.textContent = jieqi;
+          cell.appendChild(tag);
+        }
+
+        cell.appendChild(dateNum);
+        cell.appendChild(lunarText);
+        cell.appendChild(gzText);
+
+        cell.addEventListener("click", ()=>{
+          selectedDate = new Date(currentYear, currentMonth-1, d);
+          dateInput.value = formatDateInput(selectedDate);
+          renderCalendar();
+          renderPanel();
+        });
+
+        calendarGrid.appendChild(cell);
+      }
+    }
+
+    function renderPanel(){
+      const zhi = hourSelect.value;
+      const hour = ZHI_HOUR[zhi] ?? 0;
+
+      const solar = Solar.fromYmdHms(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth()+1,
+        selectedDate.getDate(),
+        hour, 0, 0
+      );
+      const lunar = solar.getLunar();
+      const eightChar = safeCall(lunar, "getEightChar", null);
+
+      const yGz = eightChar ? safeCall(eightChar, "getYear", "-")
+        : safeCall(lunar, "getYearInGanZhiByLiChun", safeCall(lunar, "getYearInGanZhi", "-"));
+      const mGz = eightChar ? safeCall(eightChar, "getMonth", "-")
+        : safeCall(lunar, "getMonthInGanZhiExact", safeCall(lunar, "getMonthInGanZhi", "-"));
+      const dGz = eightChar ? safeCall(eightChar, "getDay", "-")
+        : safeCall(lunar, "getDayInGanZhi", "-");
+      const tGz = eightChar ? safeCall(eightChar, "getTime", "-")
+        : safeCall(lunar, "getTimeInGanZhi", "-");
+
+      yearGz.textContent = yGz;
+      monthGz.textContent = mGz;
+      dayGz.textContent = dGz;
+      timeGz.textContent = tGz;
+
+      const sx = safeCall(lunar, "getYearShengXiaoByLiChun", safeCall(lunar, "getYearShengXiao", "-"));
+      shengxiao.textContent = sx;
+
+      const yNaYin = eightChar ? safeCall(eightChar, "getYearNaYin", "")
+        : getNaYin(yGz);
+      nayin.textContent = yNaYin || getNaYin(yGz);
+
+      const dayGan = eightChar ? safeCall(eightChar, "getDayGan", safeCall(lunar, "getDayGan", ""))
+        : safeCall(lunar, "getDayGan", "");
+      const dayZhi = eightChar ? safeCall(eightChar, "getDayZhi", safeCall(lunar, "getDayZhi", ""))
+        : safeCall(lunar, "getDayZhi", "");
+      const ganWx = GAN_WUXING[dayGan] || "未知";
+      const zhiWx = ZHI_WUXING[dayZhi] || "未知";
+      dayWuXing.textContent = `天干${dayGan}（${ganWx}） / 地支${dayZhi}（${zhiWx}）`;
+
+      const yiArr = safeCall(lunar, "getDayYi", ["暂无"]);
+      const jiArr = safeCall(lunar, "getDayJi", ["暂无"]);
+      yi.textContent = Array.isArray(yiArr) ? yiArr.join("、") : yiArr;
+      ji.textContent = Array.isArray(jiArr) ? jiArr.join("、") : jiArr;
+
+      // 八字排盘
+      const pillars = [
+        {label:"年柱", gz: yGz, gan: eightChar ? safeCall(eightChar, "getYearGan", "") : splitGanZhi(yGz).gan,
+          zhi: eightChar ? safeCall(eightChar, "getYearZhi", "") : splitGanZhi(yGz).zhi,
+          wx: eightChar ? safeCall(eightChar, "getYearWuXing", "") : "" },
+        {label:"月柱", gz: mGz, gan: eightChar ? safeCall(eightChar, "getMonthGan", "") : splitGanZhi(mGz).gan,
+          zhi: eightChar ? safeCall(eightChar, "getMonthZhi", "") : splitGanZhi(mGz).zhi,
+          wx: eightChar ? safeCall(eightChar, "getMonthWuXing", "") : "" },
+        {label:"日柱", gz: dGz, gan: eightChar ? safeCall(eightChar, "getDayGan", "") : splitGanZhi(dGz).gan,
+          zhi: eightChar ? safeCall(eightChar, "getDayZhi", "") : splitGanZhi(dGz).zhi,
+          wx: eightChar ? safeCall(eightChar, "getDayWuXing", "") : "" },
+        {label:"时柱", gz: tGz, gan: eightChar ? safeCall(eightChar, "getTimeGan", "") : splitGanZhi(tGz).gan,
+          zhi: eightChar ? safeCall(eightChar, "getTimeZhi", "") : splitGanZhi(tGz).zhi,
+          wx: eightChar ? safeCall(eightChar, "getTimeWuXing", "") : "" }
+      ];
+
+      baziGrid.innerHTML = "";
+      pillars.forEach(p=>{
+        const item = document.createElement("div");
+        item.className = "bazi-item";
+        item.innerHTML = `
+          <div class="bazi-title">${p.label}</div>
+          <div class="bazi-gz">${p.gz || "-"}</div>
+          <div class="bazi-wx">${p.wx ? ("五行：" + p.wx) : ""}</div>
+        `;
+        baziGrid.appendChild(item);
+      });
+
+      // 五行统计（按天干地支各自五行计数）
+      const count = {木:0,火:0,土:0,金:0,水:0};
+      pillars.forEach(p=>{
+        const g = p.gan; const z = p.zhi;
+        if (GAN_WUXING[g]) count[GAN_WUXING[g]] += 1;
+        if (ZHI_WUXING[z]) count[ZHI_WUXING[z]] += 1;
+      });
+      wuxingCount.innerHTML = "";
+      ["木","火","土","金","水"].forEach(k=>{
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = `${k} ${count[k]}`;
+        wuxingCount.appendChild(tag);
+      });
+    }
+
+    // ====== 事件 ======
+    document.getElementById("prevMonth").addEventListener("click", ()=>{
+      currentMonth -= 1;
+      if (currentMonth < 1){ currentMonth = 12; currentYear -= 1; }
+      selectedDate = new Date(currentYear, currentMonth-1, 1);
+      dateInput.value = formatDateInput(selectedDate);
+      renderCalendar();
+      renderPanel();
+    });
+
+    document.getElementById("nextMonth").addEventListener("click", ()=>{
+      currentMonth += 1;
+      if (currentMonth > 12){ currentMonth = 1; currentYear += 1; }
+      selectedDate = new Date(currentYear, currentMonth-1, 1);
+      dateInput.value = formatDateInput(selectedDate);
+      renderCalendar();
+      renderPanel();
+    });
+
+    dateInput.addEventListener("change", (e)=>{
+      const v = e.target.value;
+      if (!v) return;
+      const [y,m,d] = v.split("-").map(Number);
+      selectedDate = new Date(y, m-1, d);
+      currentYear = y; currentMonth = m;
+      renderCalendar();
+      renderPanel();
+    });
+
+    hourSelect.addEventListener("change", ()=>{
+      renderPanel();
+    });
+
+    // ====== 启动 ======
+    initHourSelect();
+    dateInput.value = formatDateInput(selectedDate);
+    renderCalendar();
+    renderPanel();
+  </script>
+</body>
+</html>
