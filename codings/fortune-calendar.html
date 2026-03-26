@@ -236,6 +236,31 @@
       font-size:13px;
       line-height:1.5;
     }
+    .notes-sidebar{
+      position:fixed;
+      top:0;
+      right:0;
+      width:min(360px, 92vw);
+      height:100vh;
+      background:var(--card);
+      border-left:1px solid var(--line);
+      box-shadow:-8px 0 20px rgba(0,0,0,0.08);
+      transform:translateX(100%);
+      transition:transform .25s ease;
+      z-index:998;
+      padding:16px;
+      overflow:auto;
+    }
+    .notes-sidebar.open{transform:translateX(0)}
+    .notes-sidebar .modal-head{
+      position:sticky;
+      top:0;
+      background:var(--card);
+      padding-bottom:8px;
+      margin-bottom:8px;
+      border-bottom:1px dashed var(--line);
+      z-index:1;
+    }
     .concept-tag{
       border-bottom:1px dashed var(--accent);
       cursor:help;
@@ -322,6 +347,7 @@
           <select id="hourSelect"></select>
         </label>
         <button id="openMingli" class="btn-accent">四柱命理表</button>
+        <button id="toggleNotes">概念速记</button>
       </div>
     </div>
 
@@ -360,12 +386,18 @@
         <div id="baziGrid" class="bazi-grid"></div>
         <div id="wuxingCount" class="wuxing-count"></div>
 
-        <h3>概念速记</h3>
-        <div id="noteGrid" class="notes-grid"></div>
-        <div id="noteDetail" class="note-detail">点击卡片查看详解。</div>
       </div>
     </div>
   </div>
+
+  <aside id="notesSidebar" class="notes-sidebar" aria-hidden="true">
+    <div class="modal-head">
+      <div class="title">概念速记</div>
+      <button id="closeNotes">关闭</button>
+    </div>
+    <div id="noteGrid" class="notes-grid"></div>
+    <div id="noteDetail" class="note-detail">点击卡片查看详解。</div>
+  </aside>
 
   <div id="mingliModal" class="modal" aria-hidden="true">
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="mingliTitle">
@@ -535,6 +567,8 @@
     const calendarGrid = document.getElementById("calendarGrid");
     const hourSelect = document.getElementById("hourSelect");
     const openMingli = document.getElementById("openMingli");
+    const toggleNotes = document.getElementById("toggleNotes");
+    const closeNotes = document.getElementById("closeNotes");
     const mingliModal = document.getElementById("mingliModal");
     const closeMingli = document.getElementById("closeMingli");
     const mingliTable = document.getElementById("mingliTable");
@@ -551,6 +585,7 @@
     const ji = document.getElementById("ji");
     const baziGrid = document.getElementById("baziGrid");
     const wuxingCount = document.getElementById("wuxingCount");
+    const notesSidebar = document.getElementById("notesSidebar");
     const noteGrid = document.getElementById("noteGrid");
     const noteDetail = document.getElementById("noteDetail");
     const conceptTooltip = document.getElementById("conceptTooltip");
@@ -795,6 +830,14 @@
         mingliModal.setAttribute("aria-hidden","true");
       }
     });
+    toggleNotes.addEventListener("click", ()=>{
+      const isOpen = notesSidebar.classList.toggle("open");
+      notesSidebar.setAttribute("aria-hidden", isOpen ? "false" : "true");
+    });
+    closeNotes.addEventListener("click", ()=>{
+      notesSidebar.classList.remove("open");
+      notesSidebar.setAttribute("aria-hidden", "true");
+    });
 
     // ====== 概念速记 ======
     let noteData = [];
@@ -872,6 +915,10 @@
       const title = target.getAttribute("data-concept");
       const item = conceptByTitle[title];
       if (!item) return;
+      if (!notesSidebar.classList.contains("open")) {
+        notesSidebar.classList.add("open");
+        notesSidebar.setAttribute("aria-hidden", "false");
+      }
       renderNotes(item.id);
     });
 
