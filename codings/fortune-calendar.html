@@ -439,6 +439,10 @@
       "子":"水","丑":"土","寅":"木","卯":"木","辰":"土","巳":"火",
       "午":"火","未":"土","申":"金","酉":"金","戌":"土","亥":"水"
     };
+    const ZHI_ANIMAL = {
+      "子":"鼠","丑":"牛","寅":"虎","卯":"兔","辰":"龙","巳":"蛇",
+      "午":"马","未":"羊","申":"猴","酉":"鸡","戌":"狗","亥":"猪"
+    };
     const GAN_INFO = {
       "甲":{wx:"木",yy:"阳"},"乙":{wx:"木",yy:"阴"},
       "丙":{wx:"火",yy:"阳"},"丁":{wx:"火",yy:"阴"},
@@ -502,6 +506,33 @@
     function splitGanZhi(gz){
       if (!gz || gz.length < 2) return {gan:"", zhi:""};
       return {gan: gz[0], zhi: gz[1]};
+    }
+    function getHourRange(zhi){
+      const h = ZHI_HOUR[zhi];
+      if (h === undefined) return "";
+      const end = (h + 2) % 24;
+      const hh = h.toString().padStart(2,"0");
+      const eh = end.toString().padStart(2,"0");
+      return `${hh}:00-${eh}:00`;
+    }
+    function getZhiInfo(zhi){
+      if (!zhi) return "";
+      const wx = ZHI_WUXING[zhi] || "未知";
+      const animal = ZHI_ANIMAL[zhi] || "";
+      const hour = getHourRange(zhi);
+      const canggan = (ZHI_CANGGAN[zhi] || []).join("、");
+      return `<strong>${zhi}</strong>｜五行：${wx}${animal ? `｜生肖：${animal}` : ""}${hour ? `｜时段：${hour}` : ""}${canggan ? `<br>藏干：${canggan}` : ""}`;
+    }
+    function getGanInfo(gan){
+      if (!gan) return "";
+      const info = GAN_INFO[gan];
+      if (!info) return `<strong>${gan}</strong>`;
+      return `<strong>${gan}</strong>｜五行：${info.wx}｜阴阳：${info.yy}`;
+    }
+    function getGzInfo(gz){
+      const {gan, zhi} = splitGanZhi(gz);
+      if (!gan || !zhi) return "";
+      return `天干：${getGanInfo(gan)}<br>地支：${getZhiInfo(zhi)}`;
     }
     function getTenGod(dayGan, otherGan){
       const d = GAN_INFO[dayGan];
@@ -682,10 +713,10 @@
     function renderPanel(){
       const {lunar, eightChar, yGz, mGz, dGz, tGz, pillars} = getPillarsData();
 
-      yearGz.textContent = yGz;
-      monthGz.textContent = mGz;
-      dayGz.textContent = dGz;
-      timeGz.textContent = tGz;
+      yearGz.innerHTML = yGz ? `<span class="concept-tag" data-gz="${yGz}">${yGz}</span>` : "-";
+      monthGz.innerHTML = mGz ? `<span class="concept-tag" data-gz="${mGz}">${mGz}</span>` : "-";
+      dayGz.innerHTML = dGz ? `<span class="concept-tag" data-gz="${dGz}">${dGz}</span>` : "-";
+      timeGz.innerHTML = tGz ? `<span class="concept-tag" data-gz="${tGz}">${tGz}</span>` : "-";
 
       const sx = safeCall(lunar, "getYearShengXiaoByLiChun", safeCall(lunar, "getYearShengXiao", "-"));
       shengxiao.textContent = sx;
@@ -760,6 +791,14 @@
         if (!name || name === "-") return name || "-";
         return `<span class="concept-tag" data-concept="${name}">${name}</span>`;
       };
+      const wrapZhi = (zhi)=>{
+        if (!zhi || zhi === "-") return zhi || "-";
+        return `<span class="concept-tag" data-zhi="${zhi}">${zhi}</span>`;
+      };
+      const wrapGz = (gz)=>{
+        if (!gz || gz === "-") return gz || "-";
+        return `<span class="concept-tag" data-gz="${gz}">${gz}</span>`;
+      };
       const wrapCanggan = (text)=>{
         if (text === "-" || !text) return "-";
         return text.replace(/（/g,"(").replace(/）/g,")")
@@ -774,10 +813,10 @@
       };
 
       mingliTable.innerHTML = `
-        <tr><td><span class="concept-tag" data-concept="四柱">天干地支</span></td><td>${ganRow[0]}</td><td>${ganRow[1]}</td><td>${ganRow[2]}</td><td>${ganRow[3]}</td></tr>
+        <tr><td><span class="concept-tag" data-concept="四柱">天干地支</span></td><td>${wrapGz(ganRow[0])}</td><td>${wrapGz(ganRow[1])}</td><td>${wrapGz(ganRow[2])}</td><td>${wrapGz(ganRow[3])}</td></tr>
         <tr><td><span class="concept-tag" data-concept="十神">天干十神</span></td><td>${wrapTenGod(shiShenRow[0])}</td><td>${wrapTenGod(shiShenRow[1])}</td><td>${wrapTenGod(shiShenRow[2])}</td><td>${wrapTenGod(shiShenRow[3])}</td></tr>
-        <tr><td><span class="concept-tag" data-concept="地支">地支</span></td><td>${zhiRow[0]}</td><td>${zhiRow[1]}</td><td>${zhiRow[2]}</td><td>${zhiRow[3]}</td></tr>
-        <tr><td><span class="concept-tag" data-concept="藏干">藏干</span></td><td>${cangganRow[0]}</td><td>${cangganRow[1]}</td><td>${cangganRow[2]}</td><td>${cangganRow[3]}</td></tr>
+        <tr><td><span class="concept-tag" data-concept="地支">地支</span></td><td>${wrapZhi(zhiRow[0])}</td><td>${wrapZhi(zhiRow[1])}</td><td>${wrapZhi(zhiRow[2])}</td><td>${wrapZhi(zhiRow[3])}</td></tr>
+        <tr><td><span class="concept-tag" data-concept="藏干">藏干</span></td><td><span class="concept-tag" data-canggan="${zhiRow[0]}">${cangganRow[0]}</span></td><td><span class="concept-tag" data-canggan="${zhiRow[1]}">${cangganRow[1]}</span></td><td><span class="concept-tag" data-canggan="${zhiRow[2]}">${cangganRow[2]}</span></td><td><span class="concept-tag" data-canggan="${zhiRow[3]}">${cangganRow[3]}</span></td></tr>
         <tr><td><span class="concept-tag" data-concept="十神">藏干十神</span></td><td>${wrapCanggan(cangganShenRow[0])}</td><td>${wrapCanggan(cangganShenRow[1])}</td><td>${wrapCanggan(cangganShenRow[2])}</td><td>${wrapCanggan(cangganShenRow[3])}</td></tr>
       `;
     }
@@ -878,10 +917,9 @@
           noteDetail.textContent = "概念内容加载失败。";
         });
     }
-    function showConceptTooltip(title, x, y){
-      const item = conceptByTitle[title];
-      if (!item) return;
-      conceptTooltip.innerHTML = `<strong>${item.title}</strong><br>${item.short}`;
+    function showConceptTooltip(html, x, y){
+      if (!html) return;
+      conceptTooltip.innerHTML = html;
       conceptTooltip.style.display = "block";
       const offset = 14;
       conceptTooltip.style.left = `${x + offset}px`;
@@ -891,21 +929,40 @@
       conceptTooltip.style.display = "none";
     }
     document.addEventListener("mousemove", (e)=>{
-      const target = e.target.closest("[data-concept]");
+      const target = e.target.closest("[data-concept],[data-gz],[data-zhi],[data-canggan]");
       if (!target) {
         hideConceptTooltip();
         return;
       }
       const title = target.getAttribute("data-concept");
-      if (!conceptByTitle[title]) {
-        hideConceptTooltip();
+      const gz = target.getAttribute("data-gz");
+      const zhi = target.getAttribute("data-zhi");
+      const cangganZhi = target.getAttribute("data-canggan");
+      if (title && conceptByTitle[title]) {
+        const item = conceptByTitle[title];
+        showConceptTooltip(`<strong>${item.title}</strong><br>${item.short}`, e.clientX, e.clientY);
         return;
       }
-      showConceptTooltip(title, e.clientX, e.clientY);
+      if (gz) {
+        const html = getGzInfo(gz);
+        if (html) showConceptTooltip(html, e.clientX, e.clientY);
+        return;
+      }
+      if (zhi) {
+        const html = getZhiInfo(zhi);
+        if (html) showConceptTooltip(html, e.clientX, e.clientY);
+        return;
+      }
+      if (cangganZhi) {
+        const html = getZhiInfo(cangganZhi);
+        if (html) showConceptTooltip(html, e.clientX, e.clientY);
+        return;
+      }
+      hideConceptTooltip();
     });
     document.addEventListener("mouseout", (e)=>{
       const related = e.relatedTarget;
-      if (!related || !related.closest || !related.closest("[data-concept]")) {
+      if (!related || !related.closest || !related.closest("[data-concept],[data-gz],[data-zhi],[data-canggan]")) {
         hideConceptTooltip();
       }
     });
