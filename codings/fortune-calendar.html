@@ -185,6 +185,75 @@
       gap:6px;
       flex-wrap:wrap;
     }
+    .notes-grid{
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap:8px;
+      margin-top:6px;
+    }
+    .note-card{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:8px;
+      background:#fff;
+      cursor:pointer;
+      transition:all .2s ease;
+      position:relative;
+      min-height:72px;
+    }
+    .note-card:hover{border-color:var(--accent)}
+    .note-title{
+      font-size:13px;
+      font-weight:600;
+      margin-bottom:4px;
+    }
+    .note-short{
+      font-size:12px;
+      color:#444;
+      line-height:1.4;
+    }
+    .note-hover{
+      position:absolute;
+      left:8px;
+      right:8px;
+      bottom:6px;
+      font-size:11px;
+      color:var(--muted);
+      opacity:0;
+      transition:opacity .2s ease;
+    }
+    .note-card:hover .note-hover{opacity:1}
+    .note-active{
+      border-color:var(--accent);
+      background:var(--accent-2);
+    }
+    .note-detail{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px;
+      background:#fff;
+      margin-top:8px;
+      font-size:13px;
+      line-height:1.5;
+    }
+    .concept-tag{
+      border-bottom:1px dashed var(--accent);
+      cursor:help;
+      padding-bottom:1px;
+    }
+    .concept-tooltip{
+      position:fixed;
+      z-index:1000;
+      max-width:260px;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:8px 10px;
+      box-shadow:0 8px 20px rgba(0,0,0,0.15);
+      font-size:12px;
+      line-height:1.4;
+      display:none;
+    }
     @media (max-width: 600px){
       .cell{
         min-height:64px;
@@ -268,28 +337,32 @@
       <div class="card panel">
         <h3>干支信息</h3>
         <div class="kv">
-          <div class="k">年柱</div><div id="yearGz">-</div>
-          <div class="k">月柱</div><div id="monthGz">-</div>
-          <div class="k">日柱</div><div id="dayGz">-</div>
-          <div class="k">时柱</div><div id="timeGz">-</div>
+          <div class="k"><span class="concept-tag" data-concept="年柱">年柱</span></div><div id="yearGz">-</div>
+          <div class="k"><span class="concept-tag" data-concept="月柱">月柱</span></div><div id="monthGz">-</div>
+          <div class="k"><span class="concept-tag" data-concept="日柱">日柱</span></div><div id="dayGz">-</div>
+          <div class="k"><span class="concept-tag" data-concept="时柱">时柱</span></div><div id="timeGz">-</div>
         </div>
 
         <h3>命理要素</h3>
         <div class="kv">
-          <div class="k">生肖</div><div id="shengxiao">-</div>
-          <div class="k">纳音</div><div id="nayin">-</div>
-          <div class="k">日五行</div><div id="dayWuXing">-</div>
+          <div class="k"><span class="concept-tag" data-concept="生肖">生肖</span></div><div id="shengxiao">-</div>
+          <div class="k"><span class="concept-tag" data-concept="纳音">纳音</span></div><div id="nayin">-</div>
+          <div class="k"><span class="concept-tag" data-concept="五行">日五行</span></div><div id="dayWuXing">-</div>
         </div>
 
         <h3>宜忌</h3>
         <div class="kv">
-          <div class="k">宜</div><div id="yi">-</div>
-          <div class="k">忌</div><div id="ji">-</div>
+          <div class="k"><span class="concept-tag" data-concept="宜忌">宜</span></div><div id="yi">-</div>
+          <div class="k"><span class="concept-tag" data-concept="宜忌">忌</span></div><div id="ji">-</div>
         </div>
 
-        <h3>八字排盘</h3>
+        <h3><span class="concept-tag" data-concept="四柱">八字排盘</span></h3>
         <div id="baziGrid" class="bazi-grid"></div>
         <div id="wuxingCount" class="wuxing-count"></div>
+
+        <h3>概念速记</h3>
+        <div id="noteGrid" class="notes-grid"></div>
+        <div id="noteDetail" class="note-detail">点击卡片查看详解。</div>
       </div>
     </div>
   </div>
@@ -305,16 +378,17 @@
         <thead>
           <tr>
             <th>项目</th>
-            <th>年柱</th>
-            <th>月柱</th>
-            <th>日柱</th>
-            <th>时柱</th>
+            <th><span class="concept-tag" data-concept="年柱">年柱</span></th>
+            <th><span class="concept-tag" data-concept="月柱">月柱</span></th>
+            <th><span class="concept-tag" data-concept="日柱">日柱</span></th>
+            <th><span class="concept-tag" data-concept="时柱">时柱</span></th>
           </tr>
         </thead>
         <tbody id="mingliTable"></tbody>
       </table>
     </div>
   </div>
+  <div id="conceptTooltip" class="concept-tooltip"></div>
 
   <!-- lunar-javascript CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lunar-javascript/1.7.4/lunar.min.js"></script>
@@ -477,6 +551,9 @@
     const ji = document.getElementById("ji");
     const baziGrid = document.getElementById("baziGrid");
     const wuxingCount = document.getElementById("wuxingCount");
+    const noteGrid = document.getElementById("noteGrid");
+    const noteDetail = document.getElementById("noteDetail");
+    const conceptTooltip = document.getElementById("conceptTooltip");
 
     // ====== 初始化时辰选项 ======
     function initHourSelect(){
@@ -629,7 +706,7 @@
       const dayGan = pillars[2]?.gan || "";
       const metaDate = `${solar.getYear()}-${pad(solar.getMonth())}-${pad(solar.getDay())}`;
       const metaTime = hourSelect.options[hourSelect.selectedIndex]?.textContent || "";
-      mingliMeta.textContent = `公历：${metaDate}  ${metaTime} · 日主：${dayGan || "-"}`;
+      mingliMeta.innerHTML = `公历：${metaDate}  ${metaTime} · <span class="concept-tag" data-concept="日主">日主</span>：${dayGan || "-"}`;
 
       const ganRow = pillars.map(p=>`${p.gan || "-"}${p.zhi || ""}`);
       const shiShenRow = pillars.map(p=>getTenGod(dayGan, p.gan));
@@ -644,12 +721,29 @@
         return list.map(g=>`${g}(${getTenGod(dayGan, g)})`).join("、");
       });
 
+      const wrapTenGod = (name)=>{
+        if (!name || name === "-") return name || "-";
+        return `<span class="concept-tag" data-concept="${name}">${name}</span>`;
+      };
+      const wrapCanggan = (text)=>{
+        if (text === "-" || !text) return "-";
+        return text.replace(/（/g,"(").replace(/）/g,")")
+          .split("、")
+          .map(seg=>{
+            const m = seg.match(/^(.*)\\((.*)\\)$/);
+            if (!m) return seg;
+            const g = m[1];
+            const shen = m[2];
+            return `${g}（${wrapTenGod(shen)}）`;
+          }).join("、");
+      };
+
       mingliTable.innerHTML = `
-        <tr><td>天干地支</td><td>${ganRow[0]}</td><td>${ganRow[1]}</td><td>${ganRow[2]}</td><td>${ganRow[3]}</td></tr>
-        <tr><td>天干十神</td><td>${shiShenRow[0]}</td><td>${shiShenRow[1]}</td><td>${shiShenRow[2]}</td><td>${shiShenRow[3]}</td></tr>
-        <tr><td>地支</td><td>${zhiRow[0]}</td><td>${zhiRow[1]}</td><td>${zhiRow[2]}</td><td>${zhiRow[3]}</td></tr>
-        <tr><td>藏干</td><td>${cangganRow[0]}</td><td>${cangganRow[1]}</td><td>${cangganRow[2]}</td><td>${cangganRow[3]}</td></tr>
-        <tr><td>藏干十神</td><td>${cangganShenRow[0]}</td><td>${cangganShenRow[1]}</td><td>${cangganShenRow[2]}</td><td>${cangganShenRow[3]}</td></tr>
+        <tr><td><span class="concept-tag" data-concept="四柱">天干地支</span></td><td>${ganRow[0]}</td><td>${ganRow[1]}</td><td>${ganRow[2]}</td><td>${ganRow[3]}</td></tr>
+        <tr><td><span class="concept-tag" data-concept="十神">天干十神</span></td><td>${wrapTenGod(shiShenRow[0])}</td><td>${wrapTenGod(shiShenRow[1])}</td><td>${wrapTenGod(shiShenRow[2])}</td><td>${wrapTenGod(shiShenRow[3])}</td></tr>
+        <tr><td><span class="concept-tag" data-concept="地支">地支</span></td><td>${zhiRow[0]}</td><td>${zhiRow[1]}</td><td>${zhiRow[2]}</td><td>${zhiRow[3]}</td></tr>
+        <tr><td><span class="concept-tag" data-concept="藏干">藏干</span></td><td>${cangganRow[0]}</td><td>${cangganRow[1]}</td><td>${cangganRow[2]}</td><td>${cangganRow[3]}</td></tr>
+        <tr><td><span class="concept-tag" data-concept="十神">藏干十神</span></td><td>${wrapCanggan(cangganShenRow[0])}</td><td>${wrapCanggan(cangganShenRow[1])}</td><td>${wrapCanggan(cangganShenRow[2])}</td><td>${wrapCanggan(cangganShenRow[3])}</td></tr>
       `;
     }
 
@@ -702,11 +796,91 @@
       }
     });
 
+    // ====== 概念速记 ======
+    let noteData = [];
+    let conceptByTitle = {};
+    function renderNotes(activeId){
+      noteGrid.innerHTML = "";
+      noteData.forEach((item)=>{
+        const card = document.createElement("div");
+        card.className = "note-card" + (item.id === activeId ? " note-active" : "");
+        card.innerHTML = `
+          <div class="note-title">${item.title}</div>
+          <div class="note-short">${item.short}</div>
+          <div class="note-hover">悬停提示 · 点击展开</div>
+        `;
+        card.addEventListener("click", ()=>{
+          renderNotes(item.id);
+          noteDetail.innerHTML = `<strong>${item.title}</strong><br>${item.detail}`;
+        });
+        noteGrid.appendChild(card);
+      });
+      const active = noteData.find(n=>n.id===activeId);
+      if (active) {
+        noteDetail.innerHTML = `<strong>${active.title}</strong><br>${active.detail}`;
+      }
+    }
+    function loadNotes(){
+      fetch("./fortune-concepts.json")
+        .then(res=>res.json())
+        .then(data=>{
+          noteData = Array.isArray(data) ? data : [];
+          conceptByTitle = {};
+          noteData.forEach(item=>{
+            if (item.title) conceptByTitle[item.title] = item;
+          });
+          if (noteData.length) renderNotes(noteData[0].id);
+        })
+        .catch(()=>{
+          noteDetail.textContent = "概念内容加载失败。";
+        });
+    }
+    function showConceptTooltip(title, x, y){
+      const item = conceptByTitle[title];
+      if (!item) return;
+      conceptTooltip.innerHTML = `<strong>${item.title}</strong><br>${item.short}`;
+      conceptTooltip.style.display = "block";
+      const offset = 14;
+      conceptTooltip.style.left = `${x + offset}px`;
+      conceptTooltip.style.top = `${y + offset}px`;
+    }
+    function hideConceptTooltip(){
+      conceptTooltip.style.display = "none";
+    }
+    document.addEventListener("mousemove", (e)=>{
+      const target = e.target.closest("[data-concept]");
+      if (!target) {
+        hideConceptTooltip();
+        return;
+      }
+      const title = target.getAttribute("data-concept");
+      if (!conceptByTitle[title]) {
+        hideConceptTooltip();
+        return;
+      }
+      showConceptTooltip(title, e.clientX, e.clientY);
+    });
+    document.addEventListener("mouseout", (e)=>{
+      const related = e.relatedTarget;
+      if (!related || !related.closest || !related.closest("[data-concept]")) {
+        hideConceptTooltip();
+      }
+    });
+    document.addEventListener("click", (e)=>{
+      const target = e.target.closest("[data-concept]");
+      if (!target) return;
+      const title = target.getAttribute("data-concept");
+      const item = conceptByTitle[title];
+      if (!item) return;
+      renderNotes(item.id);
+    });
+
     // ====== 启动 ======
     initHourSelect();
     dateInput.value = formatDateInput(selectedDate);
     renderCalendar();
     renderPanel();
+    loadNotes();
   </script>
 </body>
 </html>
