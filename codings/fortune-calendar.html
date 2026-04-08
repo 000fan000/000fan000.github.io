@@ -333,6 +333,80 @@
     .muted{
       color:var(--muted);
     }
+    .wuxing-diagram{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:16px;
+      padding:16px 0;
+    }
+    .wuxing-svg{
+      width:100%;
+      max-width:480px;
+      height:auto;
+    }
+    @keyframes flowSheng{
+      from{stroke-dashoffset:24}
+      to{stroke-dashoffset:0}
+    }
+    @keyframes flowKe{
+      from{stroke-dashoffset:16}
+      to{stroke-dashoffset:0}
+    }
+    .wuxing-sheng-path.active{animation:flowSheng 0.6s linear infinite}
+    .wuxing-ke-path.active{animation:flowKe 0.8s linear infinite}
+    .wuxing-legend{
+      display:flex;
+      gap:24px;
+      flex-wrap:wrap;
+      justify-content:center;
+      font-size:14px;
+    }
+    .legend-line{
+      width:32px;
+      height:3px;
+      border-radius:2px;
+    }
+    .legend-line.sheng{background:#4a9c6d}
+    .legend-line.ke{background:#c75c5c}
+    .wuxing-hint{
+      text-align:center;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.5;
+    }
+    .wuxing-desc{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      width:100%;
+      max-width:600px;
+    }
+    @media(max-width:500px){
+      .wuxing-desc{grid-template-columns:1fr}
+    }
+    .wuxing-desc-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+    }
+    .wuxing-desc-card h4{
+      margin:0 0 8px;
+      font-size:14px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .wuxing-desc-card.sheng-card h4{color:#4a9c6d}
+    .wuxing-desc-card.ke-card h4{color:#c75c5c}
+    .wuxing-desc-card ul{
+      margin:0;
+      padding-left:18px;
+      font-size:13px;
+      line-height:1.8;
+      color:#444;
+    }
   </style>
 </head>
 <body>
@@ -348,6 +422,7 @@
         </label>
         <button id="openMingli" class="btn-accent">四柱命理表</button>
         <button id="toggleNotes">概念速记</button>
+        <button id="openWuxing" class="btn-accent">五行相生相克</button>
       </div>
     </div>
 
@@ -422,6 +497,16 @@
   </div>
   <div id="conceptTooltip" class="concept-tooltip"></div>
 
+  <div id="wuxingModal" class="modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="wuxingTitle">
+      <div class="modal-head">
+        <div id="wuxingTitle" class="title">五行相生相克</div>
+        <button id="closeWuxing">关闭</button>
+      </div>
+      <div id="wuxingDiagram" class="wuxing-diagram"></div>
+    </div>
+  </div>
+
   <!-- lunar-javascript CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lunar-javascript/1.7.4/lunar.min.js"></script>
   <script>
@@ -455,6 +540,22 @@
       "辰":["戊","乙","癸"], "巳":["丙","戊","庚"], "午":["丁","己"],
       "未":["己","丁","乙"], "申":["庚","壬","戊"], "酉":["辛"],
       "戌":["戊","辛","丁"], "亥":["壬","甲"]
+    };
+
+    const WUXING = ["木","火","土","金","水"];
+    const WUXING_COLORS = {
+      "木":"#5a9c5a","火":"#c75050","土":"#b08c40","金":"#8080c0","水":"#4080a0"
+    };
+    const WUXING_SVG_COLORS = {
+      "木":"#6aac6a","火":"#e06060","土":"#c8a050","金":"#9090d0","水":"#5090b0"
+    };
+    const WUXING_PAIRINGS = {
+      sheng:[
+        ["木","火"],["火","土"],["土","金"],["金","水"],["水","木"]
+      ],
+      ke:[
+        ["木","土"],["土","水"],["水","火"],["火","金"],["金","木"]
+      ]
     };
 
     // 60甲子纳音表（按顺序）
@@ -620,6 +721,10 @@
     const noteGrid = document.getElementById("noteGrid");
     const noteDetail = document.getElementById("noteDetail");
     const conceptTooltip = document.getElementById("conceptTooltip");
+    const wuxingModal = document.getElementById("wuxingModal");
+    const closeWuxing = document.getElementById("closeWuxing");
+    const wuxingDiagram = document.getElementById("wuxingDiagram");
+    const openWuxing = document.getElementById("openWuxing");
 
     // ====== 初始化时辰选项 ======
     function initHourSelect(){
@@ -878,6 +983,22 @@
       notesSidebar.setAttribute("aria-hidden", "true");
     });
 
+    openWuxing.addEventListener("click", ()=>{
+      renderWuxingDiagram();
+      wuxingModal.classList.add("open");
+      wuxingModal.setAttribute("aria-hidden","false");
+    });
+    closeWuxing.addEventListener("click", ()=>{
+      wuxingModal.classList.remove("open");
+      wuxingModal.setAttribute("aria-hidden","true");
+    });
+    wuxingModal.addEventListener("click", (e)=>{
+      if (e.target === wuxingModal){
+        wuxingModal.classList.remove("open");
+        wuxingModal.setAttribute("aria-hidden","true");
+      }
+    });
+
     // ====== 概念速记 ======
     let noteData = [];
     let conceptByTitle = {};
@@ -978,6 +1099,206 @@
       }
       renderNotes(item.id);
     });
+
+    // ====== 五行相生相克图 ======
+    function renderWuxingDiagram(){
+      const size = 400;
+      const cx = size / 2;
+      const cy = size / 2;
+      const r = 140;
+      const nodeR = 36;
+
+      const getPos = (i) => {
+        const angle = (i * 72 - 90) * Math.PI / 180;
+        return {
+          x: cx + r * Math.cos(angle),
+          y: cy + r * Math.sin(angle)
+        };
+      };
+
+      const shengLines = WUXING_PAIRINGS.sheng.map(([a,b]) => {
+        const ia = WUXING.indexOf(a);
+        const ib = WUXING.indexOf(b);
+        const pa = getPos(ia);
+        const pb = getPos(ib);
+        const midX = (pa.x + pb.x) / 2;
+        const midY = (pa.y + pb.y) / 2;
+        const curve = 18;
+        const dx = pb.x - pa.x;
+        const dy = pb.y - pa.y;
+        const len = Math.sqrt(dx*dx + dy*dy);
+        const nx = -dy / len * curve;
+        const ny = dx / len * curve;
+        return `M ${pa.x} ${pa.y} Q ${midX+nx} ${midY+ny} ${pb.x} ${pb.y}`;
+      });
+
+      const keLines = WUXING_PAIRINGS.ke.map(([a,b]) => {
+        const ia = WUXING.indexOf(a);
+        const ib = WUXING.indexOf(b);
+        const pa = getPos(ia);
+        const pb = getPos(ib);
+        const midX = (pa.x + pb.x) / 2;
+        const midY = (pa.y + pb.y) / 2;
+        const curve = -24;
+        const dx = pb.x - pa.x;
+        const dy = pb.y - pa.y;
+        const len = Math.sqrt(dx*dx + dy*dy);
+        const nx = -dy / len * curve;
+        const ny = dx / len * curve;
+        return `M ${pa.x} ${pa.y} Q ${midX+nx} ${midY+ny} ${pb.x} ${pb.y}`;
+      });
+
+      const arrowMarker = (id, color) => `
+        <marker id="${id}" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L8,3 z" fill="${color}"/>
+        </marker>`;
+
+      let svg = `<svg class="wuxing-svg" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
+      svg += `<defs>${arrowMarker("arrowSheng","#4a9c6d")}${arrowMarker("arrowKe","#c75c5c")}</defs>`;
+
+      shengLines.forEach((d,i) => {
+        svg += `<path d="${d}" class="wuxing-sheng-path" stroke="#4a9c6d" stroke-width="2.5" fill="none" marker-end="url(#arrowSheng)" opacity="0.85"/>`;
+      });
+
+      keLines.forEach((d,i) => {
+        svg += `<path d="${d}" class="wuxing-ke-path" stroke="#c75c5c" stroke-width="2.5" fill="none" marker-end="url(#arrowKe)" opacity="0.85"/>`;
+      });
+
+      svg += `<g class="wuxing-nodes">`;
+      WUXING.forEach((wx, i) => {
+        const pos = getPos(i);
+        svg += `<circle cx="${pos.x}" cy="${pos.y}" r="${nodeR}" fill="${WUXING_SVG_COLORS[wx]}" stroke="#fff" stroke-width="2"/>`;
+        svg += `<text x="${pos.x}" y="${pos.y}" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="18" font-weight="600">${wx}</text>`;
+      });
+      svg += `</g>`;
+
+      svg += `</svg>`;
+
+      const shengHtml = WUXING_PAIRINGS.sheng.map(([a,b])=>`<li>${a} → ${b}</li>`).join("");
+      const keHtml = WUXING_PAIRINGS.ke.map(([a,b])=>`<li>${a} → ${b}</li>`).join("");
+
+      wuxingDiagram.innerHTML = `
+        ${svg}
+        <div class="wuxing-legend">
+          <div class="legend-item"><div class="legend-line sheng"></div><span>相生（顺时针）</span></div>
+          <div class="legend-item"><div class="legend-line ke"></div><span>相克（间色）</span></div>
+        </div>
+        <p class="wuxing-hint">悬停元素以高亮相关关系</p>
+        <div class="wuxing-desc">
+          <div class="wuxing-desc-card sheng-card">
+            <h4>相生（木火土金水循环）</h4>
+            <ul>${shengHtml}</ul>
+          </div>
+          <div class="wuxing-desc-card ke-card">
+            <h4>相克（木土水火金循环）</h4>
+            <ul>${keHtml}</ul>
+          </div>
+        </div>
+      `;
+
+      const circles = wuxingDiagram.querySelectorAll("circle");
+      circles.forEach((circle) => {
+        circle.style.cursor = "pointer";
+        circle.addEventListener("mouseenter", () => {
+          const wx = WUXING.find((w) => WUXING_SVG_COLORS[w] === circle.getAttribute("fill"));
+          highlightWuxing(wx, true);
+        });
+        circle.addEventListener("mouseleave", () => {
+          highlightWuxing(null, false);
+        });
+      });
+    }
+
+    function highlightWuxing(wx, on){
+      const paths = wuxingDiagram.querySelectorAll("path");
+      const circles = wuxingDiagram.querySelectorAll("circle");
+      const texts = wuxingDiagram.querySelectorAll("text");
+      
+      const wxIndex = WUXING.indexOf(wx);
+      if (wxIndex === -1) return;
+      
+      const shengMe = WUXING[(wxIndex + 4) % 5];
+      const ISheng = WUXING[(wxIndex + 1) % 5];
+      const keMe = WUXING[(wxIndex + 3) % 5];
+      const IKe = WUXING[(wxIndex + 1) % 5];
+      
+      const shengRelated = [shengMe, ISheng];
+      const keRelated = [keMe, IKe];
+      
+      paths.forEach(path => {
+        if (!on) {
+          path.style.opacity = "0.5";
+          path.classList.remove("active");
+          return;
+        }
+        let matched = false;
+        let isSheng = false;
+        WUXING_PAIRINGS.sheng.forEach(([a,b]) => {
+          if (a === wx || b === wx) { matched = true; isSheng = true; }
+        });
+        WUXING_PAIRINGS.ke.forEach(([a,b]) => {
+          if (a === wx || b === wx) { matched = true; isSheng = false; }
+        });
+        if (matched) {
+          path.style.opacity = "1";
+          path.classList.add("active");
+        } else {
+          path.style.opacity = "0.15";
+          path.classList.remove("active");
+        }
+      });
+      
+      circles.forEach(circle => {
+        const fill = circle.getAttribute("fill");
+        const circleWx = WUXING.find(w => WUXING_SVG_COLORS[w] === fill);
+        if (!circleWx) return;
+        if (!on) {
+          circle.setAttribute("opacity", "1");
+          circle.setAttribute("stroke", "#fff");
+          circle.setAttribute("stroke-width", "2");
+          return;
+        }
+        if (circleWx === wx) {
+          circle.setAttribute("opacity", "1");
+          circle.setAttribute("stroke", "#fff");
+          circle.setAttribute("stroke-width", "3");
+        } else if (shengRelated.includes(circleWx)) {
+          circle.setAttribute("opacity", "1");
+          circle.setAttribute("stroke", "#4a9c6d");
+          circle.setAttribute("stroke-width", "4");
+        } else if (keRelated.includes(circleWx)) {
+          circle.setAttribute("opacity", "1");
+          circle.setAttribute("stroke", "#c75c5c");
+          circle.setAttribute("stroke-width", "4");
+        } else {
+          circle.setAttribute("opacity", "0.3");
+          circle.setAttribute("stroke", "#fff");
+          circle.setAttribute("stroke-width", "2");
+        }
+      });
+      
+      texts.forEach(text => {
+        const content = text.textContent;
+        if (!on) {
+          text.setAttribute("fill", "#fff");
+          text.setAttribute("font-weight", "600");
+          return;
+        }
+        if (content === wx) {
+          text.setAttribute("fill", "#fff");
+          text.setAttribute("font-weight", "700");
+        } else if (shengRelated.includes(content)) {
+          text.setAttribute("fill", "#e8f5e9");
+          text.setAttribute("font-weight", "600");
+        } else if (keRelated.includes(content)) {
+          text.setAttribute("fill", "#ffebee");
+          text.setAttribute("font-weight", "600");
+        } else {
+          text.setAttribute("fill", "rgba(255,255,255,0.5)");
+          text.setAttribute("font-weight", "400");
+        }
+      });
+    }
 
     // ====== 启动 ======
     initHourSelect();
