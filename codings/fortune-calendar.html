@@ -9,8 +9,8 @@
       color-scheme: light;
       --bg:#f7f8f6;
       --page-backdrop:
-        radial-gradient(circle at top left, rgba(42, 52, 64, 0.04), transparent 30%),
-        radial-gradient(circle at right 18%, rgba(118, 132, 148, 0.06), transparent 28%),
+        radial-gradient(circle at 82% 16%, rgba(126, 139, 154, 0.08), transparent 22%),
+        radial-gradient(circle at 28% 72%, rgba(75, 88, 101, 0.06), transparent 18%),
         linear-gradient(180deg, #fbfcfb 0%, #f7f8f6 52%, #eef1f2 100%);
       --card:#fffefe;
       --card-soft:#f8faf9;
@@ -27,15 +27,20 @@
       --shadow:0 14px 34px rgba(34, 44, 58, 0.08);
       --shadow-strong:0 18px 40px rgba(34, 44, 58, 0.14);
       --hero-bg:
-        radial-gradient(circle at top right, rgba(93, 107, 120, 0.14), transparent 32%),
+        radial-gradient(circle at 82% 18%, rgba(86, 98, 111, 0.16), transparent 26%),
+        radial-gradient(circle at 14% 86%, rgba(120, 132, 145, 0.1), transparent 24%),
         linear-gradient(135deg, #ffffff 0%, #fbfcfb 60%, #f1f4f5 100%);
-      --hero-glow:radial-gradient(circle, rgba(93, 107, 120, 0.1), rgba(93, 107, 120, 0));
+      --hero-glow:radial-gradient(circle, rgba(93, 107, 120, 0.14), rgba(93, 107, 120, 0));
       --eyebrow-bg:rgba(255, 255, 255, 0.8);
       --eyebrow-border:rgba(93, 107, 120, 0.2);
       --eyebrow-text:#52606c;
       --hero-step-bg:rgba(252, 253, 252, 0.8);
       --hero-step-border:rgba(93, 107, 120, 0.18);
       --sample-bg:linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(244, 247, 248, 0.94));
+      --ink-wash-1:rgba(45, 54, 64, 0.05);
+      --ink-wash-2:rgba(90, 104, 118, 0.06);
+      --ink-wash-3:rgba(132, 143, 152, 0.05);
+      --paper-fiber:rgba(93, 107, 120, 0.035);
       --tag-bg:#fcfdfd;
       --subtle-tag-bg:#f1f5f7;
       --tooltip-bg:#fffefe;
@@ -86,6 +91,10 @@
       --hero-step-bg:rgba(13, 26, 42, 0.82);
       --hero-step-border:rgba(88, 200, 255, 0.22);
       --sample-bg:linear-gradient(90deg, rgba(12, 24, 38, 0.98), rgba(16, 37, 56, 0.94));
+      --ink-wash-1:rgba(88, 200, 255, 0.13);
+      --ink-wash-2:rgba(27, 101, 154, 0.12);
+      --ink-wash-3:rgba(130, 214, 255, 0.08);
+      --paper-fiber:rgba(125, 190, 235, 0.03);
       --tag-bg:#102031;
       --subtle-tag-bg:#13283d;
       --tooltip-bg:#132133;
@@ -112,6 +121,30 @@
       background:var(--page-backdrop);
       color:var(--text);
       min-height:100vh;
+      position:relative;
+    }
+    body::before,
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:-1;
+    }
+    body::before{
+      background:
+        radial-gradient(34% 24% at 86% 22%, var(--ink-wash-2), transparent 74%),
+        radial-gradient(28% 22% at 22% 78%, var(--ink-wash-3), transparent 78%);
+      filter:blur(12px);
+      opacity:0.82;
+    }
+    body::after{
+      background:
+        linear-gradient(90deg, transparent 0%, var(--paper-fiber) 48%, transparent 100%),
+        linear-gradient(180deg, transparent 0%, var(--paper-fiber) 52%, transparent 100%);
+      background-size:240px 240px, 320px 320px;
+      mix-blend-mode:multiply;
+      opacity:0.5;
     }
     .wrap{
       max-width:1200px;
@@ -189,6 +222,17 @@
       position:relative;
       overflow:hidden;
     }
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:-18% 38% 24% -12%;
+      background:
+        radial-gradient(circle at 38% 42%, var(--ink-wash-1), transparent 56%),
+        radial-gradient(circle at 66% 56%, var(--ink-wash-2), transparent 62%);
+      filter:blur(18px);
+      opacity:0.7;
+      pointer-events:none;
+    }
     .hero::after{
       content:"";
       position:absolute;
@@ -201,7 +245,7 @@
     }
     .hero-copy{
       position:relative;
-      z-index:1;
+      z-index:2;
     }
     .eyebrow{
       display:inline-flex;
@@ -237,7 +281,7 @@
       display:grid;
       gap:10px;
       position:relative;
-      z-index:1;
+      z-index:2;
     }
     .hero-step{
       border:1px solid var(--hero-step-border);
@@ -744,26 +788,27 @@
       align-items:center;
       gap:8px;
       padding:8px 12px;
-      border-radius:999px;
-      border:1px solid color-mix(in srgb, var(--wx) 28%, white);
-      background:linear-gradient(180deg, color-mix(in srgb, var(--wx) 12%, white), rgba(255,255,255,0.98));
+      border-radius:16px;
+      border:1px solid color-mix(in srgb, var(--wx) 24%, var(--line));
+      background:linear-gradient(180deg, color-mix(in srgb, var(--wx) 10%, var(--card)), color-mix(in srgb, var(--wx) 4%, var(--card)));
       color:var(--text);
-      box-shadow:var(--shadow);
+      box-shadow:0 10px 22px color-mix(in srgb, var(--wx) 7%, transparent);
     }
     .wuxing-pill:hover{
-      background:linear-gradient(180deg, color-mix(in srgb, var(--wx) 18%, white), rgba(255,255,255,1));
-      transform:translateY(-1px);
+      background:linear-gradient(180deg, color-mix(in srgb, var(--wx) 13%, var(--card)), color-mix(in srgb, var(--wx) 6%, var(--card)));
+      transform:translateY(-2px);
+      box-shadow:0 14px 28px color-mix(in srgb, var(--wx) 12%, transparent);
     }
     .wuxing-pill.active{
-      border-color:color-mix(in srgb, var(--wx) 58%, white);
-      box-shadow:0 10px 24px color-mix(in srgb, var(--wx) 24%, transparent);
+      border-color:color-mix(in srgb, var(--wx) 46%, var(--line));
+      box-shadow:0 16px 30px color-mix(in srgb, var(--wx) 18%, transparent);
     }
     .wuxing-pill-dot{
       width:10px;
       height:10px;
       border-radius:50%;
       background:var(--wx);
-      box-shadow:0 0 0 4px color-mix(in srgb, var(--wx) 18%, white);
+      box-shadow:0 0 0 5px color-mix(in srgb, var(--wx) 16%, var(--card));
     }
     .wuxing-pill small{
       color:var(--muted);
@@ -916,7 +961,8 @@
       max-width:620px;
       margin:0 auto;
       height:auto;
-      filter:drop-shadow(0 18px 24px rgba(0,0,0,0.18));
+      overflow:visible;
+      filter:drop-shadow(0 22px 26px rgba(0,0,0,0.14));
     }
     @keyframes flowSheng{
       from{stroke-dashoffset:24}
@@ -955,81 +1001,164 @@
       letter-spacing:0.16em;
     }
     .wuxing-relation-path{
-      transition:opacity .24s ease, stroke-width .24s ease, filter .24s ease;
+      transition:opacity .24s ease, stroke-width .24s ease, filter .24s ease, stroke .24s ease;
+      stroke-linecap:round;
+      stroke-linejoin:round;
     }
-    .wuxing-relation-path.dimmed{opacity:0.14}
+    .wuxing-direction-glyph{
+      fill:none;
+      stroke-width:2.1;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      opacity:0.88;
+      transition:opacity .24s ease, filter .24s ease, stroke .24s ease;
+      pointer-events:none;
+    }
+    .wuxing-direction-glyph.dimmed{opacity:0.08}
+    .wuxing-direction-glyph.sheng{
+      stroke:var(--sheng-accent);
+    }
+    .wuxing-direction-glyph.ke{
+      stroke:var(--ke-accent);
+    }
+    .wuxing-direction-glyph.active{
+      opacity:0.98;
+      filter:drop-shadow(0 0 8px color-mix(in srgb, currentColor 24%, transparent));
+    }
+    .wuxing-relation-path.dimmed{opacity:0.09}
     .wuxing-sheng-path{
       stroke:var(--sheng-accent);
-      stroke-width:3;
-      stroke-dasharray:8 8;
-      opacity:0.72;
+      stroke-width:2.5;
+      stroke-dasharray:1 10;
+      opacity:0.8;
     }
     .wuxing-ke-path{
       stroke:var(--ke-accent);
-      stroke-width:3;
-      stroke-dasharray:3 10;
-      opacity:0.7;
+      stroke-width:2.35;
+      stroke-dasharray:9 10;
+      opacity:0.72;
     }
     .wuxing-sheng-path.active{
       animation:flowSheng 0.7s linear infinite;
-      filter:drop-shadow(0 0 8px color-mix(in srgb, var(--sheng-accent) 34%, transparent));
+      stroke-width:3.05;
+      filter:drop-shadow(0 0 10px color-mix(in srgb, var(--sheng-accent) 26%, transparent));
       opacity:1;
     }
     .wuxing-ke-path.active{
       animation:flowKe 0.85s linear infinite;
-      filter:drop-shadow(0 0 8px color-mix(in srgb, var(--ke-accent) 28%, transparent));
+      stroke-width:2.9;
+      filter:drop-shadow(0 0 10px color-mix(in srgb, var(--ke-accent) 24%, transparent));
       opacity:1;
     }
     .wuxing-node{
       cursor:pointer;
-      transition:opacity .2s ease, transform .2s ease;
-      transform-box:fill-box;
-      transform-origin:center;
+      transition:opacity .2s ease, filter .2s ease;
     }
     .wuxing-node-hit{
       fill:rgba(255,255,255,0.001);
       pointer-events:all;
     }
     .wuxing-node-glow{
-      fill:color-mix(in srgb, var(--card) 75%, white);
-      opacity:0.75;
+      fill:color-mix(in srgb, var(--wx) 14%, white);
+      opacity:0.4;
+    }
+    .wuxing-node-focus-disc{
+      fill:color-mix(in srgb, var(--card) 74%, white);
+      opacity:0;
+      transition:opacity .2s ease, fill .2s ease;
+    }
+    .wuxing-node-halo{
+      fill:none;
+      stroke:transparent;
+      stroke-width:0;
+      opacity:0;
+      transition:stroke .2s ease, stroke-width .2s ease, opacity .2s ease;
     }
     .wuxing-node-ring{
       fill:none;
-      stroke:rgba(255,255,255,0.86);
-      stroke-width:3;
+      stroke:color-mix(in srgb, var(--wx) 18%, white);
+      stroke-width:2.6;
       transition:stroke .2s ease, stroke-width .2s ease;
     }
     .wuxing-node-core{
-      transition:transform .2s ease;
+      transition:transform .2s ease, filter .2s ease;
+      stroke:rgba(255,255,255,0.22);
+      stroke-width:1.2;
     }
     .wuxing-node-label{
-      fill:#fff;
+      fill:rgba(255,255,255,0.96);
       font-size:24px;
       font-weight:700;
       text-anchor:middle;
+      paint-order:stroke fill;
+      stroke:rgba(23,30,38,0.16);
+      stroke-width:1.4;
     }
     .wuxing-node-sub{
-      fill:rgba(255,255,255,0.88);
+      fill:rgba(255,255,255,0.9);
       font-size:12px;
       font-weight:500;
       text-anchor:middle;
       letter-spacing:0.12em;
+      paint-order:stroke fill;
+      stroke:rgba(23,30,38,0.14);
+      stroke-width:1;
     }
-    .wuxing-node.is-active{transform:scale(1.06)}
+    .wuxing-node.is-active{
+      filter:drop-shadow(0 14px 22px color-mix(in srgb, var(--wx) 18%, transparent));
+    }
+    .wuxing-node.is-active .wuxing-node-glow{
+      opacity:0.92;
+    }
+    .wuxing-node.is-active .wuxing-node-focus-disc{
+      fill:color-mix(in srgb, var(--wx) 18%, white);
+      opacity:0.96;
+    }
+    .wuxing-node.is-active .wuxing-node-halo{
+      stroke:color-mix(in srgb, var(--wx) 34%, white);
+      stroke-width:12;
+      opacity:0.42;
+    }
     .wuxing-node.is-active .wuxing-node-ring{
-      stroke:#fff;
-      stroke-width:4;
+      stroke:color-mix(in srgb, var(--wx) 44%, white);
+      stroke-width:4.6;
+    }
+    .wuxing-node.is-active .wuxing-node-core{
+      transform:scale(1.08);
+      filter:brightness(0.88) saturate(1.08) drop-shadow(0 0 10px color-mix(in srgb, var(--wx) 18%, transparent));
+      stroke:rgba(255,255,255,0.58);
+      stroke-width:2.1;
+    }
+    .wuxing-node.is-active .wuxing-node-label,
+    .wuxing-node.is-active .wuxing-node-sub{
+      fill:#ffffff;
+      stroke:rgba(11,16,22,0.34);
+    }
+    .wuxing-node.support .wuxing-node-glow{
+      opacity:0.62;
+    }
+    .wuxing-node.support .wuxing-node-halo{
+      stroke:color-mix(in srgb, var(--sheng-accent) 52%, white);
+      stroke-width:9;
+      opacity:0.28;
     }
     .wuxing-node.support .wuxing-node-ring{
-      stroke:var(--sheng-accent);
-      stroke-width:4;
+      stroke:color-mix(in srgb, var(--sheng-accent) 76%, white);
+      stroke-width:3.7;
+    }
+    .wuxing-node.challenge .wuxing-node-glow{
+      opacity:0.22;
+    }
+    .wuxing-node.challenge .wuxing-node-halo{
+      stroke:color-mix(in srgb, var(--text) 68%, var(--ke-accent) 32%);
+      stroke-width:9;
+      opacity:0.24;
     }
     .wuxing-node.challenge .wuxing-node-ring{
-      stroke:var(--ke-accent);
-      stroke-width:4;
+      stroke:color-mix(in srgb, var(--text) 72%, var(--ke-accent) 28%);
+      stroke-width:3.7;
     }
-    .wuxing-node.dimmed{opacity:0.34}
+    .wuxing-node.dimmed{opacity:0.24}
     .wuxing-legend{
       display:flex;
       gap:12px;
@@ -1050,8 +1179,8 @@
     }
     .legend-line{
       width:36px;
-      height:3px;
-      border-radius:2px;
+      height:4px;
+      border-radius:999px;
     }
     .legend-line.sheng{
       background:linear-gradient(90deg, color-mix(in srgb, var(--sheng-accent) 45%, transparent), var(--sheng-accent));
@@ -1358,10 +1487,10 @@
 
     const WUXING = ["木","火","土","金","水"];
     const WUXING_COLORS = {
-      "木":"#5a9c5a","火":"#c75050","土":"#b08c40","金":"#8080c0","水":"#4080a0"
+      "木":"#6f8f72","火":"#c97868","土":"#b59b73","金":"#a5adb8","水":"#64839c"
     };
     const WUXING_SVG_COLORS = {
-      "木":"#6aac6a","火":"#e06060","土":"#c8a050","金":"#9090d0","水":"#5090b0"
+      "木":"#6f8f72","火":"#c97868","土":"#b59b73","金":"#a5adb8","水":"#64839c"
     };
     const WUXING_META = {
       "木":{label:"生发", season:"春令", nature:"舒展、成长", imagery:"像枝叶向上舒展"},
@@ -2386,13 +2515,43 @@
         return {from:a, to:b, d:`M ${pa.x} ${pa.y} Q ${midX + nx} ${midY + ny} ${pb.x} ${pb.y}`};
       });
 
-      const arrowMarker = (id, color) => `
-        <marker id="${id}" markerWidth="10" markerHeight="10" refX="7" refY="4" orient="auto">
-          <path d="M0,0 L0,8 L9,4 z" fill="${color}"/>
-        </marker>`;
+      const buildDirectionGlyphs = (item, type) => {
+        const match = item.d.match(/^M\s([\d.]+)\s([\d.]+)\sQ\s([\d.]+)\s([\d.]+)\s([\d.]+)\s([\d.]+)$/);
+        if (!match) return "";
+        const [, sx, sy, cx1, cy1, ex, ey] = match.map(Number);
+        const pointAt = (t) => {
+          const mt = 1 - t;
+          return {
+            x: mt * mt * sx + 2 * mt * t * cx1 + t * t * ex,
+            y: mt * mt * sy + 2 * mt * t * cy1 + t * t * ey
+          };
+        };
+        const tangentAt = (t) => ({
+          x: 2 * (1 - t) * (cx1 - sx) + 2 * t * (ex - cx1),
+          y: 2 * (1 - t) * (cy1 - sy) + 2 * t * (ey - cy1)
+        });
+        const buildChevron = (t) => {
+          const p = pointAt(t);
+          const tangent = tangentAt(t);
+          const len = Math.hypot(tangent.x, tangent.y) || 1;
+          const ux = tangent.x / len;
+          const uy = tangent.y / len;
+          const nx = -uy;
+          const ny = ux;
+          const size = 7;
+          const spread = 5.5;
+          const rearX = p.x - ux * size;
+          const rearY = p.y - uy * size;
+          const leftX = rearX + nx * spread;
+          const leftY = rearY + ny * spread;
+          const rightX = rearX - nx * spread;
+          const rightY = rearY - ny * spread;
+          return `<path d="M ${leftX.toFixed(2)} ${leftY.toFixed(2)} L ${p.x.toFixed(2)} ${p.y.toFixed(2)} L ${rightX.toFixed(2)} ${rightY.toFixed(2)}" class="wuxing-direction-glyph ${type}" data-from="${item.from}" data-to="${item.to}" data-type="${type}"/>`;
+        };
+        return [0.56, 0.68, 0.8].map(buildChevron).join("");
+      };
 
       let svg = `<svg class="wuxing-svg" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" aria-label="五行相生相克关系图">`;
-      svg += `<defs>${arrowMarker("arrowSheng", "var(--sheng-accent)")}${arrowMarker("arrowKe", "var(--ke-accent)")}</defs>`;
       svg += `<circle class="wuxing-orbit" cx="${cx}" cy="${cy}" r="188"/>`;
       svg += `<circle class="wuxing-center-ring" cx="${cx}" cy="${cy}" r="86"/>`;
 
@@ -2402,11 +2561,13 @@
       });
 
       shengLines.forEach((item) => {
-        svg += `<path d="${item.d}" data-from="${item.from}" data-to="${item.to}" data-type="sheng" class="wuxing-relation-path wuxing-sheng-path" fill="none" marker-end="url(#arrowSheng)"/>`;
+        svg += `<path d="${item.d}" data-from="${item.from}" data-to="${item.to}" data-type="sheng" class="wuxing-relation-path wuxing-sheng-path" fill="none"/>`;
+        svg += buildDirectionGlyphs(item, "sheng");
       });
 
       keLines.forEach((item) => {
-        svg += `<path d="${item.d}" data-from="${item.from}" data-to="${item.to}" data-type="ke" class="wuxing-relation-path wuxing-ke-path" fill="none" marker-end="url(#arrowKe)"/>`;
+        svg += `<path d="${item.d}" data-from="${item.from}" data-to="${item.to}" data-type="ke" class="wuxing-relation-path wuxing-ke-path" fill="none"/>`;
+        svg += buildDirectionGlyphs(item, "ke");
       });
 
       svg += `
@@ -2420,11 +2581,13 @@
         const pos = getPos(i);
         const meta = WUXING_META[wx];
         svg += `
-          <g class="wuxing-node" data-wx="${wx}" transform="translate(${pos.x} ${pos.y})" tabindex="0" role="button" aria-label="查看${wx}的五行关系">
+          <g class="wuxing-node" data-wx="${wx}" transform="translate(${pos.x} ${pos.y})" style="--wx:${WUXING_SVG_COLORS[wx]};" tabindex="0" role="button" aria-label="查看${wx}的五行关系">
             <circle class="wuxing-node-hit" r="62"/>
-            <circle class="wuxing-node-glow" r="48"/>
-            <circle class="wuxing-node-ring" r="41"/>
-            <circle class="wuxing-node-core" r="34" fill="${WUXING_SVG_COLORS[wx]}"/>
+            <circle class="wuxing-node-glow" r="50"/>
+            <circle class="wuxing-node-focus-disc" r="38"/>
+            <circle class="wuxing-node-halo" r="47"/>
+            <circle class="wuxing-node-ring" r="42"/>
+            <circle class="wuxing-node-core" r="33" fill="${WUXING_SVG_COLORS[wx]}"/>
             <text class="wuxing-node-label" y="-4">${wx}</text>
             <text class="wuxing-node-sub" y="17">${meta.label}</text>
           </g>`;
@@ -2552,11 +2715,15 @@
 
     function highlightWuxing(wx, on){
       const paths = wuxingDiagram.querySelectorAll(".wuxing-relation-path");
+      const glyphs = wuxingDiagram.querySelectorAll(".wuxing-direction-glyph");
       const nodes = wuxingDiagram.querySelectorAll(".wuxing-node");
 
       if (!on || !wx) {
         paths.forEach((path) => {
           path.classList.remove("active", "dimmed");
+        });
+        glyphs.forEach((glyph) => {
+          glyph.classList.remove("active", "dimmed");
         });
         nodes.forEach((node) => {
           node.classList.remove("is-active", "support", "challenge", "dimmed");
@@ -2575,6 +2742,12 @@
         const involved = path.getAttribute("data-from") === wx || path.getAttribute("data-to") === wx;
         path.classList.toggle("active", involved);
         path.classList.toggle("dimmed", !involved);
+      });
+
+      glyphs.forEach((glyph) => {
+        const involved = glyph.getAttribute("data-from") === wx || glyph.getAttribute("data-to") === wx;
+        glyph.classList.toggle("active", involved);
+        glyph.classList.toggle("dimmed", !involved);
       });
 
       nodes.forEach((node) => {
