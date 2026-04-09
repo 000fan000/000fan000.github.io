@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>万年历 · 天干地支看板</title>
+  <title>万年历 · 命理学入门看板</title>
   <style>
     :root{
       --bg:#f6f3ee;
@@ -44,7 +44,7 @@
       align-items:center;
       flex-wrap:wrap;
     }
-    button, input[type="date"], select{
+    button, input[type="date"], input[type="search"], select{
       border:1px solid var(--line);
       background:#fff;
       padding:8px 10px;
@@ -74,6 +74,107 @@
       border-radius:16px;
       padding:14px;
       box-shadow:0 6px 18px rgba(0,0,0,0.04);
+    }
+    .hero{
+      display:grid;
+      grid-template-columns:1.15fr 0.85fr;
+      gap:16px;
+      margin-bottom:16px;
+      padding:20px;
+      background:
+        radial-gradient(circle at top right, rgba(199,155,75,0.18), transparent 32%),
+        linear-gradient(135deg, #fffaf1 0%, #fffdf9 60%, #f5efe3 100%);
+      position:relative;
+      overflow:hidden;
+    }
+    .hero::after{
+      content:"";
+      position:absolute;
+      inset:auto -32px -36px auto;
+      width:180px;
+      height:180px;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(199,155,75,0.14), rgba(199,155,75,0));
+      pointer-events:none;
+    }
+    .hero-copy{
+      position:relative;
+      z-index:1;
+    }
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:4px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.7);
+      border:1px solid rgba(199,155,75,0.3);
+      font-size:12px;
+      color:#7c6130;
+      margin-bottom:12px;
+    }
+    .hero h2{
+      margin:0 0 10px;
+      font-size:30px;
+      line-height:1.2;
+    }
+    .hero-lead{
+      margin:0;
+      max-width:40em;
+      line-height:1.8;
+      color:#4c4437;
+      font-size:15px;
+    }
+    .hero-mini{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+    .hero-steps{
+      display:grid;
+      gap:10px;
+      position:relative;
+      z-index:1;
+    }
+    .hero-step{
+      border:1px solid rgba(199,155,75,0.28);
+      border-radius:14px;
+      padding:12px;
+      background:rgba(255,255,255,0.78);
+      backdrop-filter:blur(6px);
+    }
+    .hero-step strong{
+      display:block;
+      margin-bottom:4px;
+      font-size:15px;
+    }
+    .hero-step span{
+      display:block;
+      color:#5a5144;
+      font-size:13px;
+      line-height:1.6;
+    }
+    .sample-hint{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:16px;
+      background:linear-gradient(90deg, #fffefb, #f8f2e8);
+    }
+    .sample-badge{
+      flex:0 0 auto;
+      padding:4px 8px;
+      border-radius:999px;
+      background:var(--accent-2);
+      border:1px solid rgba(199,155,75,0.4);
+      font-size:12px;
+      color:#6f541e;
+    }
+    .sample-copy{
+      font-size:14px;
+      line-height:1.7;
+      color:#433b30;
     }
     .month-title{
       font-size:18px;
@@ -174,6 +275,12 @@
       font-weight:600;
       margin-top:2px;
     }
+    .bazi-role{
+      margin-top:4px;
+      font-size:11px;
+      color:var(--muted);
+      line-height:1.5;
+    }
     .bazi-wx{
       font-size:12px;
       color:#444;
@@ -184,6 +291,120 @@
       display:flex;
       gap:6px;
       flex-wrap:wrap;
+    }
+    .learning-grid{
+      display:grid;
+      gap:10px;
+      margin-top:6px;
+    }
+    .learning-card{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      background:#fff;
+    }
+    .learning-head{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:6px;
+    }
+    .learning-step-no{
+      width:28px;
+      height:28px;
+      border-radius:999px;
+      background:var(--accent-2);
+      border:1px solid rgba(199,155,75,0.45);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:13px;
+      font-weight:600;
+      color:#6f541e;
+      flex:0 0 auto;
+    }
+    .learning-title{
+      font-size:15px;
+      font-weight:600;
+    }
+    .learning-body{
+      font-size:13px;
+      line-height:1.7;
+      color:#433b30;
+    }
+    .mini-row{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:8px;
+    }
+    .mini-tag{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#faf5eb;
+      border:1px solid var(--line);
+      font-size:12px;
+      color:#5a5144;
+    }
+    .insight-grid{
+      display:grid;
+      gap:10px;
+      margin-top:6px;
+    }
+    .insight-card{
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+      background:#fff;
+    }
+    .insight-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:6px;
+      flex-wrap:wrap;
+    }
+    .insight-copy{
+      font-size:13px;
+      line-height:1.7;
+      color:#433b30;
+    }
+    .practice-list{
+      display:grid;
+      gap:10px;
+      margin-top:6px;
+    }
+    .practice-card{
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#fff;
+      padding:0 12px;
+    }
+    .practice-card summary{
+      list-style:none;
+      cursor:pointer;
+      font-weight:600;
+      padding:12px 0;
+      font-size:14px;
+    }
+    .practice-card summary::-webkit-details-marker{
+      display:none;
+    }
+    .practice-answer{
+      padding:0 0 12px;
+      font-size:13px;
+      line-height:1.7;
+      color:#433b30;
+    }
+    .learning-note{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.6;
+      margin-top:8px;
     }
     .notes-grid{
       display:grid;
@@ -261,6 +482,17 @@
       border-bottom:1px dashed var(--line);
       z-index:1;
     }
+    .notes-tools{
+      position:sticky;
+      top:48px;
+      background:var(--card);
+      z-index:1;
+      padding-bottom:8px;
+      margin-bottom:8px;
+    }
+    .notes-tools input{
+      width:100%;
+    }
     .concept-tag{
       border-bottom:1px dashed var(--accent);
       cursor:help;
@@ -280,6 +512,16 @@
       display:none;
     }
     @media (max-width: 600px){
+      .hero{
+        grid-template-columns:1fr;
+        padding:16px;
+      }
+      .hero h2{
+        font-size:24px;
+      }
+      .sample-hint{
+        flex-direction:column;
+      }
       .cell{
         min-height:64px;
         padding:6px;
@@ -412,7 +654,7 @@
 <body>
   <div class="wrap">
     <div class="header">
-      <div class="title">万年历 · 天干地支一页看板</div>
+      <div class="title">万年历 · 命理学入门看板</div>
       <div class="controls">
         <button id="prevMonth">上一月</button>
         <button id="nextMonth">下一月</button>
@@ -424,6 +666,45 @@
         <button id="toggleNotes">概念速记</button>
         <button id="openWuxing" class="btn-accent">五行相生相克</button>
       </div>
+    </div>
+
+    <section class="card hero">
+      <div class="hero-copy">
+        <div class="eyebrow">给新手的命理练习台</div>
+        <h2>把每一天都当成一张可拆解的小练习盘</h2>
+        <p class="hero-lead">
+          这页不主打“直接断吉凶”，而是帮你建立稳定的读盘顺序：先看
+          <span class="concept-tag" data-concept="日主">日主</span>，
+          再看 <span class="concept-tag" data-concept="月令">月令</span>，
+          再看 <span class="concept-tag" data-concept="五行">五行</span> 分布，
+          最后再读 <span class="concept-tag" data-concept="十神">十神</span>。
+        </p>
+        <div class="hero-mini">
+          <span class="tag">1. 定中心</span>
+          <span class="tag">2. 看季节</span>
+          <span class="tag">3. 读分布</span>
+          <span class="tag">4. 练十神</span>
+        </div>
+      </div>
+      <div class="hero-steps">
+        <div class="hero-step">
+          <strong>先看日主</strong>
+          <span>日柱天干是观察中心。先知道“我是谁”，后面的关系才有参照。</span>
+        </div>
+        <div class="hero-step">
+          <strong>再看月令</strong>
+          <span>月支先告诉你季节气势，帮助你理解哪类五行更容易得势。</span>
+        </div>
+        <div class="hero-step">
+          <strong>不要一上来断旺衰</strong>
+          <span>新手先把顺序练稳，再去综合判断，效率比死记硬背术语更高。</span>
+        </div>
+      </div>
+    </section>
+
+    <div id="sampleHint" class="card sample-hint">
+      <div class="sample-badge">当前练习样本</div>
+      <div class="sample-copy">正在生成读盘提示。</div>
     </div>
 
     <div class="layout">
@@ -451,16 +732,24 @@
           <div class="k"><span class="concept-tag" data-concept="五行">日五行</span></div><div id="dayWuXing">-</div>
         </div>
 
+        <h3><span class="concept-tag" data-concept="四柱">八字排盘</span></h3>
+        <div id="baziGrid" class="bazi-grid"></div>
+        <div id="wuxingCount" class="wuxing-count"></div>
+
+        <h3>新手读盘路径</h3>
+        <div id="learningSteps" class="learning-grid"></div>
+
+        <h3>十神速读</h3>
+        <div id="tenGodQuick" class="insight-grid"></div>
+
         <h3>宜忌</h3>
         <div class="kv">
           <div class="k"><span class="concept-tag" data-concept="宜忌">宜</span></div><div id="yi">-</div>
           <div class="k"><span class="concept-tag" data-concept="宜忌">忌</span></div><div id="ji">-</div>
         </div>
 
-        <h3><span class="concept-tag" data-concept="四柱">八字排盘</span></h3>
-        <div id="baziGrid" class="bazi-grid"></div>
-        <div id="wuxingCount" class="wuxing-count"></div>
-
+        <h3>练习题</h3>
+        <div id="practiceList" class="practice-list"></div>
       </div>
     </div>
   </div>
@@ -469,6 +758,9 @@
     <div class="modal-head">
       <div class="title">概念速记</div>
       <button id="closeNotes">关闭</button>
+    </div>
+    <div class="notes-tools">
+      <input id="noteSearch" type="search" placeholder="搜索概念：如 日主 / 月令 / 正印" />
     </div>
     <div id="noteGrid" class="notes-grid"></div>
     <div id="noteDetail" class="note-detail">点击卡片查看详解。</div>
@@ -557,6 +849,45 @@
         ["木","土"],["土","水"],["水","火"],["火","金"],["金","木"]
       ]
     };
+    const PILLAR_ROLE_HINTS = {
+      "年柱":{plain:"外层背景", detail:"先看家族、早年与大环境给出的底色。"},
+      "月柱":{plain:"季节环境", detail:"先看月令，理解当下气势与成长环境。"},
+      "日柱":{plain:"自己本体", detail:"日柱里先抓日主，它是整张盘的参照点。"},
+      "时柱":{plain:"行动结果", detail:"时柱可先理解为行动方式、执行与后段结果。"}
+    };
+    const ELEMENT_RELATIONS = {
+      "木":{peer:"木", resource:"水", output:"火", wealth:"土", officer:"金"},
+      "火":{peer:"火", resource:"木", output:"土", wealth:"金", officer:"水"},
+      "土":{peer:"土", resource:"火", output:"金", wealth:"水", officer:"木"},
+      "金":{peer:"金", resource:"土", output:"水", wealth:"木", officer:"火"},
+      "水":{peer:"水", resource:"金", output:"木", wealth:"火", officer:"土"}
+    };
+    const SEASON_HINTS = {
+      "寅":{season:"孟春", dominant:"木", note:"木气刚起，先观察木与火。"},
+      "卯":{season:"仲春", dominant:"木", note:"木气偏旺，适合练习“当令”这个概念。"},
+      "辰":{season:"季春", dominant:"木土", note:"春末土渐显，常见木土并行。"},
+      "巳":{season:"孟夏", dominant:"火", note:"火气渐旺，木火关系值得先看。"},
+      "午":{season:"仲夏", dominant:"火", note:"火势最盛，读盘时先留意火的存在感。"},
+      "未":{season:"季夏", dominant:"火土", note:"夏末土显，火土经常一起观察。"},
+      "申":{season:"孟秋", dominant:"金", note:"金气启动，适合练习金与水的衔接。"},
+      "酉":{season:"仲秋", dominant:"金", note:"金气明显，常把金视作更易得势的方向。"},
+      "戌":{season:"季秋", dominant:"金土", note:"秋末土显，金土关系更常被讨论。"},
+      "亥":{season:"孟冬", dominant:"水", note:"水气开始增强，先看水与木。"},
+      "子":{season:"仲冬", dominant:"水", note:"水势明显，适合练习“谁生日主”。"},
+      "丑":{season:"季冬", dominant:"水土", note:"冬末土显，水土常一起出现。"}
+    };
+    const TEN_GOD_GUIDE = {
+      "比肩":{group:"比劫", note:"同类、自我、并行力量。"},
+      "劫财":{group:"比劫", note:"同类协作，也可能带来资源竞争。"},
+      "食神":{group:"食伤", note:"温和输出、稳定表达与持续产出。"},
+      "伤官":{group:"食伤", note:"强表达、突破与不按常规出牌。"},
+      "偏财":{group:"财星", note:"机会、效率与资源调度。"},
+      "正财":{group:"财星", note:"务实经营、稳定收益与责任。"},
+      "七杀":{group:"官杀", note:"挑战、执行、压力与突破。"},
+      "正官":{group:"官杀", note:"规则、秩序、责任与规范。"},
+      "偏印":{group:"印星", note:"研究、思辨、非典型支持。"},
+      "正印":{group:"印星", note:"学习、保护、系统支持与贵人。"}
+    };
 
     // 60甲子纳音表（按顺序）
     const GANZHI_60 = [
@@ -635,6 +966,37 @@
       if (!gan || !zhi) return "";
       return `天干：${getGanInfo(gan)}<br>地支：${getZhiInfo(zhi)}`;
     }
+    function escapeHtml(value){
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+    function wrapConcept(title){
+      if (!title) return "-";
+      const safe = escapeHtml(title);
+      return `<span class="concept-tag" data-concept="${safe}">${safe}</span>`;
+    }
+    function wrapGzTag(gz){
+      if (!gz || gz === "-") return "-";
+      const safe = escapeHtml(gz);
+      return `<span class="concept-tag" data-gz="${safe}">${safe}</span>`;
+    }
+    function getSeasonHint(zhi){
+      return SEASON_HINTS[zhi] || {season:"未定", dominant:"待观察", note:"先用月支理解气势，再继续看全盘。"};
+    }
+    function getCountExtremes(count, mode){
+      const entries = Object.entries(count);
+      if (!entries.length) return [];
+      const values = entries.map(([,value]) => value);
+      const target = mode === "min" ? Math.min(...values) : Math.max(...values);
+      return entries.filter(([,value]) => value === target).map(([key]) => key);
+    }
+    function joinReadable(list){
+      return list.filter(Boolean).join("、") || "暂无";
+    }
     function getTenGod(dayGan, otherGan){
       const d = GAN_INFO[dayGan];
       const o = GAN_INFO[otherGan];
@@ -698,6 +1060,7 @@
     const monthTitle = document.getElementById("monthTitle");
     const calendarGrid = document.getElementById("calendarGrid");
     const hourSelect = document.getElementById("hourSelect");
+    const sampleHint = document.getElementById("sampleHint");
     const openMingli = document.getElementById("openMingli");
     const toggleNotes = document.getElementById("toggleNotes");
     const closeNotes = document.getElementById("closeNotes");
@@ -717,9 +1080,13 @@
     const ji = document.getElementById("ji");
     const baziGrid = document.getElementById("baziGrid");
     const wuxingCount = document.getElementById("wuxingCount");
+    const learningSteps = document.getElementById("learningSteps");
+    const tenGodQuick = document.getElementById("tenGodQuick");
+    const practiceList = document.getElementById("practiceList");
     const notesSidebar = document.getElementById("notesSidebar");
     const noteGrid = document.getElementById("noteGrid");
     const noteDetail = document.getElementById("noteDetail");
+    const noteSearch = document.getElementById("noteSearch");
     const conceptTooltip = document.getElementById("conceptTooltip");
     const wuxingModal = document.getElementById("wuxingModal");
     const closeWuxing = document.getElementById("closeWuxing");
@@ -818,10 +1185,10 @@
     function renderPanel(){
       const {lunar, eightChar, yGz, mGz, dGz, tGz, pillars} = getPillarsData();
 
-      yearGz.innerHTML = yGz ? `<span class="concept-tag" data-gz="${yGz}">${yGz}</span>` : "-";
-      monthGz.innerHTML = mGz ? `<span class="concept-tag" data-gz="${mGz}">${mGz}</span>` : "-";
-      dayGz.innerHTML = dGz ? `<span class="concept-tag" data-gz="${dGz}">${dGz}</span>` : "-";
-      timeGz.innerHTML = tGz ? `<span class="concept-tag" data-gz="${tGz}">${tGz}</span>` : "-";
+      yearGz.innerHTML = wrapGzTag(yGz);
+      monthGz.innerHTML = wrapGzTag(mGz);
+      dayGz.innerHTML = wrapGzTag(dGz);
+      timeGz.innerHTML = wrapGzTag(tGz);
 
       const sx = safeCall(lunar, "getYearShengXiaoByLiChun", safeCall(lunar, "getYearShengXiao", "-"));
       shengxiao.textContent = sx;
@@ -837,6 +1204,9 @@
       const ganWx = GAN_WUXING[dayGan] || "未知";
       const zhiWx = ZHI_WUXING[dayZhi] || "未知";
       dayWuXing.textContent = `天干${dayGan}（${ganWx}） / 地支${dayZhi}（${zhiWx}）`;
+      const monthZhi = pillars[1]?.zhi || "";
+      const seasonInfo = getSeasonHint(monthZhi);
+      const hourText = hourSelect.options[hourSelect.selectedIndex]?.textContent || "";
 
       const yiArr = safeCall(lunar, "getDayYi", ["暂无"]);
       const jiArr = safeCall(lunar, "getDayJi", ["暂无"]);
@@ -848,9 +1218,11 @@
       pillars.forEach(p=>{
         const item = document.createElement("div");
         item.className = "bazi-item";
+        const roleHint = PILLAR_ROLE_HINTS[p.label];
         item.innerHTML = `
           <div class="bazi-title">${p.label}</div>
           <div class="bazi-gz">${p.gz || "-"}</div>
+          <div class="bazi-role">${roleHint ? roleHint.plain : ""}</div>
           <div class="bazi-wx">${p.wx ? ("五行：" + p.wx) : ""}</div>
         `;
         baziGrid.appendChild(item);
@@ -870,6 +1242,150 @@
         tag.textContent = `${k} ${count[k]}`;
         wuxingCount.appendChild(tag);
       });
+
+      const relation = ELEMENT_RELATIONS[ganWx] || {};
+      const supportElements = [relation.peer, relation.resource].filter(Boolean);
+      const challengeElements = [relation.output, relation.wealth, relation.officer].filter(Boolean);
+      const supportCount = supportElements.reduce((sum, key)=>sum + (count[key] || 0), 0);
+      const challengeCount = challengeElements.reduce((sum, key)=>sum + (count[key] || 0), 0);
+      const strongest = getCountExtremes(count, "max");
+      const weakest = getCountExtremes(count, "min");
+      const strongestText = joinReadable(strongest);
+      const weakestText = joinReadable(weakest);
+      const outerReads = pillars
+        .filter((_, index)=>index !== 2)
+        .map((pillar)=>{
+          const tenGod = pillar.gan ? getTenGod(dayGan, pillar.gan) : "-";
+          const guide = TEN_GOD_GUIDE[tenGod] || {group:"待观察", note:"先确认天干后再继续看十神。"};
+          return {
+            label: pillar.label,
+            gan: pillar.gan || "-",
+            tenGod,
+            group: guide.group,
+            note: guide.note,
+            role: PILLAR_ROLE_HINTS[pillar.label]?.detail || ""
+          };
+        });
+
+      sampleHint.innerHTML = `
+        <div class="sample-badge">当前练习样本</div>
+        <div class="sample-copy">
+          ${escapeHtml(formatDateInput(selectedDate))} · ${escapeHtml(hourText)} ·
+          ${wrapConcept("日主")}是 <strong>${escapeHtml(dayGan || "-")}</strong>（${escapeHtml(ganWx)}）。
+          月支 <span class="concept-tag" data-zhi="${escapeHtml(monthZhi)}">${escapeHtml(monthZhi || "-")}</span>
+          对应 ${escapeHtml(seasonInfo.season)}，入门时可先把
+          ${wrapConcept("当令")} 重点放在 ${escapeHtml(seasonInfo.dominant)}。
+          建议顺序：${wrapConcept("日主")} → ${wrapConcept("月令")} → ${wrapConcept("五行")} → ${wrapConcept("十神")}。
+        </div>
+      `;
+
+      learningSteps.innerHTML = `
+        <article class="learning-card">
+          <div class="learning-head">
+            <div class="learning-step-no">1</div>
+            <div class="learning-title">先定日主</div>
+          </div>
+          <div class="learning-body">
+            日柱是 ${wrapGzTag(dGz)}，所以整张盘先以 <strong>${escapeHtml(dayGan || "-")}</strong> 为参照。
+            入门时先记住：谁生它、谁同它、谁耗它、谁克它。
+          </div>
+          <div class="mini-row">
+            <span class="mini-tag">${wrapConcept("同类")}：${escapeHtml(joinReadable(supportElements))}</span>
+            <span class="mini-tag">${wrapConcept("异类")}：${escapeHtml(joinReadable(challengeElements))}</span>
+          </div>
+        </article>
+        <article class="learning-card">
+          <div class="learning-head">
+            <div class="learning-step-no">2</div>
+            <div class="learning-title">再看月令与季节</div>
+          </div>
+          <div class="learning-body">
+            月柱是 ${wrapGzTag(mGz)}。其中月支
+            <span class="concept-tag" data-zhi="${escapeHtml(monthZhi)}">${escapeHtml(monthZhi || "-")}</span>
+            提示 ${escapeHtml(seasonInfo.season)} 的气势，通常先把 ${escapeHtml(seasonInfo.dominant)}
+            当成更容易得势的观察对象。${escapeHtml(seasonInfo.note)}
+          </div>
+          <div class="mini-row">
+            <span class="mini-tag">${wrapConcept("月令")}</span>
+            <span class="mini-tag">${wrapConcept("当令")}：${escapeHtml(seasonInfo.dominant)}</span>
+          </div>
+        </article>
+        <article class="learning-card">
+          <div class="learning-head">
+            <div class="learning-step-no">3</div>
+            <div class="learning-title">再看五行分布</div>
+          </div>
+          <div class="learning-body">
+            这张练习盘里，${escapeHtml(strongestText)} 出现最多，${escapeHtml(weakestText)} 最少。
+            对 ${escapeHtml(dayGan || "-")}${escapeHtml(ganWx)} 来说，
+            ${escapeHtml(joinReadable(supportElements))} 更偏向扶助日主（共 ${supportCount}），
+            ${escapeHtml(joinReadable(challengeElements))} 更偏向耗泄或制约（共 ${challengeCount}）。
+          </div>
+          <div class="learning-note">数量只是学习入口，不等于最终的 ${wrapConcept("旺衰")} 结论。</div>
+        </article>
+        <article class="learning-card">
+          <div class="learning-head">
+            <div class="learning-step-no">4</div>
+            <div class="learning-title">最后读十神</div>
+          </div>
+          <div class="learning-body">
+            以日主为基准，把其他天干换算成 ${wrapConcept("十神")}：
+            ${outerReads.map((item)=>`${escapeHtml(item.label)}是 ${item.tenGod === "-" ? "-" : item.tenGod}`).join("；")}。
+            新手先记名称与大类，再去看它落在哪个柱位。
+          </div>
+          <div class="mini-row">
+            ${outerReads.map((item)=>`<span class="mini-tag">${escapeHtml(item.label)}：${item.tenGod === "-" ? "-" : wrapConcept(item.tenGod)}</span>`).join("")}
+          </div>
+        </article>
+      `;
+
+      tenGodQuick.innerHTML = outerReads.map((item)=>{
+        const godLabel = item.tenGod === "-" ? "-" : wrapConcept(item.tenGod);
+        const groupLabel = item.group === "待观察" ? item.group : wrapConcept(item.group);
+        return `
+          <article class="insight-card">
+            <div class="insight-top">
+              <span class="tag">${escapeHtml(item.label)} · ${escapeHtml(PILLAR_ROLE_HINTS[item.label]?.plain || "")}</span>
+              <span>${godLabel}</span>
+            </div>
+            <div class="insight-copy">
+              ${escapeHtml(item.label)}天干 <strong>${escapeHtml(item.gan)}</strong> 相对日主呈现
+              ${item.tenGod === "-" ? "-" : wrapConcept(item.tenGod)}。
+              入门先把它归入 ${groupLabel}，重点体会：${escapeHtml(item.note)}
+              ${item.role ? ` ${escapeHtml(item.role)}` : ""}
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      const practiceItems = [
+        {
+          question:`今天的日主是谁？`,
+          answer:`因为日柱是 ${wrapGzTag(dGz)}，它的天干 <strong>${escapeHtml(dayGan || "-")}</strong> 就是 ${wrapConcept("日主")}。先确定它，再去看其他关系。`
+        },
+        {
+          question:`月支告诉你什么季节气势？`,
+          answer:`月支是 <span class="concept-tag" data-zhi="${escapeHtml(monthZhi)}">${escapeHtml(monthZhi || "-")}</span>，对应 ${escapeHtml(seasonInfo.season)}。入门时先把 ${escapeHtml(seasonInfo.dominant)} 当作更容易得势的方向，这就是从 ${wrapConcept("月令")} 入手。`
+        },
+        {
+          question:`哪些五行更像“帮手”，哪些更像“功课”？`,
+          answer:`对 ${escapeHtml(dayGan || "-")}${escapeHtml(ganWx)} 来说，${wrapConcept("同类")} 先看 ${escapeHtml(joinReadable(supportElements))}；${wrapConcept("异类")} 先看 ${escapeHtml(joinReadable(challengeElements))}。这一题的重点是建立整体感，不是马上下结论。`
+        },
+        {
+          question:`年、月、时三柱的天干怎么读十神？`,
+          answer:`依次可读作：${outerReads.map((item)=>`${escapeHtml(item.label)} ${item.tenGod === "-" ? "-" : item.tenGod}`).join("；")}。先记住名称，再打开“四柱命理表”继续看 ${wrapConcept("藏干")} 与藏干十神。`
+        }
+      ];
+      practiceList.innerHTML = practiceItems.map((item, index)=>`
+        <details class="practice-card"${index===0 ? " open" : ""}>
+          <summary>${item.question}</summary>
+          <div class="practice-answer">${item.answer}</div>
+        </details>
+      `).join("");
+
+      if (mingliModal.classList.contains("open")) {
+        renderMingliTable();
+      }
     }
 
     function renderMingliTable(){
@@ -880,7 +1396,7 @@
       mingliMeta.innerHTML = `公历：${metaDate}  ${metaTime} · <span class="concept-tag" data-concept="日主">日主</span>：${dayGan || "-"}`;
 
       const ganRow = pillars.map(p=>`${p.gan || "-"}${p.zhi || ""}`);
-      const shiShenRow = pillars.map(p=>getTenGod(dayGan, p.gan));
+      const shiShenRow = pillars.map((p, index)=>index === 2 ? "日主" : getTenGod(dayGan, p.gan));
       const zhiRow = pillars.map(p=>p.zhi || "-");
       const cangganRow = pillars.map(p=>{
         const list = ZHI_CANGGAN[p.zhi] || [];
@@ -1002,11 +1518,25 @@
     // ====== 概念速记 ======
     let noteData = [];
     let conceptByTitle = {};
+    let noteKeyword = "";
+    function getVisibleNotes(){
+      if (!noteKeyword.trim()) return noteData;
+      return noteData.filter((item)=>{
+        const haystack = [item.title, item.short, item.detail].join(" ");
+        return haystack.includes(noteKeyword.trim());
+      });
+    }
     function renderNotes(activeId){
+      const visibleNotes = getVisibleNotes();
       noteGrid.innerHTML = "";
-      noteData.forEach((item)=>{
+      if (!visibleNotes.length){
+        noteDetail.textContent = "没有找到相关概念。";
+        return;
+      }
+      const active = visibleNotes.find((item)=>item.id === activeId) || visibleNotes[0];
+      visibleNotes.forEach((item)=>{
         const card = document.createElement("div");
-        card.className = "note-card" + (item.id === activeId ? " note-active" : "");
+        card.className = "note-card" + (item.id === active.id ? " note-active" : "");
         card.innerHTML = `
           <div class="note-title">${item.title}</div>
           <div class="note-short">${item.short}</div>
@@ -1018,10 +1548,7 @@
         });
         noteGrid.appendChild(card);
       });
-      const active = noteData.find(n=>n.id===activeId);
-      if (active) {
-        noteDetail.innerHTML = `<strong>${active.title}</strong><br>${active.detail}`;
-      }
+      noteDetail.innerHTML = `<strong>${active.title}</strong><br>${active.detail}`;
     }
     function loadNotes(){
       fetch("./fortune-concepts.json")
@@ -1038,6 +1565,10 @@
           noteDetail.textContent = "概念内容加载失败。";
         });
     }
+    noteSearch.addEventListener("input", (e)=>{
+      noteKeyword = e.target.value || "";
+      renderNotes();
+    });
     function showConceptTooltip(html, x, y){
       if (!html) return;
       conceptTooltip.innerHTML = html;
@@ -1129,7 +1660,7 @@
         const len = Math.sqrt(dx*dx + dy*dy);
         const nx = -dy / len * curve;
         const ny = dx / len * curve;
-        return `M ${pa.x} ${pa.y} Q ${midX+nx} ${midY+ny} ${pb.x} ${pb.y}`;
+        return {from:a, to:b, d:`M ${pa.x} ${pa.y} Q ${midX+nx} ${midY+ny} ${pb.x} ${pb.y}`};
       });
 
       const keLines = WUXING_PAIRINGS.ke.map(([a,b]) => {
@@ -1145,7 +1676,7 @@
         const len = Math.sqrt(dx*dx + dy*dy);
         const nx = -dy / len * curve;
         const ny = dx / len * curve;
-        return `M ${pa.x} ${pa.y} Q ${midX+nx} ${midY+ny} ${pb.x} ${pb.y}`;
+        return {from:a, to:b, d:`M ${pa.x} ${pa.y} Q ${midX+nx} ${midY+ny} ${pb.x} ${pb.y}`};
       });
 
       const arrowMarker = (id, color) => `
@@ -1156,12 +1687,12 @@
       let svg = `<svg class="wuxing-svg" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
       svg += `<defs>${arrowMarker("arrowSheng","#4a9c6d")}${arrowMarker("arrowKe","#c75c5c")}</defs>`;
 
-      shengLines.forEach((d,i) => {
-        svg += `<path d="${d}" class="wuxing-sheng-path" stroke="#4a9c6d" stroke-width="2.5" fill="none" marker-end="url(#arrowSheng)" opacity="0.85"/>`;
+      shengLines.forEach((item) => {
+        svg += `<path d="${item.d}" data-from="${item.from}" data-to="${item.to}" data-type="sheng" class="wuxing-sheng-path" stroke="#4a9c6d" stroke-width="2.5" fill="none" marker-end="url(#arrowSheng)" opacity="0.85"/>`;
       });
 
-      keLines.forEach((d,i) => {
-        svg += `<path d="${d}" class="wuxing-ke-path" stroke="#c75c5c" stroke-width="2.5" fill="none" marker-end="url(#arrowKe)" opacity="0.85"/>`;
+      keLines.forEach((item) => {
+        svg += `<path d="${item.d}" data-from="${item.from}" data-to="${item.to}" data-type="ke" class="wuxing-ke-path" stroke="#c75c5c" stroke-width="2.5" fill="none" marker-end="url(#arrowKe)" opacity="0.85"/>`;
       });
 
       svg += `<g class="wuxing-nodes">`;
@@ -1213,33 +1744,39 @@
       const paths = wuxingDiagram.querySelectorAll("path");
       const circles = wuxingDiagram.querySelectorAll("circle");
       const texts = wuxingDiagram.querySelectorAll("text");
-      
+
+      if (!on || !wx) {
+        paths.forEach(path => {
+          path.style.opacity = "0.85";
+          path.classList.remove("active");
+        });
+        circles.forEach(circle => {
+          circle.setAttribute("opacity", "1");
+          circle.setAttribute("stroke", "#fff");
+          circle.setAttribute("stroke-width", "2");
+        });
+        texts.forEach(text => {
+          text.setAttribute("fill", "#fff");
+          text.setAttribute("font-weight", "600");
+        });
+        return;
+      }
+
       const wxIndex = WUXING.indexOf(wx);
       if (wxIndex === -1) return;
-      
+
       const shengMe = WUXING[(wxIndex + 4) % 5];
       const ISheng = WUXING[(wxIndex + 1) % 5];
       const keMe = WUXING[(wxIndex + 3) % 5];
-      const IKe = WUXING[(wxIndex + 1) % 5];
-      
+      const IKe = WUXING[(wxIndex + 2) % 5];
+
       const shengRelated = [shengMe, ISheng];
       const keRelated = [keMe, IKe];
-      
+
       paths.forEach(path => {
-        if (!on) {
-          path.style.opacity = "0.5";
-          path.classList.remove("active");
-          return;
-        }
-        let matched = false;
-        let isSheng = false;
-        WUXING_PAIRINGS.sheng.forEach(([a,b]) => {
-          if (a === wx || b === wx) { matched = true; isSheng = true; }
-        });
-        WUXING_PAIRINGS.ke.forEach(([a,b]) => {
-          if (a === wx || b === wx) { matched = true; isSheng = false; }
-        });
-        if (matched) {
+        const from = path.getAttribute("data-from");
+        const to = path.getAttribute("data-to");
+        if (from === wx || to === wx) {
           path.style.opacity = "1";
           path.classList.add("active");
         } else {
@@ -1247,17 +1784,11 @@
           path.classList.remove("active");
         }
       });
-      
+
       circles.forEach(circle => {
         const fill = circle.getAttribute("fill");
         const circleWx = WUXING.find(w => WUXING_SVG_COLORS[w] === fill);
         if (!circleWx) return;
-        if (!on) {
-          circle.setAttribute("opacity", "1");
-          circle.setAttribute("stroke", "#fff");
-          circle.setAttribute("stroke-width", "2");
-          return;
-        }
         if (circleWx === wx) {
           circle.setAttribute("opacity", "1");
           circle.setAttribute("stroke", "#fff");
@@ -1279,11 +1810,6 @@
       
       texts.forEach(text => {
         const content = text.textContent;
-        if (!on) {
-          text.setAttribute("fill", "#fff");
-          text.setAttribute("font-weight", "600");
-          return;
-        }
         if (content === wx) {
           text.setAttribute("fill", "#fff");
           text.setAttribute("font-weight", "700");
