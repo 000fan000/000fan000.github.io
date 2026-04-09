@@ -713,6 +713,7 @@
     }
     .wuxing-board{
       width:100%;
+      position:relative;
       border:1px solid rgba(199,155,75,0.18);
       border-radius:26px;
       padding:18px;
@@ -720,6 +721,96 @@
         radial-gradient(circle at center, rgba(199,155,75,0.08), transparent 44%),
         linear-gradient(180deg, rgba(255,255,255,0.96), rgba(250,245,236,0.92));
       box-shadow:inset 0 1px 0 rgba(255,255,255,0.85), 0 16px 40px rgba(78,59,27,0.08);
+      overflow:visible;
+    }
+    .wuxing-float-card{
+      position:absolute;
+      top:18px;
+      left:18px;
+      width:min(240px, calc(100% - 36px));
+      padding:14px 15px;
+      border-radius:18px;
+      border:1px solid rgba(199,155,75,0.2);
+      background:rgba(255,252,247,0.96);
+      box-shadow:0 18px 36px rgba(68,50,22,0.16);
+      backdrop-filter:blur(10px);
+      opacity:0;
+      transform:translateY(8px) scale(0.98);
+      transform-origin:center;
+      transition:opacity .2s ease, transform .2s ease;
+      pointer-events:none;
+      z-index:3;
+    }
+    .wuxing-float-card.visible{
+      opacity:1;
+      transform:translateY(0) scale(1);
+    }
+    .wuxing-float-card::after{
+      content:"";
+      position:absolute;
+      width:14px;
+      height:14px;
+      background:rgba(255,252,247,0.96);
+      border-right:1px solid rgba(199,155,75,0.2);
+      border-bottom:1px solid rgba(199,155,75,0.2);
+      transform:rotate(45deg);
+      left:var(--arrow-left, 24px);
+      top:var(--arrow-top, auto);
+      bottom:var(--arrow-bottom, auto);
+    }
+    .wuxing-float-card.arrow-top::after{
+      top:-8px;
+      bottom:auto;
+    }
+    .wuxing-float-card.arrow-bottom::after{
+      bottom:-8px;
+      top:auto;
+    }
+    .wuxing-float-title{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:8px;
+      color:#2d2419;
+    }
+    .wuxing-float-dot{
+      width:12px;
+      height:12px;
+      border-radius:50%;
+      background:var(--wx);
+      box-shadow:0 0 0 5px color-mix(in srgb, var(--wx) 16%, white);
+      flex:0 0 auto;
+    }
+    .wuxing-float-title strong{
+      font-size:18px;
+      line-height:1;
+    }
+    .wuxing-float-title span{
+      color:#7a6451;
+      font-size:12px;
+      letter-spacing:0.08em;
+    }
+    .wuxing-float-copy{
+      margin:0;
+      color:#56493b;
+      font-size:13px;
+      line-height:1.65;
+    }
+    .wuxing-float-meta{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:12px;
+    }
+    .wuxing-float-meta span{
+      display:block;
+      padding:8px 10px;
+      border-radius:12px;
+      background:#fbf7ef;
+      border:1px solid rgba(199,155,75,0.14);
+      color:#5c4d3e;
+      font-size:12px;
+      line-height:1.45;
     }
     .wuxing-svg{
       display:block;
@@ -796,6 +887,10 @@
       transition:opacity .2s ease, transform .2s ease;
       transform-box:fill-box;
       transform-origin:center;
+    }
+    .wuxing-node-hit{
+      fill:rgba(255,255,255,0.001);
+      pointer-events:all;
     }
     .wuxing-node-glow{
       fill:rgba(255,255,255,0.55);
@@ -965,6 +1060,12 @@
       .wuxing-desc-card{padding:14px}
       .wuxing-intro h3,
       .wuxing-focus-title{font-size:20px}
+      .wuxing-float-card{
+        width:min(220px, calc(100% - 28px));
+      }
+      .wuxing-float-meta{
+        grid-template-columns:1fr;
+      }
     }
   </style>
 </head>
@@ -1433,6 +1534,7 @@
     const wuxingDiagram = document.getElementById("wuxingDiagram");
     const openWuxing = document.getElementById("openWuxing");
     let pinnedWuxing = null;
+    let wuxingHoverTimer = null;
 
     // ====== 初始化时辰选项 ======
     function initHourSelect(){
@@ -1846,12 +1948,14 @@
       wuxingModal.setAttribute("aria-hidden","false");
     });
     closeWuxing.addEventListener("click", ()=>{
+      clearWuxingHoverTimer();
       pinnedWuxing = null;
       wuxingModal.classList.remove("open");
       wuxingModal.setAttribute("aria-hidden","true");
     });
     wuxingModal.addEventListener("click", (e)=>{
       if (e.target === wuxingModal){
+        clearWuxingHoverTimer();
         pinnedWuxing = null;
         wuxingModal.classList.remove("open");
         wuxingModal.setAttribute("aria-hidden","true");
@@ -1975,47 +2079,141 @@
     });
 
     // ====== 五行相生相克图 ======
-    function getWuxingFocusMarkup(wx){
-      if (!wx || !WUXING_META[wx]) {
-        return `
-          <div class="wuxing-focus-badge">当前聚焦</div>
-          <div class="wuxing-focus-title">总览</div>
-          <p class="wuxing-focus-copy">相生像一条顺势接力线，让气脉可以延续；相克像一条制衡线，提醒结构不要失控。两套关系一起看，五行图才会真正立起来。</p>
-          <div class="wuxing-focus-meta">
-            <span>相生：木 → 火 → 土 → 金 → 水</span>
-            <span>相克：木 → 土 → 水 → 火 → 金</span>
-            <span>操作：悬停或轻触任一元素</span>
-          </div>
-        `;
-      }
+    function getWuxingFocusMarkup(){
+      return `
+        <div class="wuxing-focus-badge">当前聚焦</div>
+        <div class="wuxing-focus-title">看图顺序先固定下来</div>
+        <p class="wuxing-focus-copy">先用圆环记住五行站位，再看绿色相生线怎么把气势接起来，最后看红色相克线如何给结构设边界。悬停圆点时，元素说明会以浮卡形式贴近图面出现，不再抢占这里的版面。</p>
+        <div class="wuxing-focus-meta">
+          <span>第一眼：先认木火土金水站位</span>
+          <span>第二眼：看相生的顺势传递</span>
+          <span>第三眼：看相克的制衡边界</span>
+          <span>交互：悬停预览，点击可固定浮卡</span>
+        </div>
+      `;
+    }
 
+    function getWuxingFloatCardMarkup(wx){
       const meta = WUXING_META[wx];
+      if (!meta) return "";
       const wxIndex = WUXING.indexOf(wx);
       const resource = WUXING[(wxIndex + 4) % 5];
       const output = WUXING[(wxIndex + 1) % 5];
       const wealth = WUXING[(wxIndex + 2) % 5];
       const officer = WUXING[(wxIndex + 3) % 5];
       return `
-        <div class="wuxing-focus-badge">当前聚焦</div>
-        <div class="wuxing-focus-title">${wx} · ${meta.label}</div>
-        <p class="wuxing-focus-copy">${meta.season}之气偏向${meta.nature}，${meta.imagery}。在关系里，它受${resource}所生，向${output}递气；会约束${wealth}，也受${officer}所制。</p>
-        <div class="wuxing-focus-meta">
-          <span>季节：${meta.season}</span>
-          <span>受生：${resource}生${wx}</span>
-          <span>输出：${wx}生${output}</span>
-          <span>制衡：${wx}克${wealth}</span>
-          <span>受克：${officer}克${wx}</span>
+        <div class="wuxing-float-title" style="--wx:${WUXING_SVG_COLORS[wx]};">
+          <span class="wuxing-float-dot"></span>
+          <div>
+            <strong>${wx}</strong>
+            <span>${meta.label}</span>
+          </div>
+        </div>
+        <p class="wuxing-float-copy">${meta.season}之气偏向${meta.nature}，${meta.imagery}。在图里，${resource}会生${wx}，${wx}再生${output}；它能制约${wealth}，也会被${officer}所制。</p>
+        <div class="wuxing-float-meta">
+          <span>受生：${resource} → ${wx}</span>
+          <span>输出：${wx} → ${output}</span>
+          <span>制衡：${wx} → ${wealth}</span>
+          <span>受克：${officer} → ${wx}</span>
         </div>
       `;
     }
 
-    function setWuxingFocus(wx){
-      const focus = wuxingDiagram.querySelector("#wuxingFocus");
-      if (focus) focus.innerHTML = getWuxingFocusMarkup(wx);
+    function updateWuxingPills(wx){
       const pills = wuxingDiagram.querySelectorAll(".wuxing-pill");
       pills.forEach((pill)=>{
         pill.classList.toggle("active", pill.getAttribute("data-wx") === wx);
       });
+    }
+
+    function showWuxingFloatCard(wx){
+      const card = wuxingDiagram.querySelector("#wuxingFloatCard");
+      const board = wuxingDiagram.querySelector(".wuxing-board");
+      const svg = wuxingDiagram.querySelector(".wuxing-svg");
+      if (!card || !board || !svg || !wx || !WUXING_META[wx]) return;
+
+      card.innerHTML = getWuxingFloatCardMarkup(wx);
+      card.classList.remove("arrow-top", "arrow-bottom");
+      card.style.left = "18px";
+      card.style.top = "18px";
+      card.style.removeProperty("--arrow-left");
+      card.style.removeProperty("--arrow-top");
+      card.style.removeProperty("--arrow-bottom");
+      card.setAttribute("aria-hidden", "false");
+      card.classList.add("visible");
+
+      const vb = svg.viewBox.baseVal;
+      const svgWidth = svg.clientWidth || vb.width || 1;
+      const svgHeight = svg.clientHeight || vb.height || 1;
+      const boardWidth = board.clientWidth;
+      const boardHeight = board.clientHeight;
+      const svgLeft = svg.offsetLeft;
+      const svgTop = svg.offsetTop;
+      const pos = (() => {
+        const index = WUXING.indexOf(wx);
+        const angle = (index * 72 - 90) * Math.PI / 180;
+        const r = 162;
+        const cx = 230;
+        const cy = 230;
+        return {
+          x: cx + r * Math.cos(angle),
+          y: cy + r * Math.sin(angle)
+        };
+      })();
+
+      const anchorX = svgLeft + (pos.x / vb.width) * svgWidth;
+      const anchorY = svgTop + (pos.y / vb.height) * svgHeight;
+      const cardWidth = card.offsetWidth;
+      const cardHeight = card.offsetHeight;
+      const pad = 16;
+      const gap = 24;
+      let left = anchorX + gap;
+      if (anchorX > boardWidth * 0.56) left = anchorX - cardWidth - gap;
+      let top = anchorY - cardHeight - gap;
+      let arrowClass = "arrow-bottom";
+      if (anchorY < boardHeight * 0.34) {
+        top = anchorY + gap;
+        arrowClass = "arrow-top";
+      }
+
+      left = Math.max(pad, Math.min(left, boardWidth - cardWidth - pad));
+      top = Math.max(pad, Math.min(top, boardHeight - cardHeight - pad));
+      const arrowLeft = Math.max(18, Math.min(anchorX - left - 7, cardWidth - 24));
+
+      card.style.left = `${left}px`;
+      card.style.top = `${top}px`;
+      card.style.setProperty("--arrow-left", `${arrowLeft}px`);
+      if (arrowClass === "arrow-top") {
+        card.style.setProperty("--arrow-top", "-8px");
+        card.style.setProperty("--arrow-bottom", "auto");
+      } else {
+        card.style.setProperty("--arrow-top", "auto");
+        card.style.setProperty("--arrow-bottom", "-8px");
+      }
+      card.classList.add(arrowClass);
+    }
+
+    function hideWuxingFloatCard(){
+      const card = wuxingDiagram.querySelector("#wuxingFloatCard");
+      if (!card) return;
+      card.setAttribute("aria-hidden", "true");
+      card.classList.remove("visible", "arrow-top", "arrow-bottom");
+    }
+
+    function clearWuxingHoverTimer(){
+      if (!wuxingHoverTimer) return;
+      clearTimeout(wuxingHoverTimer);
+      wuxingHoverTimer = null;
+    }
+
+    function scheduleWuxingPreviewHide(){
+      clearWuxingHoverTimer();
+      wuxingHoverTimer = setTimeout(() => {
+        if (pinnedWuxing) return;
+        highlightWuxing(null, false);
+        hideWuxingFloatCard();
+        wuxingHoverTimer = null;
+      }, 420);
     }
 
     function renderWuxingDiagram(){
@@ -2100,6 +2298,7 @@
         const meta = WUXING_META[wx];
         svg += `
           <g class="wuxing-node" data-wx="${wx}" transform="translate(${pos.x} ${pos.y})" tabindex="0" role="button" aria-label="查看${wx}的五行关系">
+            <circle class="wuxing-node-hit" r="62"/>
             <circle class="wuxing-node-glow" r="48"/>
             <circle class="wuxing-node-ring" r="41"/>
             <circle class="wuxing-node-core" r="34" fill="${WUXING_SVG_COLORS[wx]}"/>
@@ -2139,11 +2338,12 @@
         </div>
         <div class="wuxing-board">
           ${svg}
+          <div id="wuxingFloatCard" class="wuxing-float-card" aria-hidden="true"></div>
           <div class="wuxing-legend">
             <div class="legend-item"><div class="legend-line sheng"></div><span>相生：滋养、接力、延续</span></div>
             <div class="legend-item"><div class="legend-line ke"></div><span>相克：约束、节制、平衡</span></div>
           </div>
-          <p class="wuxing-hint">悬停或轻触元素，可聚焦它受谁所生、向谁递气、制约谁、又受谁节制；再次轻触同一元素即可取消聚焦。</p>
+          <p class="wuxing-hint">悬停或轻触元素时，说明会贴近图面出现；点击可固定，再点一次取消。</p>
         </div>
         <div class="wuxing-desc">
           <div class="wuxing-desc-card sheng-card">
@@ -2171,26 +2371,42 @@
 
       const attachWuxingInteraction = (target, wx) => {
         target.addEventListener("mouseenter", () => {
-          if (!pinnedWuxing) highlightWuxing(wx, true);
+          if (!pinnedWuxing) {
+            clearWuxingHoverTimer();
+            highlightWuxing(wx, true);
+            showWuxingFloatCard(wx);
+          }
         });
         target.addEventListener("mouseleave", () => {
-          if (!pinnedWuxing) highlightWuxing(null, false);
+          if (!pinnedWuxing) clearWuxingHoverTimer();
         });
         target.addEventListener("focus", () => {
-          if (!pinnedWuxing) highlightWuxing(wx, true);
+          if (!pinnedWuxing) {
+            clearWuxingHoverTimer();
+            highlightWuxing(wx, true);
+            showWuxingFloatCard(wx);
+          }
         });
         target.addEventListener("blur", () => {
-          if (!pinnedWuxing) highlightWuxing(null, false);
+          if (!pinnedWuxing) {
+            scheduleWuxingPreviewHide();
+          }
         });
         target.addEventListener("click", () => {
+          clearWuxingHoverTimer();
           pinnedWuxing = pinnedWuxing === wx ? null : wx;
           highlightWuxing(pinnedWuxing, Boolean(pinnedWuxing));
+          if (pinnedWuxing) showWuxingFloatCard(pinnedWuxing);
+          else hideWuxingFloatCard();
         });
         target.addEventListener("keydown", (e) => {
           if (e.key !== "Enter" && e.key !== " ") return;
           e.preventDefault();
+          clearWuxingHoverTimer();
           pinnedWuxing = pinnedWuxing === wx ? null : wx;
           highlightWuxing(pinnedWuxing, Boolean(pinnedWuxing));
+          if (pinnedWuxing) showWuxingFloatCard(pinnedWuxing);
+          else hideWuxingFloatCard();
         });
       };
 
@@ -2198,7 +2414,17 @@
       nodes.forEach((node) => attachWuxingInteraction(node, node.getAttribute("data-wx")));
       const pills = wuxingDiagram.querySelectorAll(".wuxing-pill");
       pills.forEach((pill) => attachWuxingInteraction(pill, pill.getAttribute("data-wx")));
+      const board = wuxingDiagram.querySelector(".wuxing-board");
+      if (board) {
+        board.addEventListener("mouseenter", () => {
+          if (!pinnedWuxing) clearWuxingHoverTimer();
+        });
+        board.addEventListener("mouseleave", () => {
+          if (!pinnedWuxing) scheduleWuxingPreviewHide();
+        });
+      }
       highlightWuxing(null, false);
+      hideWuxingFloatCard();
     }
 
     function highlightWuxing(wx, on){
@@ -2212,7 +2438,7 @@
         nodes.forEach((node) => {
           node.classList.remove("is-active", "support", "challenge", "dimmed");
         });
-        setWuxingFocus(null);
+        updateWuxingPills(null);
         return;
       }
 
@@ -2242,7 +2468,7 @@
         }
       });
 
-      setWuxingFocus(wx);
+      updateWuxingPills(wx);
     }
 
     // ====== 启动 ======
