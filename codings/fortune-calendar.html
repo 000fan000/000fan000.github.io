@@ -6,20 +6,112 @@
   <title>万年历 · 命理学入门看板</title>
   <style>
     :root{
-      --bg:#f6f3ee;
-      --card:#fffdf9;
-      --muted:#8b8b8b;
-      --text:#222;
-      --accent:#c79b4b;
-      --accent-2:#e6d2a9;
-      --line:#e8e1d6;
+      color-scheme: light;
+      --bg:#f7f8f6;
+      --page-backdrop:
+        radial-gradient(circle at top left, rgba(42, 52, 64, 0.04), transparent 30%),
+        radial-gradient(circle at right 18%, rgba(118, 132, 148, 0.06), transparent 28%),
+        linear-gradient(180deg, #fbfcfb 0%, #f7f8f6 52%, #eef1f2 100%);
+      --card:#fffefe;
+      --card-soft:#f8faf9;
+      --card-elevated:rgba(252, 253, 252, 0.86);
+      --input-bg:rgba(253, 254, 253, 0.94);
+      --muted:#6d767e;
+      --text:#1f252b;
+      --text-soft:#495159;
+      --accent:#5d6b78;
+      --accent-2:#e7edf1;
+      --accent-strong:#3d4a56;
+      --line:#dbe2e6;
+      --line-strong:rgba(93, 107, 120, 0.24);
+      --shadow:0 14px 34px rgba(34, 44, 58, 0.08);
+      --shadow-strong:0 18px 40px rgba(34, 44, 58, 0.14);
+      --hero-bg:
+        radial-gradient(circle at top right, rgba(93, 107, 120, 0.14), transparent 32%),
+        linear-gradient(135deg, #ffffff 0%, #fbfcfb 60%, #f1f4f5 100%);
+      --hero-glow:radial-gradient(circle, rgba(93, 107, 120, 0.1), rgba(93, 107, 120, 0));
+      --eyebrow-bg:rgba(255, 255, 255, 0.8);
+      --eyebrow-border:rgba(93, 107, 120, 0.2);
+      --eyebrow-text:#52606c;
+      --hero-step-bg:rgba(252, 253, 252, 0.8);
+      --hero-step-border:rgba(93, 107, 120, 0.18);
+      --sample-bg:linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(244, 247, 248, 0.94));
+      --tag-bg:#fcfdfd;
+      --subtle-tag-bg:#f1f5f7;
+      --tooltip-bg:#fffefe;
+      --overlay:rgba(16, 22, 28, 0.34);
+      --wuxing-modal-bg:
+        radial-gradient(circle at top right, rgba(93, 107, 120, 0.12), transparent 30%),
+        linear-gradient(180deg, #ffffff 0%, #f5f8f9 100%);
+      --wuxing-panel-bg:rgba(252, 253, 252, 0.88);
+      --wuxing-panel-border:rgba(93, 107, 120, 0.16);
+      --wuxing-chip-bg:#eef3f5;
+      --wuxing-board-bg:
+        radial-gradient(circle at center, rgba(93, 107, 120, 0.06), transparent 44%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(243, 247, 248, 0.94));
+      --wuxing-board-border:rgba(93, 107, 120, 0.14);
+      --wuxing-float-bg:rgba(255, 255, 255, 0.96);
+      --wuxing-axis:rgba(102, 117, 132, 0.1);
+      --sheng-accent:#4a9c6d;
+      --ke-accent:#c75c5c;
+    }
+    html[data-theme="dark"]{
+      color-scheme: dark;
+      --bg:#07111c;
+      --page-backdrop:
+        radial-gradient(circle at 18% 18%, rgba(88, 200, 255, 0.16), transparent 24%),
+        radial-gradient(circle at 82% 0%, rgba(0, 132, 255, 0.14), transparent 30%),
+        linear-gradient(180deg, #091321 0%, #07111c 58%, #030912 100%);
+      --card:#0d1827;
+      --card-soft:#112034;
+      --card-elevated:rgba(14, 27, 43, 0.84);
+      --input-bg:rgba(16, 30, 47, 0.96);
+      --muted:#7e92ad;
+      --text:#edf5ff;
+      --text-soft:#b7c9dd;
+      --accent:#58c8ff;
+      --accent-2:#123a59;
+      --accent-strong:#96e5ff;
+      --line:#1e3951;
+      --line-strong:rgba(88, 200, 255, 0.32);
+      --shadow:0 20px 44px rgba(0, 0, 0, 0.28);
+      --shadow-strong:0 24px 54px rgba(0, 0, 0, 0.42);
+      --hero-bg:
+        radial-gradient(circle at top right, rgba(88, 200, 255, 0.22), transparent 34%),
+        linear-gradient(140deg, #0d1827 0%, #102234 54%, #08121d 100%);
+      --hero-glow:radial-gradient(circle, rgba(88, 200, 255, 0.18), rgba(88, 200, 255, 0));
+      --eyebrow-bg:rgba(10, 24, 39, 0.72);
+      --eyebrow-border:rgba(88, 200, 255, 0.28);
+      --eyebrow-text:#90dbff;
+      --hero-step-bg:rgba(13, 26, 42, 0.82);
+      --hero-step-border:rgba(88, 200, 255, 0.22);
+      --sample-bg:linear-gradient(90deg, rgba(12, 24, 38, 0.98), rgba(16, 37, 56, 0.94));
+      --tag-bg:#102031;
+      --subtle-tag-bg:#13283d;
+      --tooltip-bg:#132133;
+      --overlay:rgba(1, 7, 14, 0.64);
+      --wuxing-modal-bg:
+        radial-gradient(circle at top right, rgba(88, 200, 255, 0.18), transparent 30%),
+        linear-gradient(180deg, #0e1928 0%, #0a1320 100%);
+      --wuxing-panel-bg:rgba(13, 27, 43, 0.88);
+      --wuxing-panel-border:rgba(88, 200, 255, 0.18);
+      --wuxing-chip-bg:#13263b;
+      --wuxing-board-bg:
+        radial-gradient(circle at center, rgba(88, 200, 255, 0.1), transparent 44%),
+        linear-gradient(180deg, rgba(13, 25, 40, 0.96), rgba(9, 18, 30, 0.96));
+      --wuxing-board-border:rgba(88, 200, 255, 0.16);
+      --wuxing-float-bg:rgba(13, 25, 40, 0.96);
+      --wuxing-axis:rgba(115, 174, 219, 0.15);
+      --sheng-accent:#4cd7a7;
+      --ke-accent:#ff7f87;
     }
     *{box-sizing:border-box}
     body{
       margin:0;
       font-family: "Noto Serif SC","Source Han Serif SC","PingFang SC","Microsoft YaHei",serif;
-      background:var(--bg);
+      background:var(--page-backdrop);
       color:var(--text);
+      min-height:100vh;
     }
     .wrap{
       max-width:1200px;
@@ -44,9 +136,17 @@
       align-items:center;
       flex-wrap:wrap;
     }
+    .controls label{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      color:var(--text-soft);
+      font-size:14px;
+    }
     button, input[type="date"], input[type="search"], select{
       border:1px solid var(--line);
-      background:#fff;
+      background:var(--input-bg);
+      color:var(--text);
       padding:8px 10px;
       border-radius:10px;
       font-size:14px;
@@ -55,10 +155,14 @@
       cursor:pointer;
       transition:all .2s ease;
     }
-    button:hover{background:#f7f0e5}
+    button:hover{
+      background:var(--card-soft);
+      border-color:var(--line-strong);
+    }
     .btn-accent{
       border-color: var(--accent);
       background: var(--accent-2);
+      color:var(--text);
     }
     .layout{
       display:grid;
@@ -73,7 +177,7 @@
       border:1px solid var(--line);
       border-radius:16px;
       padding:14px;
-      box-shadow:0 6px 18px rgba(0,0,0,0.04);
+      box-shadow:var(--shadow);
     }
     .hero{
       display:grid;
@@ -81,9 +185,7 @@
       gap:16px;
       margin-bottom:16px;
       padding:20px;
-      background:
-        radial-gradient(circle at top right, rgba(199,155,75,0.18), transparent 32%),
-        linear-gradient(135deg, #fffaf1 0%, #fffdf9 60%, #f5efe3 100%);
+      background:var(--hero-bg);
       position:relative;
       overflow:hidden;
     }
@@ -94,7 +196,7 @@
       width:180px;
       height:180px;
       border-radius:999px;
-      background:radial-gradient(circle, rgba(199,155,75,0.14), rgba(199,155,75,0));
+      background:var(--hero-glow);
       pointer-events:none;
     }
     .hero-copy{
@@ -107,10 +209,10 @@
       gap:8px;
       padding:4px 10px;
       border-radius:999px;
-      background:rgba(255,255,255,0.7);
-      border:1px solid rgba(199,155,75,0.3);
+      background:var(--eyebrow-bg);
+      border:1px solid var(--eyebrow-border);
       font-size:12px;
-      color:#7c6130;
+      color:var(--eyebrow-text);
       margin-bottom:12px;
     }
     .hero h2{
@@ -122,7 +224,7 @@
       margin:0;
       max-width:40em;
       line-height:1.8;
-      color:#4c4437;
+      color:var(--text-soft);
       font-size:15px;
     }
     .hero-mini{
@@ -138,10 +240,10 @@
       z-index:1;
     }
     .hero-step{
-      border:1px solid rgba(199,155,75,0.28);
+      border:1px solid var(--hero-step-border);
       border-radius:14px;
       padding:12px;
-      background:rgba(255,255,255,0.78);
+      background:var(--hero-step-bg);
       backdrop-filter:blur(6px);
     }
     .hero-step strong{
@@ -151,7 +253,7 @@
     }
     .hero-step span{
       display:block;
-      color:#5a5144;
+      color:var(--text-soft);
       font-size:13px;
       line-height:1.6;
     }
@@ -160,21 +262,21 @@
       align-items:flex-start;
       gap:12px;
       margin-bottom:16px;
-      background:linear-gradient(90deg, #fffefb, #f8f2e8);
+      background:var(--sample-bg);
     }
     .sample-badge{
       flex:0 0 auto;
       padding:4px 8px;
       border-radius:999px;
       background:var(--accent-2);
-      border:1px solid rgba(199,155,75,0.4);
+      border:1px solid var(--line-strong);
       font-size:12px;
-      color:#6f541e;
+      color:var(--accent-strong);
     }
     .sample-copy{
       font-size:14px;
       line-height:1.7;
-      color:#433b30;
+      color:var(--text-soft);
     }
     .month-title{
       font-size:18px;
@@ -198,7 +300,7 @@
       border:1px solid var(--line);
       border-radius:12px;
       padding:8px;
-      background:#fff;
+      background:var(--card);
       display:flex;
       flex-direction:column;
       gap:4px;
@@ -217,11 +319,11 @@
     }
     .lunar-text{
       font-size:12px;
-      color:#444;
+      color:var(--text-soft);
     }
     .gz-text{
       font-size:12px;
-      color:#444;
+      color:var(--text-soft);
     }
     .jieqi{
       font-size:11px;
@@ -252,7 +354,7 @@
       border-radius:8px;
       margin-right:6px;
       font-size:12px;
-      background:#fff;
+      background:var(--tag-bg);
     }
     .bazi-grid{
       display:grid;
@@ -264,7 +366,7 @@
       border:1px solid var(--line);
       border-radius:12px;
       padding:8px;
-      background:#fff;
+      background:var(--card-soft);
     }
     .bazi-title{
       font-size:12px;
@@ -283,7 +385,7 @@
     }
     .bazi-wx{
       font-size:12px;
-      color:#444;
+      color:var(--text-soft);
       margin-top:2px;
     }
     .wuxing-count{
@@ -301,7 +403,7 @@
       border:1px solid var(--line);
       border-radius:14px;
       padding:12px;
-      background:#fff;
+      background:var(--card-soft);
     }
     .learning-head{
       display:flex;
@@ -314,13 +416,13 @@
       height:28px;
       border-radius:999px;
       background:var(--accent-2);
-      border:1px solid rgba(199,155,75,0.45);
+      border:1px solid var(--line-strong);
       display:flex;
       align-items:center;
       justify-content:center;
       font-size:13px;
       font-weight:600;
-      color:#6f541e;
+      color:var(--accent-strong);
       flex:0 0 auto;
     }
     .learning-title{
@@ -330,7 +432,7 @@
     .learning-body{
       font-size:13px;
       line-height:1.7;
-      color:#433b30;
+      color:var(--text-soft);
     }
     .mini-row{
       display:flex;
@@ -344,10 +446,10 @@
       gap:6px;
       padding:4px 8px;
       border-radius:999px;
-      background:#faf5eb;
+      background:var(--subtle-tag-bg);
       border:1px solid var(--line);
       font-size:12px;
-      color:#5a5144;
+      color:var(--text-soft);
     }
     .insight-grid{
       display:grid;
@@ -358,7 +460,7 @@
       border:1px solid var(--line);
       border-radius:14px;
       padding:12px;
-      background:#fff;
+      background:var(--card-soft);
     }
     .insight-top{
       display:flex;
@@ -371,7 +473,7 @@
     .insight-copy{
       font-size:13px;
       line-height:1.7;
-      color:#433b30;
+      color:var(--text-soft);
     }
     .practice-list{
       display:grid;
@@ -381,7 +483,7 @@
     .practice-card{
       border:1px solid var(--line);
       border-radius:14px;
-      background:#fff;
+      background:var(--card-soft);
       padding:0 12px;
     }
     .practice-card summary{
@@ -398,7 +500,7 @@
       padding:0 0 12px;
       font-size:13px;
       line-height:1.7;
-      color:#433b30;
+      color:var(--text-soft);
     }
     .learning-note{
       font-size:12px;
@@ -416,7 +518,7 @@
       border:1px solid var(--line);
       border-radius:12px;
       padding:8px;
-      background:#fff;
+      background:var(--card-soft);
       cursor:pointer;
       transition:all .2s ease;
       position:relative;
@@ -430,7 +532,7 @@
     }
     .note-short{
       font-size:12px;
-      color:#444;
+      color:var(--text-soft);
       line-height:1.4;
     }
     .note-hover{
@@ -452,7 +554,7 @@
       border:1px solid var(--line);
       border-radius:12px;
       padding:10px;
-      background:#fff;
+      background:var(--card-soft);
       margin-top:8px;
       font-size:13px;
       line-height:1.5;
@@ -465,7 +567,7 @@
       height:100vh;
       background:var(--card);
       border-left:1px solid var(--line);
-      box-shadow:-8px 0 20px rgba(0,0,0,0.08);
+      box-shadow:-14px 0 28px rgba(0,0,0,0.16);
       transform:translateX(100%);
       transition:transform .25s ease;
       z-index:998;
@@ -502,11 +604,11 @@
       position:fixed;
       z-index:1000;
       max-width:260px;
-      background:#fff;
+      background:var(--tooltip-bg);
       border:1px solid var(--line);
       border-radius:10px;
       padding:8px 10px;
-      box-shadow:0 8px 20px rgba(0,0,0,0.15);
+      box-shadow:var(--shadow-strong);
       font-size:12px;
       line-height:1.4;
       display:none;
@@ -536,7 +638,7 @@
       display:none;
       align-items:center;
       justify-content:center;
-      background:rgba(0,0,0,0.35);
+      background:var(--overlay);
       padding:16px;
       z-index:999;
     }
@@ -569,7 +671,7 @@
       vertical-align:top;
     }
     .table th{
-      background:#f7f0e5;
+      background:var(--card-soft);
       text-align:left;
     }
     .muted{
@@ -578,9 +680,7 @@
     .wuxing-modal-card{
       width:min(1080px, 96vw);
       padding:20px;
-      background:
-        radial-gradient(circle at top right, rgba(199,155,75,0.16), transparent 30%),
-        linear-gradient(180deg, #fffdf9 0%, #fcf8f1 100%);
+      background:var(--wuxing-modal-bg);
     }
     .wuxing-diagram{
       display:flex;
@@ -600,11 +700,11 @@
     }
     .wuxing-intro,
     .wuxing-focus{
-      border:1px solid rgba(199,155,75,0.2);
+      border:1px solid var(--wuxing-panel-border);
       border-radius:18px;
       padding:16px 18px;
-      background:rgba(255,255,255,0.86);
-      box-shadow:0 10px 28px rgba(88,70,36,0.06);
+      background:var(--wuxing-panel-bg);
+      box-shadow:var(--shadow);
     }
     .wuxing-badge,
     .wuxing-focus-badge{
@@ -613,9 +713,9 @@
       gap:6px;
       padding:4px 10px;
       border-radius:999px;
-      background:#f8f1e4;
-      border:1px solid rgba(199,155,75,0.28);
-      color:#7a5d2c;
+      background:var(--wuxing-chip-bg);
+      border:1px solid var(--line-strong);
+      color:var(--accent-strong);
       font-size:12px;
       letter-spacing:0.04em;
     }
@@ -624,12 +724,12 @@
       margin:10px 0 6px;
       font-size:24px;
       line-height:1.2;
-      color:#2f2619;
+      color:var(--text);
     }
     .wuxing-intro p,
     .wuxing-focus-copy{
       margin:0;
-      color:#564b3d;
+      color:var(--text-soft);
       font-size:14px;
       line-height:1.8;
     }
@@ -647,8 +747,8 @@
       border-radius:999px;
       border:1px solid color-mix(in srgb, var(--wx) 28%, white);
       background:linear-gradient(180deg, color-mix(in srgb, var(--wx) 12%, white), rgba(255,255,255,0.98));
-      color:#413728;
-      box-shadow:0 6px 16px rgba(64,44,18,0.06);
+      color:var(--text);
+      box-shadow:var(--shadow);
     }
     .wuxing-pill:hover{
       background:linear-gradient(180deg, color-mix(in srgb, var(--wx) 18%, white), rgba(255,255,255,1));
@@ -666,7 +766,7 @@
       box-shadow:0 0 0 4px color-mix(in srgb, var(--wx) 18%, white);
     }
     .wuxing-pill small{
-      color:#756654;
+      color:var(--muted);
       font-size:11px;
     }
     .wuxing-focus{
@@ -681,7 +781,7 @@
       width:140px;
       height:140px;
       border-radius:50%;
-      background:radial-gradient(circle, rgba(199,155,75,0.16), rgba(199,155,75,0));
+      background:var(--hero-glow);
       pointer-events:none;
     }
     .wuxing-focus-title{
@@ -706,21 +806,19 @@
       align-items:center;
       padding:6px 10px;
       border-radius:999px;
-      background:#fbf7ef;
-      border:1px solid rgba(199,155,75,0.18);
-      color:#5f513e;
+      background:var(--subtle-tag-bg);
+      border:1px solid var(--wuxing-panel-border);
+      color:var(--text-soft);
       font-size:12px;
     }
     .wuxing-board{
       width:100%;
       position:relative;
-      border:1px solid rgba(199,155,75,0.18);
+      border:1px solid var(--wuxing-board-border);
       border-radius:26px;
       padding:18px;
-      background:
-        radial-gradient(circle at center, rgba(199,155,75,0.08), transparent 44%),
-        linear-gradient(180deg, rgba(255,255,255,0.96), rgba(250,245,236,0.92));
-      box-shadow:inset 0 1px 0 rgba(255,255,255,0.85), 0 16px 40px rgba(78,59,27,0.08);
+      background:var(--wuxing-board-bg);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.08), 0 16px 40px rgba(0,0,0,0.16);
       overflow:visible;
     }
     .wuxing-float-card{
@@ -730,9 +828,9 @@
       width:min(240px, calc(100% - 36px));
       padding:14px 15px;
       border-radius:18px;
-      border:1px solid rgba(199,155,75,0.2);
-      background:rgba(255,252,247,0.96);
-      box-shadow:0 18px 36px rgba(68,50,22,0.16);
+      border:1px solid var(--wuxing-panel-border);
+      background:var(--wuxing-float-bg);
+      box-shadow:var(--shadow-strong);
       backdrop-filter:blur(10px);
       opacity:0;
       transform:translateY(8px) scale(0.98);
@@ -750,9 +848,9 @@
       position:absolute;
       width:14px;
       height:14px;
-      background:rgba(255,252,247,0.96);
-      border-right:1px solid rgba(199,155,75,0.2);
-      border-bottom:1px solid rgba(199,155,75,0.2);
+      background:var(--wuxing-float-bg);
+      border-right:1px solid var(--wuxing-panel-border);
+      border-bottom:1px solid var(--wuxing-panel-border);
       transform:rotate(45deg);
       left:var(--arrow-left, 24px);
       top:var(--arrow-top, auto);
@@ -771,7 +869,7 @@
       align-items:center;
       gap:10px;
       margin-bottom:8px;
-      color:#2d2419;
+      color:var(--text);
     }
     .wuxing-float-dot{
       width:12px;
@@ -786,13 +884,13 @@
       line-height:1;
     }
     .wuxing-float-title span{
-      color:#7a6451;
+      color:var(--muted);
       font-size:12px;
       letter-spacing:0.08em;
     }
     .wuxing-float-copy{
       margin:0;
-      color:#56493b;
+      color:var(--text-soft);
       font-size:13px;
       line-height:1.65;
     }
@@ -806,9 +904,9 @@
       display:block;
       padding:8px 10px;
       border-radius:12px;
-      background:#fbf7ef;
-      border:1px solid rgba(199,155,75,0.14);
-      color:#5c4d3e;
+      background:var(--subtle-tag-bg);
+      border:1px solid var(--wuxing-panel-border);
+      color:var(--text-soft);
       font-size:12px;
       line-height:1.45;
     }
@@ -818,7 +916,7 @@
       max-width:620px;
       margin:0 auto;
       height:auto;
-      filter:drop-shadow(0 18px 24px rgba(74,58,30,0.08));
+      filter:drop-shadow(0 18px 24px rgba(0,0,0,0.18));
     }
     @keyframes flowSheng{
       from{stroke-dashoffset:24}
@@ -830,29 +928,29 @@
     }
     .wuxing-orbit{
       fill:none;
-      stroke:rgba(120,99,61,0.12);
+      stroke:color-mix(in srgb, var(--wuxing-axis) 80%, transparent);
       stroke-width:1.5;
       stroke-dasharray:5 9;
     }
     .wuxing-center-ring{
       fill:none;
-      stroke:rgba(199,155,75,0.2);
+      stroke:var(--wuxing-panel-border);
       stroke-width:1.5;
       stroke-dasharray:3 8;
     }
     .wuxing-center-disc{
-      fill:rgba(255,250,241,0.96);
-      stroke:rgba(199,155,75,0.3);
+      fill:var(--card-elevated);
+      stroke:var(--line-strong);
       stroke-width:2;
     }
     .wuxing-center-title{
-      fill:#74572a;
+      fill:var(--accent-strong);
       font-size:22px;
       font-weight:600;
       letter-spacing:0.08em;
     }
     .wuxing-center-copy{
-      fill:#9a7b48;
+      fill:var(--muted);
       font-size:12px;
       letter-spacing:0.16em;
     }
@@ -861,25 +959,25 @@
     }
     .wuxing-relation-path.dimmed{opacity:0.14}
     .wuxing-sheng-path{
-      stroke:#4a9c6d;
+      stroke:var(--sheng-accent);
       stroke-width:3;
       stroke-dasharray:8 8;
       opacity:0.72;
     }
     .wuxing-ke-path{
-      stroke:#c75c5c;
+      stroke:var(--ke-accent);
       stroke-width:3;
       stroke-dasharray:3 10;
       opacity:0.7;
     }
     .wuxing-sheng-path.active{
       animation:flowSheng 0.7s linear infinite;
-      filter:drop-shadow(0 0 8px rgba(74,156,109,0.28));
+      filter:drop-shadow(0 0 8px color-mix(in srgb, var(--sheng-accent) 34%, transparent));
       opacity:1;
     }
     .wuxing-ke-path.active{
       animation:flowKe 0.85s linear infinite;
-      filter:drop-shadow(0 0 8px rgba(199,92,92,0.22));
+      filter:drop-shadow(0 0 8px color-mix(in srgb, var(--ke-accent) 28%, transparent));
       opacity:1;
     }
     .wuxing-node{
@@ -893,12 +991,12 @@
       pointer-events:all;
     }
     .wuxing-node-glow{
-      fill:rgba(255,255,255,0.55);
+      fill:color-mix(in srgb, var(--card) 75%, white);
       opacity:0.75;
     }
     .wuxing-node-ring{
       fill:none;
-      stroke:rgba(255,255,255,0.92);
+      stroke:rgba(255,255,255,0.86);
       stroke-width:3;
       transition:stroke .2s ease, stroke-width .2s ease;
     }
@@ -924,11 +1022,11 @@
       stroke-width:4;
     }
     .wuxing-node.support .wuxing-node-ring{
-      stroke:#4a9c6d;
+      stroke:var(--sheng-accent);
       stroke-width:4;
     }
     .wuxing-node.challenge .wuxing-node-ring{
-      stroke:#c75c5c;
+      stroke:var(--ke-accent);
       stroke-width:4;
     }
     .wuxing-node.dimmed{opacity:0.34}
@@ -946,9 +1044,9 @@
       gap:10px;
       padding:8px 12px;
       border-radius:999px;
-      background:rgba(255,255,255,0.82);
-      border:1px solid rgba(199,155,75,0.16);
-      color:#574a39;
+      background:var(--card-elevated);
+      border:1px solid var(--wuxing-panel-border);
+      color:var(--text-soft);
     }
     .legend-line{
       width:36px;
@@ -956,14 +1054,14 @@
       border-radius:2px;
     }
     .legend-line.sheng{
-      background:linear-gradient(90deg, rgba(74,156,109,0.45), #4a9c6d);
+      background:linear-gradient(90deg, color-mix(in srgb, var(--sheng-accent) 45%, transparent), var(--sheng-accent));
     }
     .legend-line.ke{
-      background:linear-gradient(90deg, rgba(199,92,92,0.45), #c75c5c);
+      background:linear-gradient(90deg, color-mix(in srgb, var(--ke-accent) 45%, transparent), var(--ke-accent));
     }
     .wuxing-hint{
       text-align:center;
-      color:#75695a;
+      color:var(--muted);
       font-size:13px;
       line-height:1.6;
       margin:10px auto 0;
@@ -980,11 +1078,11 @@
       .wuxing-desc{grid-template-columns:1fr}
     }
     .wuxing-desc-card{
-      background:rgba(255,255,255,0.92);
-      border:1px solid rgba(199,155,75,0.18);
+      background:var(--card-elevated);
+      border:1px solid var(--wuxing-panel-border);
       border-radius:18px;
       padding:16px;
-      box-shadow:0 10px 24px rgba(79,59,23,0.06);
+      box-shadow:var(--shadow);
     }
     .wuxing-desc-head{
       display:flex;
@@ -1009,20 +1107,20 @@
     }
     .wuxing-desc-card p{
       margin:0;
-      color:#6b5c49;
+      color:var(--text-soft);
       font-size:13px;
       line-height:1.6;
     }
     .wuxing-desc-card.sheng-card .wuxing-desc-icon{
       background:rgba(74,156,109,0.12);
-      color:#4a9c6d;
+      color:var(--sheng-accent);
     }
     .wuxing-desc-card.ke-card .wuxing-desc-icon{
       background:rgba(199,92,92,0.12);
-      color:#c75c5c;
+      color:var(--ke-accent);
     }
-    .wuxing-desc-card.sheng-card h4{color:#4a9c6d}
-    .wuxing-desc-card.ke-card h4{color:#c75c5c}
+    .wuxing-desc-card.sheng-card h4{color:var(--sheng-accent)}
+    .wuxing-desc-card.ke-card h4{color:var(--ke-accent)}
     .relation-list{
       list-style:none;
       margin:0;
@@ -1035,20 +1133,20 @@
       gap:4px;
       padding:10px 12px;
       border-radius:14px;
-      background:#fcfaf5;
-      border:1px solid rgba(199,155,75,0.12);
+      background:var(--card-soft);
+      border:1px solid var(--wuxing-panel-border);
     }
     .relation-route{
       display:inline-flex;
       align-items:center;
       gap:8px;
-      color:#332a20;
+      color:var(--text);
       font-size:13px;
       font-weight:600;
       letter-spacing:0.04em;
     }
     .relation-note{
-      color:#6a5b48;
+      color:var(--text-soft);
       font-size:12px;
       line-height:1.6;
     }
@@ -1079,6 +1177,12 @@
         <input id="dateInput" type="date" />
         <label>时辰：
           <select id="hourSelect"></select>
+        </label>
+        <label>主题：
+          <select id="themeSelect">
+            <option value="light">水墨白</option>
+            <option value="dark">数字夜</option>
+          </select>
         </label>
         <button id="openMingli" class="btn-accent">四柱命理表</button>
         <button id="toggleNotes">概念速记</button>
@@ -1501,6 +1605,7 @@
     const monthTitle = document.getElementById("monthTitle");
     const calendarGrid = document.getElementById("calendarGrid");
     const hourSelect = document.getElementById("hourSelect");
+    const themeSelect = document.getElementById("themeSelect");
     const sampleHint = document.getElementById("sampleHint");
     const openMingli = document.getElementById("openMingli");
     const toggleNotes = document.getElementById("toggleNotes");
@@ -1535,6 +1640,24 @@
     const openWuxing = document.getElementById("openWuxing");
     let pinnedWuxing = null;
     let wuxingHoverTimer = null;
+    const THEME_STORAGE_KEY = "fortune-calendar-theme";
+
+    function getInitialTheme(){
+      try {
+        const saved = localStorage.getItem(THEME_STORAGE_KEY);
+        if (saved === "light" || saved === "dark") return saved;
+      } catch (_err) {}
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+
+    function applyTheme(theme){
+      const nextTheme = theme === "dark" ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", nextTheme);
+      if (themeSelect) themeSelect.value = nextTheme;
+      try {
+        localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+      } catch (_err) {}
+    }
 
     // ====== 初始化时辰选项 ======
     function initHourSelect(){
@@ -2269,13 +2392,13 @@
         </marker>`;
 
       let svg = `<svg class="wuxing-svg" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" aria-label="五行相生相克关系图">`;
-      svg += `<defs>${arrowMarker("arrowSheng", "#4a9c6d")}${arrowMarker("arrowKe", "#c75c5c")}</defs>`;
+      svg += `<defs>${arrowMarker("arrowSheng", "var(--sheng-accent)")}${arrowMarker("arrowKe", "var(--ke-accent)")}</defs>`;
       svg += `<circle class="wuxing-orbit" cx="${cx}" cy="${cy}" r="188"/>`;
       svg += `<circle class="wuxing-center-ring" cx="${cx}" cy="${cy}" r="86"/>`;
 
       WUXING.forEach((_, i) => {
         const pos = getPos(i);
-        svg += `<line x1="${cx}" y1="${cy}" x2="${pos.x}" y2="${pos.y}" stroke="rgba(130,108,66,0.1)" stroke-width="1"/>`;
+        svg += `<line x1="${cx}" y1="${cy}" x2="${pos.x}" y2="${pos.y}" stroke="var(--wuxing-axis)" stroke-width="1"/>`;
       });
 
       shengLines.forEach((item) => {
@@ -2472,6 +2595,10 @@
     }
 
     // ====== 启动 ======
+    applyTheme(getInitialTheme());
+    themeSelect.addEventListener("change", (e) => {
+      applyTheme(e.target.value);
+    });
     initHourSelect();
     dateInput.value = formatDateInput(selectedDate);
     renderCalendar();
