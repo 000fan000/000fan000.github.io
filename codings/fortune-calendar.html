@@ -575,17 +575,159 @@
     .muted{
       color:var(--muted);
     }
+    .wuxing-modal-card{
+      width:min(1080px, 96vw);
+      padding:20px;
+      background:
+        radial-gradient(circle at top right, rgba(199,155,75,0.16), transparent 30%),
+        linear-gradient(180deg, #fffdf9 0%, #fcf8f1 100%);
+    }
     .wuxing-diagram{
       display:flex;
       flex-direction:column;
       align-items:center;
-      gap:16px;
-      padding:16px 0;
+      gap:18px;
+      padding:8px 0 4px;
+    }
+    .wuxing-overview{
+      width:100%;
+      display:grid;
+      grid-template-columns:minmax(0, 1.25fr) minmax(280px, 0.9fr);
+      gap:14px;
+    }
+    @media (max-width: 860px){
+      .wuxing-overview{grid-template-columns:1fr}
+    }
+    .wuxing-intro,
+    .wuxing-focus{
+      border:1px solid rgba(199,155,75,0.2);
+      border-radius:18px;
+      padding:16px 18px;
+      background:rgba(255,255,255,0.86);
+      box-shadow:0 10px 28px rgba(88,70,36,0.06);
+    }
+    .wuxing-badge,
+    .wuxing-focus-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 10px;
+      border-radius:999px;
+      background:#f8f1e4;
+      border:1px solid rgba(199,155,75,0.28);
+      color:#7a5d2c;
+      font-size:12px;
+      letter-spacing:0.04em;
+    }
+    .wuxing-intro h3,
+    .wuxing-focus-title{
+      margin:10px 0 6px;
+      font-size:24px;
+      line-height:1.2;
+      color:#2f2619;
+    }
+    .wuxing-intro p,
+    .wuxing-focus-copy{
+      margin:0;
+      color:#564b3d;
+      font-size:14px;
+      line-height:1.8;
+    }
+    .wuxing-pill-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:14px;
+    }
+    .wuxing-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid color-mix(in srgb, var(--wx) 28%, white);
+      background:linear-gradient(180deg, color-mix(in srgb, var(--wx) 12%, white), rgba(255,255,255,0.98));
+      color:#413728;
+      box-shadow:0 6px 16px rgba(64,44,18,0.06);
+    }
+    .wuxing-pill:hover{
+      background:linear-gradient(180deg, color-mix(in srgb, var(--wx) 18%, white), rgba(255,255,255,1));
+      transform:translateY(-1px);
+    }
+    .wuxing-pill.active{
+      border-color:color-mix(in srgb, var(--wx) 58%, white);
+      box-shadow:0 10px 24px color-mix(in srgb, var(--wx) 24%, transparent);
+    }
+    .wuxing-pill-dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:var(--wx);
+      box-shadow:0 0 0 4px color-mix(in srgb, var(--wx) 18%, white);
+    }
+    .wuxing-pill small{
+      color:#756654;
+      font-size:11px;
+    }
+    .wuxing-focus{
+      position:relative;
+      overflow:hidden;
+    }
+    .wuxing-focus::after{
+      content:"";
+      position:absolute;
+      right:-22px;
+      bottom:-28px;
+      width:140px;
+      height:140px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(199,155,75,0.16), rgba(199,155,75,0));
+      pointer-events:none;
+    }
+    .wuxing-focus-title{
+      font-size:22px;
+      position:relative;
+      z-index:1;
+    }
+    .wuxing-focus-copy{
+      position:relative;
+      z-index:1;
+    }
+    .wuxing-focus-meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:14px;
+      position:relative;
+      z-index:1;
+    }
+    .wuxing-focus-meta span{
+      display:inline-flex;
+      align-items:center;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#fbf7ef;
+      border:1px solid rgba(199,155,75,0.18);
+      color:#5f513e;
+      font-size:12px;
+    }
+    .wuxing-board{
+      width:100%;
+      border:1px solid rgba(199,155,75,0.18);
+      border-radius:26px;
+      padding:18px;
+      background:
+        radial-gradient(circle at center, rgba(199,155,75,0.08), transparent 44%),
+        linear-gradient(180deg, rgba(255,255,255,0.96), rgba(250,245,236,0.92));
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.85), 0 16px 40px rgba(78,59,27,0.08);
     }
     .wuxing-svg{
+      display:block;
       width:100%;
-      max-width:480px;
+      max-width:620px;
+      margin:0 auto;
       height:auto;
+      filter:drop-shadow(0 18px 24px rgba(74,58,30,0.08));
     }
     @keyframes flowSheng{
       from{stroke-dashoffset:24}
@@ -595,59 +737,234 @@
       from{stroke-dashoffset:16}
       to{stroke-dashoffset:0}
     }
-    .wuxing-sheng-path.active{animation:flowSheng 0.6s linear infinite}
-    .wuxing-ke-path.active{animation:flowKe 0.8s linear infinite}
+    .wuxing-orbit{
+      fill:none;
+      stroke:rgba(120,99,61,0.12);
+      stroke-width:1.5;
+      stroke-dasharray:5 9;
+    }
+    .wuxing-center-ring{
+      fill:none;
+      stroke:rgba(199,155,75,0.2);
+      stroke-width:1.5;
+      stroke-dasharray:3 8;
+    }
+    .wuxing-center-disc{
+      fill:rgba(255,250,241,0.96);
+      stroke:rgba(199,155,75,0.3);
+      stroke-width:2;
+    }
+    .wuxing-center-title{
+      fill:#74572a;
+      font-size:22px;
+      font-weight:600;
+      letter-spacing:0.08em;
+    }
+    .wuxing-center-copy{
+      fill:#9a7b48;
+      font-size:12px;
+      letter-spacing:0.16em;
+    }
+    .wuxing-relation-path{
+      transition:opacity .24s ease, stroke-width .24s ease, filter .24s ease;
+    }
+    .wuxing-relation-path.dimmed{opacity:0.14}
+    .wuxing-sheng-path{
+      stroke:#4a9c6d;
+      stroke-width:3;
+      stroke-dasharray:8 8;
+      opacity:0.72;
+    }
+    .wuxing-ke-path{
+      stroke:#c75c5c;
+      stroke-width:3;
+      stroke-dasharray:3 10;
+      opacity:0.7;
+    }
+    .wuxing-sheng-path.active{
+      animation:flowSheng 0.7s linear infinite;
+      filter:drop-shadow(0 0 8px rgba(74,156,109,0.28));
+      opacity:1;
+    }
+    .wuxing-ke-path.active{
+      animation:flowKe 0.85s linear infinite;
+      filter:drop-shadow(0 0 8px rgba(199,92,92,0.22));
+      opacity:1;
+    }
+    .wuxing-node{
+      cursor:pointer;
+      transition:opacity .2s ease, transform .2s ease;
+      transform-box:fill-box;
+      transform-origin:center;
+    }
+    .wuxing-node-glow{
+      fill:rgba(255,255,255,0.55);
+      opacity:0.75;
+    }
+    .wuxing-node-ring{
+      fill:none;
+      stroke:rgba(255,255,255,0.92);
+      stroke-width:3;
+      transition:stroke .2s ease, stroke-width .2s ease;
+    }
+    .wuxing-node-core{
+      transition:transform .2s ease;
+    }
+    .wuxing-node-label{
+      fill:#fff;
+      font-size:24px;
+      font-weight:700;
+      text-anchor:middle;
+    }
+    .wuxing-node-sub{
+      fill:rgba(255,255,255,0.88);
+      font-size:12px;
+      font-weight:500;
+      text-anchor:middle;
+      letter-spacing:0.12em;
+    }
+    .wuxing-node.is-active{transform:scale(1.06)}
+    .wuxing-node.is-active .wuxing-node-ring{
+      stroke:#fff;
+      stroke-width:4;
+    }
+    .wuxing-node.support .wuxing-node-ring{
+      stroke:#4a9c6d;
+      stroke-width:4;
+    }
+    .wuxing-node.challenge .wuxing-node-ring{
+      stroke:#c75c5c;
+      stroke-width:4;
+    }
+    .wuxing-node.dimmed{opacity:0.34}
     .wuxing-legend{
       display:flex;
-      gap:24px;
+      gap:12px;
       flex-wrap:wrap;
       justify-content:center;
       font-size:14px;
+      margin-top:8px;
+    }
+    .legend-item{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.82);
+      border:1px solid rgba(199,155,75,0.16);
+      color:#574a39;
     }
     .legend-line{
-      width:32px;
+      width:36px;
       height:3px;
       border-radius:2px;
     }
-    .legend-line.sheng{background:#4a9c6d}
-    .legend-line.ke{background:#c75c5c}
+    .legend-line.sheng{
+      background:linear-gradient(90deg, rgba(74,156,109,0.45), #4a9c6d);
+    }
+    .legend-line.ke{
+      background:linear-gradient(90deg, rgba(199,92,92,0.45), #c75c5c);
+    }
     .wuxing-hint{
       text-align:center;
-      color:var(--muted);
+      color:#75695a;
       font-size:13px;
-      line-height:1.5;
+      line-height:1.6;
+      margin:10px auto 0;
+      max-width:42em;
     }
     .wuxing-desc{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:12px;
+      gap:14px;
       width:100%;
-      max-width:600px;
+      align-items:stretch;
     }
-    @media(max-width:500px){
+    @media(max-width:700px){
       .wuxing-desc{grid-template-columns:1fr}
     }
     .wuxing-desc-card{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:12px;
+      background:rgba(255,255,255,0.92);
+      border:1px solid rgba(199,155,75,0.18);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:0 10px 24px rgba(79,59,23,0.06);
     }
-    .wuxing-desc-card h4{
-      margin:0 0 8px;
-      font-size:14px;
+    .wuxing-desc-head{
       display:flex;
       align-items:center;
-      gap:6px;
+      gap:12px;
+      margin-bottom:12px;
+    }
+    .wuxing-desc-icon{
+      width:40px;
+      height:40px;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:18px;
+      font-weight:700;
+      flex:0 0 auto;
+    }
+    .wuxing-desc-card h4{
+      margin:0 0 4px;
+      font-size:16px;
+    }
+    .wuxing-desc-card p{
+      margin:0;
+      color:#6b5c49;
+      font-size:13px;
+      line-height:1.6;
+    }
+    .wuxing-desc-card.sheng-card .wuxing-desc-icon{
+      background:rgba(74,156,109,0.12);
+      color:#4a9c6d;
+    }
+    .wuxing-desc-card.ke-card .wuxing-desc-icon{
+      background:rgba(199,92,92,0.12);
+      color:#c75c5c;
     }
     .wuxing-desc-card.sheng-card h4{color:#4a9c6d}
     .wuxing-desc-card.ke-card h4{color:#c75c5c}
-    .wuxing-desc-card ul{
+    .relation-list{
+      list-style:none;
       margin:0;
-      padding-left:18px;
+      padding:0;
+      display:grid;
+      gap:10px;
+    }
+    .relation-list li{
+      display:grid;
+      gap:4px;
+      padding:10px 12px;
+      border-radius:14px;
+      background:#fcfaf5;
+      border:1px solid rgba(199,155,75,0.12);
+    }
+    .relation-route{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      color:#332a20;
       font-size:13px;
-      line-height:1.8;
-      color:#444;
+      font-weight:600;
+      letter-spacing:0.04em;
+    }
+    .relation-note{
+      color:#6a5b48;
+      font-size:12px;
+      line-height:1.6;
+    }
+    @media (max-width: 640px){
+      .wuxing-modal-card{padding:16px}
+      .wuxing-board{padding:14px}
+      .wuxing-intro,
+      .wuxing-focus,
+      .wuxing-desc-card{padding:14px}
+      .wuxing-intro h3,
+      .wuxing-focus-title{font-size:20px}
     }
   </style>
 </head>
@@ -790,7 +1107,7 @@
   <div id="conceptTooltip" class="concept-tooltip"></div>
 
   <div id="wuxingModal" class="modal" aria-hidden="true">
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="wuxingTitle">
+    <div class="modal-card wuxing-modal-card" role="dialog" aria-modal="true" aria-labelledby="wuxingTitle">
       <div class="modal-head">
         <div id="wuxingTitle" class="title">五行相生相克</div>
         <button id="closeWuxing">关闭</button>
@@ -841,6 +1158,13 @@
     const WUXING_SVG_COLORS = {
       "木":"#6aac6a","火":"#e06060","土":"#c8a050","金":"#9090d0","水":"#5090b0"
     };
+    const WUXING_META = {
+      "木":{label:"生发", season:"春令", nature:"舒展、成长", imagery:"像枝叶向上舒展"},
+      "火":{label:"升腾", season:"夏令", nature:"明朗、外放", imagery:"像火势上炎发光"},
+      "土":{label:"承载", season:"四季之交", nature:"包容、化育", imagery:"像大地稳稳承接"},
+      "金":{label:"收敛", season:"秋令", nature:"肃清、定形", imagery:"像刀锋收束成器"},
+      "水":{label:"润下", season:"冬令", nature:"流动、涵养", imagery:"像江河向下而行"}
+    };
     const WUXING_PAIRINGS = {
       sheng:[
         ["木","火"],["火","土"],["土","金"],["金","水"],["水","木"]
@@ -848,6 +1172,22 @@
       ke:[
         ["木","土"],["土","水"],["水","火"],["火","金"],["金","木"]
       ]
+    };
+    const WUXING_RELATION_COPY = {
+      sheng:{
+        "木-火":"木性生发，蓄势成明火。",
+        "火-土":"火势燃尽归土，转成承载之力。",
+        "土-金":"土中孕藏金气，凝练成形。",
+        "金-水":"金气肃降，润泽成水。",
+        "水-木":"水润万物，最能养木。"
+      },
+      ke:{
+        "木-土":"木根破土，疏通壅滞。",
+        "土-水":"土能堤防水势，使其有界。",
+        "水-火":"水来制火，防止躁烈过盛。",
+        "火-金":"火能炼金，使其变化成器。",
+        "金-木":"金可伐木，让生发不过度。"
+      }
     };
     const PILLAR_ROLE_HINTS = {
       "年柱":{plain:"外层背景", detail:"先看家族、早年与大环境给出的底色。"},
@@ -1092,6 +1432,7 @@
     const closeWuxing = document.getElementById("closeWuxing");
     const wuxingDiagram = document.getElementById("wuxingDiagram");
     const openWuxing = document.getElementById("openWuxing");
+    let pinnedWuxing = null;
 
     // ====== 初始化时辰选项 ======
     function initHourSelect(){
@@ -1505,11 +1846,13 @@
       wuxingModal.setAttribute("aria-hidden","false");
     });
     closeWuxing.addEventListener("click", ()=>{
+      pinnedWuxing = null;
       wuxingModal.classList.remove("open");
       wuxingModal.setAttribute("aria-hidden","true");
     });
     wuxingModal.addEventListener("click", (e)=>{
       if (e.target === wuxingModal){
+        pinnedWuxing = null;
         wuxingModal.classList.remove("open");
         wuxingModal.setAttribute("aria-hidden","true");
       }
@@ -1632,12 +1975,55 @@
     });
 
     // ====== 五行相生相克图 ======
+    function getWuxingFocusMarkup(wx){
+      if (!wx || !WUXING_META[wx]) {
+        return `
+          <div class="wuxing-focus-badge">当前聚焦</div>
+          <div class="wuxing-focus-title">总览</div>
+          <p class="wuxing-focus-copy">相生像一条顺势接力线，让气脉可以延续；相克像一条制衡线，提醒结构不要失控。两套关系一起看，五行图才会真正立起来。</p>
+          <div class="wuxing-focus-meta">
+            <span>相生：木 → 火 → 土 → 金 → 水</span>
+            <span>相克：木 → 土 → 水 → 火 → 金</span>
+            <span>操作：悬停或轻触任一元素</span>
+          </div>
+        `;
+      }
+
+      const meta = WUXING_META[wx];
+      const wxIndex = WUXING.indexOf(wx);
+      const resource = WUXING[(wxIndex + 4) % 5];
+      const output = WUXING[(wxIndex + 1) % 5];
+      const wealth = WUXING[(wxIndex + 2) % 5];
+      const officer = WUXING[(wxIndex + 3) % 5];
+      return `
+        <div class="wuxing-focus-badge">当前聚焦</div>
+        <div class="wuxing-focus-title">${wx} · ${meta.label}</div>
+        <p class="wuxing-focus-copy">${meta.season}之气偏向${meta.nature}，${meta.imagery}。在关系里，它受${resource}所生，向${output}递气；会约束${wealth}，也受${officer}所制。</p>
+        <div class="wuxing-focus-meta">
+          <span>季节：${meta.season}</span>
+          <span>受生：${resource}生${wx}</span>
+          <span>输出：${wx}生${output}</span>
+          <span>制衡：${wx}克${wealth}</span>
+          <span>受克：${officer}克${wx}</span>
+        </div>
+      `;
+    }
+
+    function setWuxingFocus(wx){
+      const focus = wuxingDiagram.querySelector("#wuxingFocus");
+      if (focus) focus.innerHTML = getWuxingFocusMarkup(wx);
+      const pills = wuxingDiagram.querySelectorAll(".wuxing-pill");
+      pills.forEach((pill)=>{
+        pill.classList.toggle("active", pill.getAttribute("data-wx") === wx);
+      });
+    }
+
     function renderWuxingDiagram(){
-      const size = 400;
+      pinnedWuxing = null;
+      const size = 460;
       const cx = size / 2;
       const cy = size / 2;
-      const r = 140;
-      const nodeR = 36;
+      const r = 162;
 
       const getPos = (i) => {
         const angle = (i * 72 - 90) * Math.PI / 180;
@@ -1654,13 +2040,13 @@
         const pb = getPos(ib);
         const midX = (pa.x + pb.x) / 2;
         const midY = (pa.y + pb.y) / 2;
-        const curve = 18;
+        const curve = 22;
         const dx = pb.x - pa.x;
         const dy = pb.y - pa.y;
-        const len = Math.sqrt(dx*dx + dy*dy);
+        const len = Math.sqrt(dx * dx + dy * dy);
         const nx = -dy / len * curve;
         const ny = dx / len * curve;
-        return {from:a, to:b, d:`M ${pa.x} ${pa.y} Q ${midX+nx} ${midY+ny} ${pb.x} ${pb.y}`};
+        return {from:a, to:b, d:`M ${pa.x} ${pa.y} Q ${midX + nx} ${midY + ny} ${pb.x} ${pb.y}`};
       });
 
       const keLines = WUXING_PAIRINGS.ke.map(([a,b]) => {
@@ -1670,160 +2056,193 @@
         const pb = getPos(ib);
         const midX = (pa.x + pb.x) / 2;
         const midY = (pa.y + pb.y) / 2;
-        const curve = -24;
+        const curve = -34;
         const dx = pb.x - pa.x;
         const dy = pb.y - pa.y;
-        const len = Math.sqrt(dx*dx + dy*dy);
+        const len = Math.sqrt(dx * dx + dy * dy);
         const nx = -dy / len * curve;
         const ny = dx / len * curve;
-        return {from:a, to:b, d:`M ${pa.x} ${pa.y} Q ${midX+nx} ${midY+ny} ${pb.x} ${pb.y}`};
+        return {from:a, to:b, d:`M ${pa.x} ${pa.y} Q ${midX + nx} ${midY + ny} ${pb.x} ${pb.y}`};
       });
 
       const arrowMarker = (id, color) => `
-        <marker id="${id}" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-          <path d="M0,0 L0,6 L8,3 z" fill="${color}"/>
+        <marker id="${id}" markerWidth="10" markerHeight="10" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L0,8 L9,4 z" fill="${color}"/>
         </marker>`;
 
-      let svg = `<svg class="wuxing-svg" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">`;
-      svg += `<defs>${arrowMarker("arrowSheng","#4a9c6d")}${arrowMarker("arrowKe","#c75c5c")}</defs>`;
+      let svg = `<svg class="wuxing-svg" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" aria-label="五行相生相克关系图">`;
+      svg += `<defs>${arrowMarker("arrowSheng", "#4a9c6d")}${arrowMarker("arrowKe", "#c75c5c")}</defs>`;
+      svg += `<circle class="wuxing-orbit" cx="${cx}" cy="${cy}" r="188"/>`;
+      svg += `<circle class="wuxing-center-ring" cx="${cx}" cy="${cy}" r="86"/>`;
+
+      WUXING.forEach((_, i) => {
+        const pos = getPos(i);
+        svg += `<line x1="${cx}" y1="${cy}" x2="${pos.x}" y2="${pos.y}" stroke="rgba(130,108,66,0.1)" stroke-width="1"/>`;
+      });
 
       shengLines.forEach((item) => {
-        svg += `<path d="${item.d}" data-from="${item.from}" data-to="${item.to}" data-type="sheng" class="wuxing-sheng-path" stroke="#4a9c6d" stroke-width="2.5" fill="none" marker-end="url(#arrowSheng)" opacity="0.85"/>`;
+        svg += `<path d="${item.d}" data-from="${item.from}" data-to="${item.to}" data-type="sheng" class="wuxing-relation-path wuxing-sheng-path" fill="none" marker-end="url(#arrowSheng)"/>`;
       });
 
       keLines.forEach((item) => {
-        svg += `<path d="${item.d}" data-from="${item.from}" data-to="${item.to}" data-type="ke" class="wuxing-ke-path" stroke="#c75c5c" stroke-width="2.5" fill="none" marker-end="url(#arrowKe)" opacity="0.85"/>`;
+        svg += `<path d="${item.d}" data-from="${item.from}" data-to="${item.to}" data-type="ke" class="wuxing-relation-path wuxing-ke-path" fill="none" marker-end="url(#arrowKe)"/>`;
       });
 
-      svg += `<g class="wuxing-nodes">`;
+      svg += `
+        <g>
+          <circle class="wuxing-center-disc" cx="${cx}" cy="${cy}" r="64"/>
+          <text class="wuxing-center-title" x="${cx}" y="${cy - 8}" text-anchor="middle">流转</text>
+          <text class="wuxing-center-copy" x="${cx}" y="${cy + 18}" text-anchor="middle">相生 · 相克</text>
+        </g>`;
+
       WUXING.forEach((wx, i) => {
         const pos = getPos(i);
-        svg += `<circle cx="${pos.x}" cy="${pos.y}" r="${nodeR}" fill="${WUXING_SVG_COLORS[wx]}" stroke="#fff" stroke-width="2"/>`;
-        svg += `<text x="${pos.x}" y="${pos.y}" text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="18" font-weight="600">${wx}</text>`;
+        const meta = WUXING_META[wx];
+        svg += `
+          <g class="wuxing-node" data-wx="${wx}" transform="translate(${pos.x} ${pos.y})" tabindex="0" role="button" aria-label="查看${wx}的五行关系">
+            <circle class="wuxing-node-glow" r="48"/>
+            <circle class="wuxing-node-ring" r="41"/>
+            <circle class="wuxing-node-core" r="34" fill="${WUXING_SVG_COLORS[wx]}"/>
+            <text class="wuxing-node-label" y="-4">${wx}</text>
+            <text class="wuxing-node-sub" y="17">${meta.label}</text>
+          </g>`;
       });
-      svg += `</g>`;
 
       svg += `</svg>`;
 
-      const shengHtml = WUXING_PAIRINGS.sheng.map(([a,b])=>`<li>${a} → ${b}</li>`).join("");
-      const keHtml = WUXING_PAIRINGS.ke.map(([a,b])=>`<li>${a} → ${b}</li>`).join("");
+      const pillHtml = WUXING.map((wx) => `
+        <button class="wuxing-pill" type="button" data-wx="${wx}" style="--wx:${WUXING_SVG_COLORS[wx]};">
+          <span class="wuxing-pill-dot"></span>
+          <span>${wx}</span>
+          <small>${WUXING_META[wx].label}</small>
+        </button>`).join("");
+      const shengHtml = WUXING_PAIRINGS.sheng.map(([a,b])=>`
+        <li>
+          <span class="relation-route">${a} → ${b}</span>
+          <span class="relation-note">${WUXING_RELATION_COPY.sheng[`${a}-${b}`]}</span>
+        </li>`).join("");
+      const keHtml = WUXING_PAIRINGS.ke.map(([a,b])=>`
+        <li>
+          <span class="relation-route">${a} → ${b}</span>
+          <span class="relation-note">${WUXING_RELATION_COPY.ke[`${a}-${b}`]}</span>
+        </li>`).join("");
 
       wuxingDiagram.innerHTML = `
-        ${svg}
-        <div class="wuxing-legend">
-          <div class="legend-item"><div class="legend-line sheng"></div><span>相生（顺时针）</span></div>
-          <div class="legend-item"><div class="legend-line ke"></div><span>相克（间色）</span></div>
+        <div class="wuxing-overview">
+          <div class="wuxing-intro">
+            <div class="wuxing-badge">关系底图</div>
+            <h3>把五行记成一张会呼吸的结构图</h3>
+            <p>别把它背成死规则。相生负责把气势接起来，相克负责把结构稳住。先记住两套回路，再回头看命盘里的强弱分布，会更容易读懂。</p>
+            <div class="wuxing-pill-row">${pillHtml}</div>
+          </div>
+          <div id="wuxingFocus" class="wuxing-focus">${getWuxingFocusMarkup()}</div>
         </div>
-        <p class="wuxing-hint">悬停元素以高亮相关关系</p>
+        <div class="wuxing-board">
+          ${svg}
+          <div class="wuxing-legend">
+            <div class="legend-item"><div class="legend-line sheng"></div><span>相生：滋养、接力、延续</span></div>
+            <div class="legend-item"><div class="legend-line ke"></div><span>相克：约束、节制、平衡</span></div>
+          </div>
+          <p class="wuxing-hint">悬停或轻触元素，可聚焦它受谁所生、向谁递气、制约谁、又受谁节制；再次轻触同一元素即可取消聚焦。</p>
+        </div>
         <div class="wuxing-desc">
           <div class="wuxing-desc-card sheng-card">
-            <h4>相生（木火土金水循环）</h4>
-            <ul>${shengHtml}</ul>
+            <div class="wuxing-desc-head">
+              <div class="wuxing-desc-icon">生</div>
+              <div>
+                <h4>相生 · 顺势接力</h4>
+                <p>强调滋养与延展，像一股气在不同形态之间顺次传递。</p>
+              </div>
+            </div>
+            <ul class="relation-list">${shengHtml}</ul>
           </div>
           <div class="wuxing-desc-card ke-card">
-            <h4>相克（木土水火金循环）</h4>
-            <ul>${keHtml}</ul>
+            <div class="wuxing-desc-head">
+              <div class="wuxing-desc-icon">克</div>
+              <div>
+                <h4>相克 · 制衡成局</h4>
+                <p>不是单纯对立，而是给过旺之气加边界，让结构更稳。</p>
+              </div>
+            </div>
+            <ul class="relation-list">${keHtml}</ul>
           </div>
         </div>
       `;
 
-      const circles = wuxingDiagram.querySelectorAll("circle");
-      circles.forEach((circle) => {
-        circle.style.cursor = "pointer";
-        circle.addEventListener("mouseenter", () => {
-          const wx = WUXING.find((w) => WUXING_SVG_COLORS[w] === circle.getAttribute("fill"));
-          highlightWuxing(wx, true);
+      const attachWuxingInteraction = (target, wx) => {
+        target.addEventListener("mouseenter", () => {
+          if (!pinnedWuxing) highlightWuxing(wx, true);
         });
-        circle.addEventListener("mouseleave", () => {
-          highlightWuxing(null, false);
+        target.addEventListener("mouseleave", () => {
+          if (!pinnedWuxing) highlightWuxing(null, false);
         });
-      });
+        target.addEventListener("focus", () => {
+          if (!pinnedWuxing) highlightWuxing(wx, true);
+        });
+        target.addEventListener("blur", () => {
+          if (!pinnedWuxing) highlightWuxing(null, false);
+        });
+        target.addEventListener("click", () => {
+          pinnedWuxing = pinnedWuxing === wx ? null : wx;
+          highlightWuxing(pinnedWuxing, Boolean(pinnedWuxing));
+        });
+        target.addEventListener("keydown", (e) => {
+          if (e.key !== "Enter" && e.key !== " ") return;
+          e.preventDefault();
+          pinnedWuxing = pinnedWuxing === wx ? null : wx;
+          highlightWuxing(pinnedWuxing, Boolean(pinnedWuxing));
+        });
+      };
+
+      const nodes = wuxingDiagram.querySelectorAll(".wuxing-node");
+      nodes.forEach((node) => attachWuxingInteraction(node, node.getAttribute("data-wx")));
+      const pills = wuxingDiagram.querySelectorAll(".wuxing-pill");
+      pills.forEach((pill) => attachWuxingInteraction(pill, pill.getAttribute("data-wx")));
+      highlightWuxing(null, false);
     }
 
     function highlightWuxing(wx, on){
-      const paths = wuxingDiagram.querySelectorAll("path");
-      const circles = wuxingDiagram.querySelectorAll("circle");
-      const texts = wuxingDiagram.querySelectorAll("text");
+      const paths = wuxingDiagram.querySelectorAll(".wuxing-relation-path");
+      const nodes = wuxingDiagram.querySelectorAll(".wuxing-node");
 
       if (!on || !wx) {
-        paths.forEach(path => {
-          path.style.opacity = "0.85";
-          path.classList.remove("active");
+        paths.forEach((path) => {
+          path.classList.remove("active", "dimmed");
         });
-        circles.forEach(circle => {
-          circle.setAttribute("opacity", "1");
-          circle.setAttribute("stroke", "#fff");
-          circle.setAttribute("stroke-width", "2");
+        nodes.forEach((node) => {
+          node.classList.remove("is-active", "support", "challenge", "dimmed");
         });
-        texts.forEach(text => {
-          text.setAttribute("fill", "#fff");
-          text.setAttribute("font-weight", "600");
-        });
+        setWuxingFocus(null);
         return;
       }
 
       const wxIndex = WUXING.indexOf(wx);
       if (wxIndex === -1) return;
 
-      const shengMe = WUXING[(wxIndex + 4) % 5];
-      const ISheng = WUXING[(wxIndex + 1) % 5];
-      const keMe = WUXING[(wxIndex + 3) % 5];
-      const IKe = WUXING[(wxIndex + 2) % 5];
+      const shengRelated = [WUXING[(wxIndex + 4) % 5], WUXING[(wxIndex + 1) % 5]];
+      const keRelated = [WUXING[(wxIndex + 2) % 5], WUXING[(wxIndex + 3) % 5]];
 
-      const shengRelated = [shengMe, ISheng];
-      const keRelated = [keMe, IKe];
+      paths.forEach((path) => {
+        const involved = path.getAttribute("data-from") === wx || path.getAttribute("data-to") === wx;
+        path.classList.toggle("active", involved);
+        path.classList.toggle("dimmed", !involved);
+      });
 
-      paths.forEach(path => {
-        const from = path.getAttribute("data-from");
-        const to = path.getAttribute("data-to");
-        if (from === wx || to === wx) {
-          path.style.opacity = "1";
-          path.classList.add("active");
+      nodes.forEach((node) => {
+        const nodeWx = node.getAttribute("data-wx");
+        node.classList.remove("is-active", "support", "challenge", "dimmed");
+        if (nodeWx === wx) {
+          node.classList.add("is-active");
+        } else if (shengRelated.includes(nodeWx)) {
+          node.classList.add("support");
+        } else if (keRelated.includes(nodeWx)) {
+          node.classList.add("challenge");
         } else {
-          path.style.opacity = "0.15";
-          path.classList.remove("active");
+          node.classList.add("dimmed");
         }
       });
 
-      circles.forEach(circle => {
-        const fill = circle.getAttribute("fill");
-        const circleWx = WUXING.find(w => WUXING_SVG_COLORS[w] === fill);
-        if (!circleWx) return;
-        if (circleWx === wx) {
-          circle.setAttribute("opacity", "1");
-          circle.setAttribute("stroke", "#fff");
-          circle.setAttribute("stroke-width", "3");
-        } else if (shengRelated.includes(circleWx)) {
-          circle.setAttribute("opacity", "1");
-          circle.setAttribute("stroke", "#4a9c6d");
-          circle.setAttribute("stroke-width", "4");
-        } else if (keRelated.includes(circleWx)) {
-          circle.setAttribute("opacity", "1");
-          circle.setAttribute("stroke", "#c75c5c");
-          circle.setAttribute("stroke-width", "4");
-        } else {
-          circle.setAttribute("opacity", "0.3");
-          circle.setAttribute("stroke", "#fff");
-          circle.setAttribute("stroke-width", "2");
-        }
-      });
-      
-      texts.forEach(text => {
-        const content = text.textContent;
-        if (content === wx) {
-          text.setAttribute("fill", "#fff");
-          text.setAttribute("font-weight", "700");
-        } else if (shengRelated.includes(content)) {
-          text.setAttribute("fill", "#e8f5e9");
-          text.setAttribute("font-weight", "600");
-        } else if (keRelated.includes(content)) {
-          text.setAttribute("fill", "#ffebee");
-          text.setAttribute("font-weight", "600");
-        } else {
-          text.setAttribute("fill", "rgba(255,255,255,0.5)");
-          text.setAttribute("font-weight", "400");
-        }
-      });
+      setWuxingFocus(wx);
     }
 
     // ====== 启动 ======
