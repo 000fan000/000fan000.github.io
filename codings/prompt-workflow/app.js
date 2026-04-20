@@ -45,6 +45,7 @@ function createEndpointConfig(overrides = {}) {
     id: uid("endpoint"),
     label: "OpenAI",
     provider: "openai",
+    endpointUrl: "",
     apiKey: "",
     defaultModelPresetId: models[0]?.id || "",
     models,
@@ -87,6 +88,7 @@ function normalizeEndpointConfig(endpoint, index = 0) {
     id: endpoint?.id || `endpoint_${index + 1}`,
     label: endpoint?.label || endpoint?.name || `Provider ${index + 1}`,
     provider: endpoint?.provider || "openai",
+    endpointUrl: endpoint?.endpointUrl || endpoint?.url || "",
     apiKey: endpoint?.apiKey || "",
     defaultModelPresetId,
     models: normalizedModels
@@ -99,6 +101,7 @@ function getDefaultEndpointConfigs() {
       id: "endpoint_openai_primary",
       label: "OpenAI",
       provider: "openai",
+      endpointUrl: "https://api.openai.com/v1/responses",
       defaultModelPresetId: "model_fast_draft",
       models: [
         {
@@ -168,6 +171,7 @@ const state = {
   sidebarOpen: false,
   configOpen: false,
   runStates: {},
+  endpointTestStates: {},
   zoom: DEFAULT_ZOOM,
   workflowRunState: {
     status: "idle",
@@ -374,6 +378,7 @@ function hydrateState(snapshot) {
   state.sidebarOpen = false;
   state.configOpen = false;
   state.runStates = {};
+  state.endpointTestStates = {};
   state.zoom = DEFAULT_ZOOM;
   state.workflowRunState = {
     status: "idle",
@@ -1011,6 +1016,14 @@ function renderEndpointConfigs() {
         </label>
       </div>
       <label class="config-card">
+        <span class="form-label">Endpoint URL</span>
+        <input
+          data-endpoint-field="endpointUrl"
+          value="${escapeHtml(endpoint.endpointUrl || "")}"
+          placeholder="https://api.example.com/v1/..."
+        >
+      </label>
+      <label class="config-card">
         <span class="form-label">API key</span>
         <input data-endpoint-field="apiKey" type="password" value="${escapeHtml(endpoint.apiKey)}" placeholder="Stored locally only">
       </label>
@@ -1021,7 +1034,9 @@ function renderEndpointConfigs() {
         </select>
       </label>
       <div class="inline-actions">
+        <button class="subtle-button" type="button" data-test-endpoint="${endpoint.id}">Test endpoint</button>
         <button class="subtle-button" type="button" data-add-model-preset="${endpoint.id}">Add model</button>
+        <span class="endpoint-test-status">${escapeHtml(state.endpointTestStates[endpoint.id]?.message || "Not tested yet.")}</span>
       </div>
       <div class="model-preset-list">
         ${endpoint.models.map((model) => `
@@ -1068,6 +1083,12 @@ function renderEndpointConfigs() {
     article.querySelectorAll("[data-endpoint-field]").forEach((field) => {
       field.addEventListener("input", (event) => updateEndpointField(endpoint.id, event.target.dataset.endpointField, event.target));
       field.addEventListener("change", (event) => updateEndpointField(endpoint.id, event.target.dataset.endpointField, event.target, true));
+    });
+    const testButton = article.querySelector(`[data-test-endpoint="${endpoint.id}"]`);
+    testButton.disabled = state.endpointTestStates[endpoint.id]?.status === "running";
+    testButton.textContent = state.endpointTestStates[endpoint.id]?.status === "running" ? "Testing..." : "Test endpoint";
+    testButton.addEventListener("click", async () => {
+      await testEndpointConfig(endpoint.id);
     });
     article.querySelector(`[data-add-model-preset="${endpoint.id}"]`).addEventListener("click", () => addModelPreset(endpoint.id));
     article.querySelectorAll("[data-model-field]").forEach((field) => {
@@ -1190,6 +1211,77 @@ function updateModelPresetField(endpointId, modelPresetId, fieldName, field, sho
   }
 }
 
+async function testEndpointConfig(endpointId) {
+  const endpoint = getEndpointConfig(endpointId);
+  if (!endpoint) {
+    return;
+  }
+
+  const modelPreset = getModelPreset(endpoint.id, endpoint.defaultModelPresetId) || endpoint.models[0];
+  if (!modelPreset) {
+    state.endpointTestStates[endpointId] = {
+      status: "error",
+      message: "Add a model first."
+    };
+    renderEndpointConfigs();
+    return;
+  }
+
+  if (!endpoint.apiKey?.trim()) {
+    state.endpointTestStates[endpointId] = {
+      status: "error",
+      message: "Add an API key first."
+    };
+    renderEndpointConfigs();
+    return;
+  }
+
+  if (!endpoint.endpointUrl?.trim() && endpoint.provider === "custom") {
+    state.endpointTestStates[endpointId] = {
+      status: "error",
+      message: "Add an endpoint URL first."
+    };
+    renderEndpointConfigs();
+    return;
+  }
+
+  state.endpointTestStates[endpointId] = {
+    status: "running",
+    message: "Testing endpoint..."
+  };
+  renderEndpointConfigs();
+
+  const testNode = {
+    data: {
+      model: modelPreset.name,
+      temperature: Number(modelPreset.temperature),
+      maxTokens: Math.max(16, Math.min(128, Number(modelPreset.maxTokens))),
+      provider: endpoint.provider
+    }
+  };
+
+  try {
+    const payload = await callProvider(
+      endpoint,
+      testNode,
+      "You are a test responder. Return a short confirmation.",
+      "Reply with the single word OK."
+    );
+    const extracted = extractTextFromRawResponse(endpoint.provider, payload);
+    state.endpointTestStates[endpointId] = {
+      status: "success",
+      message: extracted ? `Success: ${extracted.slice(0, 60)}` : "Success"
+    };
+  } catch (error) {
+    state.endpointTestStates[endpointId] = {
+      status: "error",
+      message: error instanceof Error ? error.message : "Test failed."
+    };
+  }
+
+  renderEndpointConfigs();
+}
+
 function extractTextFromRawResponse(provider, payload) {
   if (!payload || typeof payload !== "object") {
     return "";
@@ -1256,9 +1348,13 @@ function collectStepContext(nodeId, visited = new Set()) {
   return context;
 }
 
-async function callProvider(provider, apiKey, node, renderedSystemPrompt, renderedPrompt) {
+async function callProvider(providerConfig, node, renderedSystemPrompt, renderedPrompt) {
+  const provider = providerConfig.provider;
+  const apiKey = providerConfig.apiKey;
+  const endpointUrl = providerConfig.endpointUrl?.trim();
+
   if (provider === "openai") {
-    const response = await fetch("https://api.openai.com/v1/responses", {
+    const response = await fetch(endpointUrl || "https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1280,7 +1376,7 @@ async function callProvider(provider, apiKey, node, renderedSystemPrompt, render
   }
 
   if (provider === "anthropic") {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await fetch(endpointUrl || "https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1309,7 +1405,9 @@ async function callProvider(provider, apiKey, node, renderedSystemPrompt, render
 
   if (provider === "google") {
     const modelName = node.data.model.startsWith("models/") ? node.data.model : `models/${node.data.model}`;
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`;
+    const endpoint = endpointUrl
+      ? endpointUrl.replace(/\/$/, "")
+      : `https://generativelanguage.googleapis.com/v1beta/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`;
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
@@ -1337,6 +1435,31 @@ async function callProvider(provider, apiKey, node, renderedSystemPrompt, render
     const payload = await response.json();
     if (!response.ok) {
       throw new Error(payload?.error?.message || `Google request failed with ${response.status}`);
+    }
+    return payload;
+  }
+
+  if (provider === "custom") {
+    if (!endpointUrl) {
+      throw new Error("Add an endpoint URL for the custom provider first.");
+    }
+    const response = await fetch(endpointUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: apiKey ? `Bearer ${apiKey}` : ""
+      },
+      body: JSON.stringify({
+        model: node.data.model,
+        systemPrompt: renderedSystemPrompt,
+        prompt: renderedPrompt,
+        temperature: Number(node.data.temperature),
+        maxTokens: Number(node.data.maxTokens)
+      })
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload?.error?.message || `Custom request failed with ${response.status}`);
     }
     return payload;
   }
@@ -1371,13 +1494,7 @@ async function runStep(nodeId) {
   renderNodes();
 
   try {
-    const payload = await callProvider(
-      providerConfig.provider,
-      providerConfig.apiKey,
-      node,
-      renderedSystemPrompt,
-      renderedPrompt
-    );
+    const payload = await callProvider(providerConfig, node, renderedSystemPrompt, renderedPrompt);
 
     node.data.debugMode = true;
     node.data.rawOutput = JSON.stringify(payload, null, 2);
@@ -1576,6 +1693,7 @@ function getEndpointExport(endpointId) {
     id: endpoint.id,
     label: endpoint.label,
     provider: endpoint.provider,
+    endpointUrl: endpoint.endpointUrl || null,
     defaultModelPresetId: endpoint.defaultModelPresetId,
     auth: {
       apiKeyStoredLocally: Boolean(endpoint.apiKey),
@@ -1675,6 +1793,9 @@ function compileWorkflow() {
         if (!endpoint) {
           warnings.push(`${node.data.title} points to a missing provider profile.`);
         } else {
+          if (!endpoint.endpointUrl?.trim()) {
+            warnings.push(`${node.data.title} uses a provider profile without an endpoint URL.`);
+          }
           if (!endpoint.apiKey?.trim()) {
             warnings.push(`${node.data.title} uses a provider profile without an API key.`);
           }
