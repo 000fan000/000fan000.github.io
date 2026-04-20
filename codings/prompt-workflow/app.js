@@ -131,6 +131,7 @@ const nodeBlueprints = {
     title: "Prompt Step",
     endpointId: "",
     modelPresetId: "",
+    systemPrompt: "You are a precise prompt-engineering assistant. Use upstream context carefully and respond with high signal.",
     prompt: "Draft a concise answer about {{topic}} for {{audience}}.",
     provider: "openai",
     model: "gpt-4.1-mini",
@@ -179,6 +180,8 @@ const elements = {
   workflowTitle: document.getElementById("workflowTitle"),
   graphStatus: document.getElementById("graphStatus"),
   graphMeta: document.getElementById("graphMeta"),
+  warningPopover: document.getElementById("warningPopover"),
+  warningList: document.getElementById("warningList"),
   workflowNameInput: document.getElementById("workflowNameInput"),
   importJsonInput: document.getElementById("importJsonInput")
 };
@@ -222,6 +225,7 @@ function getSampleState() {
           title: "Draft core message",
           endpointId: "endpoint_openai_primary",
           modelPresetId: "model_fast_draft",
+          systemPrompt: "You are a senior launch copywriter who writes clear, high-conviction product messaging.",
           prompt: "Write launch copy about {{topic}} for {{audience}}. Give me a sharp hook, three value points, and a CTA.",
           provider: "openai",
           model: "gpt-4.1-mini",
@@ -244,6 +248,7 @@ function getSampleState() {
           title: "Refine recursively",
           endpointId: "endpoint_openai_primary",
           modelPresetId: "model_reasoner",
+          systemPrompt: "You are a critical editor. Improve clarity, distinctiveness, and persuasive structure without adding fluff.",
           prompt: "Improve the upstream draft for {{audience}}. Make the argument tighter, remove filler, and sharpen the CTA.",
           provider: "openai",
           model: "gpt-4.1",
@@ -688,6 +693,10 @@ function getNodeMarkup(node) {
             ${renderModelPresetOptions(node.data.endpointId, node.data.modelPresetId)}
           </select>
         </div>
+      </div>
+      <div class="node-field">
+        <label>System prompt</label>
+        <textarea name="systemPrompt">${escapeHtml(node.data.systemPrompt || "")}</textarea>
       </div>
       <div class="node-field">
         <label>Prompt</label>
@@ -1255,6 +1264,8 @@ function getExecutionConfig(node) {
       providerConfigId: node.data.endpointId || null,
       providerConfig: getEndpointExport(node.data.endpointId),
       modelPresetId: node.data.modelPresetId || null,
+      systemPrompt: node.data.systemPrompt,
+      systemPromptVariables: extractVariables(node.data.systemPrompt || ""),
       prompt: node.data.prompt,
       variables: extractVariables(node.data.prompt),
       model: {
@@ -1292,6 +1303,9 @@ function compileWorkflow() {
 
   state.nodes.forEach((node) => {
     if (node.type === "step") {
+      if (!node.data.systemPrompt?.trim()) {
+        warnings.push(`${node.data.title} has no system prompt.`);
+      }
       if (!node.data.prompt?.trim()) {
         warnings.push(`${node.data.title} has no prompt text.`);
       }
@@ -1322,6 +1336,10 @@ function compileWorkflow() {
       }
 
       const availableContextKeys = getAvailableContextKeys(node);
+      const missingSystemVariables = extractVariables(node.data.systemPrompt || "").filter((key) => !availableContextKeys.has(key));
+      if (missingSystemVariables.length) {
+        warnings.push(`${node.data.title} system prompt references missing variables: ${missingSystemVariables.join(", ")}.`);
+      }
       const missingVariables = extractVariables(node.data.prompt).filter((key) => !availableContextKeys.has(key));
       if (missingVariables.length) {
         warnings.push(`${node.data.title} references missing variables: ${missingVariables.join(", ")}.`);
@@ -1389,6 +1407,10 @@ function compileWorkflow() {
         providerConfigId: node.data.endpointId || null,
         providerConfig: getEndpointExport(node.data.endpointId),
         modelPresetId: node.data.modelPresetId || null,
+        systemPrompt: {
+          template: node.data.systemPrompt,
+          variables: extractVariables(node.data.systemPrompt || "")
+        },
         inputBindings: directInputs,
         prompt: {
           template: node.data.prompt,
@@ -1447,7 +1469,8 @@ function compileWorkflow() {
 
 function renderStatus() {
   const compiled = compileWorkflow();
-  const warningCount = compiled.validation.warnings.length;
+  const warnings = compiled.validation.warnings;
+  const warningCount = warnings.length;
   elements.workflowTitle.textContent = state.workflowName;
   if (elements.workflowNameInput.value !== state.workflowName) {
     elements.workflowNameInput.value = state.workflowName;
@@ -1456,7 +1479,9 @@ function renderStatus() {
   elements.graphMeta.textContent = `${state.nodes.length} nodes · ${state.edges.length} connections · ${state.endpointConfigs.length} providers · ${modelCount} models`;
   elements.graphStatus.textContent = warningCount ? `${warningCount} warning${warningCount > 1 ? "s" : ""}` : "Ready";
   elements.graphStatus.classList.toggle("is-good", warningCount === 0);
-  elements.graphStatus.title = compiled.validation.warnings.join("\n");
+  elements.graphStatus.title = warningCount ? "Hover to inspect validation warnings" : "No validation warnings";
+  elements.warningPopover.classList.toggle("is-hidden", warningCount === 0);
+  elements.warningList.innerHTML = warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("");
 }
 
 function renderSidebar() {

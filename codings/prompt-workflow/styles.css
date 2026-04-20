@@ -254,6 +254,10 @@ button {
   min-height: 220px;
 }
 
+.workflow-node textarea[name="systemPrompt"] {
+  min-height: 120px;
+}
+
 .compact-field input {
   min-height: 46px;
 }
@@ -317,6 +321,7 @@ button {
 }
 
 .status-row {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -335,6 +340,67 @@ button {
 .status-pill.is-good {
   background: var(--accent-alt-soft);
   color: var(--accent-alt);
+}
+
+.warning-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(420px, 72vw);
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(20, 33, 61, 0.12);
+  background: rgba(255, 251, 246, 0.98);
+  box-shadow: 0 20px 40px rgba(20, 33, 61, 0.16);
+  text-align: left;
+  z-index: 25;
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.warning-popover::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  right: 26px;
+  width: 14px;
+  height: 14px;
+  background: rgba(255, 251, 246, 0.98);
+  border-top: 1px solid rgba(20, 33, 61, 0.12);
+  border-left: 1px solid rgba(20, 33, 61, 0.12);
+  transform: rotate(45deg);
+}
+
+.status-row:hover .warning-popover:not(.is-hidden),
+.status-row:focus-within .warning-popover:not(.is-hidden) {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.warning-popover-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--warning);
+}
+
+.warning-list {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.warning-list li + li {
+  margin-top: 8px;
+}
+
+.warning-popover.is-hidden {
+  display: none;
 }
 
 .canvas-viewport {
@@ -407,7 +473,7 @@ button {
 }
 
 .workflow-node[data-type="input"] {
-  width: 280px;
+  width: 340px;
   background: linear-gradient(180deg, rgba(255, 248, 235, 0.98), rgba(255, 240, 220, 0.96));
 }
 
