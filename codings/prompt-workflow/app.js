@@ -139,6 +139,9 @@ const nodeBlueprints = {
     temperature: 0.4,
     maxTokens: 700,
     outputKey: `step_${Math.random().toString(36).slice(2, 6)}`,
+    debugMode: false,
+    rawOutput: "",
+    lastOutputText: "",
     recursionEnabled: false,
     maxIterations: 3,
     stopCondition: "Stop when the answer is clear, specific, and no major flaws remain.",
@@ -161,7 +164,8 @@ const state = {
   linkDraft: null,
   dragState: null,
   sidebarOpen: false,
-  configOpen: false
+  configOpen: false,
+  runStates: {}
 };
 
 const elements = {
@@ -233,6 +237,9 @@ function getSampleState() {
           temperature: 0.7,
           maxTokens: 700,
           outputKey: "draft_copy",
+          debugMode: false,
+          rawOutput: "",
+          lastOutputText: "",
           recursionEnabled: false,
           maxIterations: 1,
           stopCondition: "",
@@ -256,6 +263,9 @@ function getSampleState() {
           temperature: 0.3,
           maxTokens: 900,
           outputKey: "refined_copy",
+          debugMode: true,
+          rawOutput: "{\\n  \\\"id\\\": \\\"resp_debug_sample\\\",\\n  \\\"model\\\": \\\"gpt-4.1\\\",\\n  \\\"output\\\": [{\\n    \\\"type\\\": \\\"message\\\",\\n    \\\"content\\\": [{\\n      \\\"type\\\": \\\"output_text\\\",\\n      \\\"text\\\": \\\"Sharper refined launch copy...\\\"\\n    }]\\n  }]\\n}",
+          lastOutputText: "Sharper refined launch copy...",
           recursionEnabled: true,
           maxIterations: 3,
           stopCondition: "Stop when the copy feels differentiated, concise, and convincing.",
@@ -351,6 +361,7 @@ function hydrateState(snapshot) {
   state.dragState = null;
   state.sidebarOpen = false;
   state.configOpen = false;
+  state.runStates = {};
   ensureStepConfigReferences();
 }
 
@@ -725,6 +736,20 @@ function getNodeMarkup(node) {
         </div>
       </div>
       <label class="node-toggle">
+        <input name="debugMode" type="checkbox" ${node.data.debugMode ? "checked" : ""}>
+        <span>Debug mode · show raw LLM response</span>
+      </label>
+      <div class="debug-fields">
+        <div class="debug-toolbar">
+          <button class="subtle-button node-run" type="button">Run step</button>
+          <span class="run-status">${escapeHtml(state.runStates[node.id]?.message || "Ready to run this step.")}</span>
+        </div>
+        <div class="node-field">
+          <label>Raw LLM response</label>
+          <textarea name="rawOutput" placeholder="Paste or store the raw provider response here for inspection...">${escapeHtml(node.data.rawOutput || "")}</textarea>
+        </div>
+      </div>
+      <label class="node-toggle">
         <input name="recursionEnabled" type="checkbox" ${node.data.recursionEnabled ? "checked" : ""}>
         <span>Recursive refinement</span>
       </label>
@@ -758,6 +783,7 @@ function renderNodes() {
     article.dataset.nodeId = node.id;
     article.dataset.type = node.type;
     article.dataset.recursive = node.type === "step" && node.data.recursionEnabled ? "true" : "false";
+    article.dataset.debug = node.type === "step" && node.data.debugMode ? "true" : "false";
     article.style.left = `${node.x}px`;
     article.style.top = `${node.y}px`;
     article.innerHTML = `
@@ -795,6 +821,15 @@ function renderNodes() {
       event.stopPropagation();
       duplicateNode(node.id);
     });
+    const runButton = article.querySelector(".node-run");
+    if (runButton) {
+      runButton.disabled = state.runStates[node.id]?.status === "running";
+      runButton.textContent = state.runStates[node.id]?.status === "running" ? "Running..." : "Run step";
+      runButton.addEventListener("click", async (event) => {
+        event.stopPropagation();
+        await runStep(node.id);
+      });
+    }
     article.querySelector(".node-delete").addEventListener("click", (event) => {
       event.stopPropagation();
       deleteNode(node.id);
@@ -879,6 +914,11 @@ function updateNodeField(nodeId, fieldName, field) {
     const nodeElement = field.closest(".workflow-node");
     if (nodeElement) {
       nodeElement.dataset.recursive = field.checked ? "true" : "false";
+    }
+  } else if (fieldName === "debugMode") {
+    const nodeElement = field.closest(".workflow-node");
+    if (nodeElement) {
+      nodeElement.dataset.debug = field.checked ? "true" : "false";
     }
   }
 
@@ -1100,6 +1140,213 @@ function updateModelPresetField(endpointId, modelPresetId, fieldName, field, sho
   }
 }
 
+function extractTextFromRawResponse(provider, payload) {
+  if (!payload || typeof payload !== "object") {
+    return "";
+  }
+
+  if (provider === "openai") {
+    if (typeof payload.output_text === "string" && payload.output_text.trim()) {
+      return payload.output_text;
+    }
+    return (payload.output || [])
+      .flatMap((item) => item?.content || [])
+      .filter((item) => item?.type === "output_text" && typeof item.text === "string")
+      .map((item) => item.text)
+      .join("\n");
+  }
+
+  if (provider === "anthropic") {
+    return (payload.content || [])
+      .filter((item) => item?.type === "text" && typeof item.text === "string")
+      .map((item) => item.text)
+      .join("\n");
+  }
+
+  if (provider === "google") {
+    return (payload.candidates || [])
+      .flatMap((candidate) => candidate?.content?.parts || [])
+      .filter((part) => typeof part?.text === "string")
+      .map((part) => part.text)
+      .join("\n");
+  }
+
+  return "";
+}
+
+function interpolateTemplate(template, context) {
+  return String(template || "").replace(/{{\s*([a-zA-Z0-9_.-]+)\s*}}/g, (_, key) => {
+    return Object.prototype.hasOwnProperty.call(context, key) ? String(context[key]) : "";
+  });
+}
+
+function collectStepContext(nodeId, visited = new Set()) {
+  if (visited.has(nodeId)) {
+    return {};
+  }
+  visited.add(nodeId);
+
+  const context = {};
+  const incomingNodes = getIncoming(nodeId)
+    .map((id) => getNode(id))
+    .filter(Boolean);
+
+  incomingNodes.forEach((incomingNode) => {
+    if (incomingNode.type === "input") {
+      context[incomingNode.data.key] = incomingNode.data.defaultValue || "";
+      return;
+    }
+
+    if (incomingNode.type === "step") {
+      Object.assign(context, collectStepContext(incomingNode.id, visited));
+      context[incomingNode.data.outputKey] = incomingNode.data.lastOutputText || "";
+    }
+  });
+
+  return context;
+}
+
+async function callProvider(provider, apiKey, node, renderedSystemPrompt, renderedPrompt) {
+  if (provider === "openai") {
+    const response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: node.data.model,
+        instructions: renderedSystemPrompt || undefined,
+        input: renderedPrompt,
+        temperature: Number(node.data.temperature),
+        max_output_tokens: Number(node.data.maxTokens)
+      })
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload?.error?.message || `OpenAI request failed with ${response.status}`);
+    }
+    return payload;
+  }
+
+  if (provider === "anthropic") {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: node.data.model,
+        system: renderedSystemPrompt || undefined,
+        max_tokens: Number(node.data.maxTokens),
+        temperature: Number(node.data.temperature),
+        messages: [
+          {
+            role: "user",
+            content: renderedPrompt
+          }
+        ]
+      })
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload?.error?.message || `Anthropic request failed with ${response.status}`);
+    }
+    return payload;
+  }
+
+  if (provider === "google") {
+    const modelName = node.data.model.startsWith("models/") ? node.data.model : `models/${node.data.model}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`;
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        systemInstruction: renderedSystemPrompt
+          ? {
+              role: "system",
+              parts: [{ text: renderedSystemPrompt }]
+            }
+          : undefined,
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: renderedPrompt }]
+          }
+        ],
+        generationConfig: {
+          temperature: Number(node.data.temperature),
+          maxOutputTokens: Number(node.data.maxTokens)
+        }
+      })
+    });
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload?.error?.message || `Google request failed with ${response.status}`);
+    }
+    return payload;
+  }
+
+  throw new Error(`Provider "${provider}" is not runnable in-browser yet.`);
+}
+
+async function runStep(nodeId) {
+  const node = getNode(nodeId);
+  if (!node || node.type !== "step") {
+    return;
+  }
+
+  const providerConfig = getEndpointConfig(node.data.endpointId);
+  if (!providerConfig?.apiKey?.trim()) {
+    state.runStates[nodeId] = {
+      status: "error",
+      message: "Add an API key in Configure Providers first."
+    };
+    renderNodes();
+    return;
+  }
+
+  const context = collectStepContext(nodeId);
+  const renderedSystemPrompt = interpolateTemplate(node.data.systemPrompt, context);
+  const renderedPrompt = interpolateTemplate(node.data.prompt, context);
+
+  state.runStates[nodeId] = {
+    status: "running",
+    message: "Calling provider..."
+  };
+  renderNodes();
+
+  try {
+    const payload = await callProvider(
+      providerConfig.provider,
+      providerConfig.apiKey,
+      node,
+      renderedSystemPrompt,
+      renderedPrompt
+    );
+
+    node.data.debugMode = true;
+    node.data.rawOutput = JSON.stringify(payload, null, 2);
+    node.data.lastOutputText = extractTextFromRawResponse(providerConfig.provider, payload);
+    state.runStates[nodeId] = {
+      status: "success",
+      message: node.data.lastOutputText ? "Run finished." : "Run finished, but no text was extracted."
+    };
+    render();
+    persistState();
+  } catch (error) {
+    state.runStates[nodeId] = {
+      status: "error",
+      message: error instanceof Error ? error.message : "Run failed."
+    };
+    renderNodes();
+  }
+}
+
 function getHandleCenter(nodeId, selector) {
   const nodeElement = elements.nodesLayer.querySelector(`[data-node-id="${nodeId}"]`);
   if (!nodeElement) {
@@ -1275,6 +1522,11 @@ function getExecutionConfig(node) {
         temperature: Number(node.data.temperature),
         maxTokens: Number(node.data.maxTokens)
       },
+      debug: {
+        enabled: Boolean(node.data.debugMode),
+        rawOutput: node.data.rawOutput || "",
+        lastOutputText: node.data.lastOutputText || ""
+      },
       recursion: {
         enabled: Boolean(node.data.recursionEnabled),
         maxIterations: Math.max(1, Number(node.data.maxIterations || 1)),
@@ -1311,6 +1563,9 @@ function compileWorkflow() {
       }
       if (!node.data.model?.trim()) {
         warnings.push(`${node.data.title} has no model selected.`);
+      }
+      if (node.data.debugMode && !node.data.rawOutput?.trim()) {
+        warnings.push(`${node.data.title} has debug mode on but no raw LLM response saved.`);
       }
       if (getOutgoing(node.id).length === 0) {
         warnings.push(`${node.data.title} is not wired to another step or output.`);
@@ -1422,6 +1677,11 @@ function compileWorkflow() {
           reasoningMode: node.data.reasoningMode,
           temperature: Number(node.data.temperature),
           maxTokens: Number(node.data.maxTokens)
+        },
+        debug: {
+          enabled: Boolean(node.data.debugMode),
+          rawOutput: node.data.rawOutput || "",
+          lastOutputText: node.data.lastOutputText || ""
         },
         recursion: {
           enabled: Boolean(node.data.recursionEnabled),

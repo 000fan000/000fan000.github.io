@@ -255,7 +255,26 @@ button {
 }
 
 .workflow-node textarea[name="systemPrompt"] {
-  min-height: 120px;
+  min-height: 140px;
+}
+
+.workflow-node textarea[name="rawOutput"] {
+  min-height: 160px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.debug-toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.run-status {
+  font-size: 0.84rem;
+  color: var(--muted);
 }
 
 .compact-field input {
@@ -473,7 +492,7 @@ button {
 }
 
 .workflow-node[data-type="input"] {
-  width: 340px;
+  width: 390px;
   background: linear-gradient(180deg, rgba(255, 248, 235, 0.98), rgba(255, 240, 220, 0.96));
 }
 
@@ -545,7 +564,16 @@ button {
   gap: 10px;
 }
 
+.debug-fields {
+  display: none;
+  gap: 10px;
+}
+
 .workflow-node[data-recursive="true"] .recursive-fields {
+  display: grid;
+}
+
+.workflow-node[data-debug="true"] .debug-fields {
   display: grid;
 }
 
@@ -675,6 +703,10 @@ button {
 
   .workflow-node[data-type="step"] {
     width: 380px;
+  }
+
+  .workflow-node[data-type="input"] {
+    width: 340px;
   }
 
   .form-row,
