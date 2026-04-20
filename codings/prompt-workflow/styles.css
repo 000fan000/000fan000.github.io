@@ -1,0 +1,622 @@
+:root {
+  --bg: #f7f1e8;
+  --paper: rgba(255, 250, 243, 0.92);
+  --paper-strong: #fff7ee;
+  --ink: #14213d;
+  --muted: #6f655d;
+  --line: rgba(20, 33, 61, 0.12);
+  --line-strong: rgba(20, 33, 61, 0.24);
+  --accent: #de6b48;
+  --accent-soft: rgba(222, 107, 72, 0.14);
+  --accent-alt: #207178;
+  --accent-alt-soft: rgba(32, 113, 120, 0.14);
+  --warning: #a04e1a;
+  --shadow: 0 26px 50px rgba(20, 33, 61, 0.1);
+  --radius-lg: 28px;
+  --radius-md: 18px;
+  --radius-sm: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Space Grotesk", "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(222, 107, 72, 0.2), transparent 30%),
+    radial-gradient(circle at top right, rgba(32, 113, 120, 0.16), transparent 28%),
+    linear-gradient(180deg, #fef9f3 0%, var(--bg) 100%);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.page-shell {
+  width: min(100% - 28px, 1560px);
+  margin: 0 auto;
+  padding: 28px 0 32px;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+  padding: 30px 34px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(255, 247, 238, 0.94), rgba(245, 238, 224, 0.86));
+  border: 1px solid rgba(20, 33, 61, 0.08);
+  box-shadow: var(--shadow);
+}
+
+.eyebrow,
+.panel-kicker,
+.micro-copy,
+.node-id,
+.node-type-badge,
+.node-field label,
+.node-toggle span,
+.form-label,
+.stack-note {
+  color: var(--muted);
+}
+
+.eyebrow,
+.panel-kicker,
+.micro-copy,
+.node-id,
+.node-type-badge,
+.node-field label,
+.node-toggle span,
+.form-label {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.7rem;
+}
+
+.hero h1,
+.canvas-header h2 {
+  margin: 0;
+  font-size: clamp(2.2rem, 3vw, 3.4rem);
+  line-height: 0.95;
+}
+
+.hero-copy {
+  margin: 16px 0 0;
+  max-width: 720px;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.hero-actions,
+.canvas-toolbar,
+.config-actions,
+.inline-actions,
+.card-toolbar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ghost-button,
+.stacked-actions button,
+.mini-button,
+.tool-button,
+.node-grip,
+.node-copy,
+.node-delete,
+.endpoint-delete,
+.model-delete,
+.subtle-button {
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink);
+  border-radius: 999px;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.ghost-button,
+.stacked-actions button,
+.toolbar-button,
+.subtle-button {
+  padding: 12px 16px;
+}
+
+.ghost-button {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ghost-button:hover,
+.stacked-actions button:hover,
+.mini-button:hover,
+.tool-button:hover,
+.node-grip:hover,
+.node-copy:hover,
+.node-delete:hover,
+.endpoint-delete:hover,
+.model-delete:hover,
+.subtle-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(32, 113, 120, 0.45);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.workspace {
+  position: relative;
+  margin-top: 22px;
+  min-height: calc(100vh - 220px);
+}
+
+.panel,
+.canvas-panel,
+.config-panel {
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  border: 1px solid rgba(20, 33, 61, 0.08);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px);
+}
+
+.panel {
+  padding: 22px;
+}
+
+.panel-left {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 30;
+  width: min(340px, calc(100vw - 64px));
+  max-height: calc(100vh - 260px);
+  overflow: auto;
+  transition: transform 220ms ease, opacity 220ms ease;
+}
+
+.panel-left.is-collapsed {
+  transform: translateX(calc(-100% - 24px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.panel-title {
+  margin: 8px 0 0;
+  font-size: 1.1rem;
+}
+
+.panel-headline,
+.canvas-header,
+.node-toolbar,
+.config-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.panel-headline-tight {
+  align-items: center;
+}
+
+.panel-block + .panel-block {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.field-group,
+.node-field,
+.config-card {
+  display: grid;
+  gap: 6px;
+}
+
+.field-group input,
+.field-group textarea,
+.field-group select,
+.node-field input,
+.node-field textarea,
+.node-field select,
+.config-card input,
+.config-card select,
+.config-card textarea {
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.84);
+  color: var(--ink);
+}
+
+.field-group textarea,
+.node-field textarea,
+.config-card textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.workflow-node textarea[name="prompt"] {
+  min-height: 220px;
+}
+
+.compact-field input {
+  min-height: 46px;
+}
+
+.stack-note {
+  margin: 8px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.tool-button {
+  text-align: left;
+  border-radius: 18px;
+  padding: 14px;
+}
+
+.tool-button strong,
+.tool-button span {
+  display: block;
+}
+
+.tool-button span {
+  color: var(--muted);
+  margin-top: 6px;
+  font-size: 0.9rem;
+}
+
+.tip-list {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.stacked-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.canvas-panel {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.canvas-header {
+  flex-wrap: wrap;
+}
+
+.canvas-header h2 {
+  font-size: 1.5rem;
+  margin-top: 8px;
+}
+
+.status-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.status-pill {
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: var(--accent-soft);
+  color: var(--warning);
+  font-weight: 700;
+}
+
+.status-pill.is-good {
+  background: var(--accent-alt-soft);
+  color: var(--accent-alt);
+}
+
+.canvas-viewport {
+  position: relative;
+  margin-top: 16px;
+  min-height: 760px;
+  overflow: auto;
+  border-radius: 24px;
+  border: 1px solid rgba(20, 33, 61, 0.08);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.62)),
+    linear-gradient(90deg, rgba(20, 33, 61, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(20, 33, 61, 0.05) 1px, transparent 1px);
+  background-size: auto, 32px 32px, 32px 32px;
+}
+
+.canvas-surface {
+  position: relative;
+  width: 2200px;
+  height: 1400px;
+}
+
+.connections-layer,
+.nodes-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.connections-layer {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.connection-line {
+  fill: none;
+  stroke: rgba(32, 113, 120, 0.9);
+  stroke-width: 3;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px rgba(32, 113, 120, 0.16));
+}
+
+.connection-line.draft {
+  stroke: rgba(222, 107, 72, 0.85);
+  stroke-dasharray: 8 8;
+}
+
+.workflow-node {
+  position: absolute;
+  display: grid;
+  grid-template-columns: 18px 1fr 18px;
+  align-items: stretch;
+  gap: 10px;
+  width: 360px;
+  padding: 0 10px;
+  border: 1px solid rgba(20, 33, 61, 0.12);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255, 250, 245, 0.98), rgba(250, 244, 235, 0.96));
+  box-shadow: 0 18px 35px rgba(20, 33, 61, 0.08);
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.workflow-node:hover {
+  transform: translateY(-2px);
+}
+
+.workflow-node.is-selected {
+  border-color: rgba(222, 107, 72, 0.7);
+  box-shadow: 0 20px 44px rgba(222, 107, 72, 0.18);
+}
+
+.workflow-node[data-type="input"] {
+  width: 280px;
+  background: linear-gradient(180deg, rgba(255, 248, 235, 0.98), rgba(255, 240, 220, 0.96));
+}
+
+.workflow-node[data-type="step"] {
+  width: 450px;
+  background: linear-gradient(180deg, rgba(237, 250, 247, 0.98), rgba(227, 244, 242, 0.96));
+}
+
+.workflow-node[data-type="output"] {
+  width: 300px;
+  background: linear-gradient(180deg, rgba(247, 243, 255, 0.98), rgba(236, 229, 250, 0.96));
+}
+
+.node-shell {
+  padding: 14px 0 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.node-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.node-type-badge {
+  color: var(--accent-alt);
+  font-weight: 700;
+}
+
+.node-title-input {
+  font-size: 1rem;
+  font-weight: 700;
+  min-height: 44px;
+}
+
+.node-form {
+  display: grid;
+  gap: 10px;
+}
+
+.node-row,
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.node-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.node-toggle input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+.recursive-fields {
+  display: none;
+  gap: 10px;
+}
+
+.workflow-node[data-recursive="true"] .recursive-fields {
+  display: grid;
+}
+
+.node-handle {
+  align-self: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(20, 33, 61, 0.24);
+  background: #fffdf9;
+  padding: 0;
+  flex: none;
+}
+
+.node-handle:hover,
+.node-handle.is-active {
+  border-color: var(--accent);
+  transform: scale(1.08);
+}
+
+.config-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(20, 33, 61, 0.28);
+  backdrop-filter: blur(6px);
+}
+
+.config-overlay.is-hidden {
+  display: none;
+}
+
+.config-panel {
+  width: min(1180px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  padding: 26px;
+}
+
+.endpoint-list,
+.model-preset-list {
+  display: grid;
+  gap: 14px;
+}
+
+.endpoint-list {
+  margin-top: 18px;
+}
+
+.config-card {
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.endpoint-card {
+  gap: 14px;
+}
+
+.endpoint-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.endpoint-title,
+.model-title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.model-preset-card {
+  gap: 10px;
+  background: rgba(250, 248, 244, 0.84);
+}
+
+.empty-state {
+  padding: 20px;
+  border-radius: 18px;
+  border: 1px dashed var(--line-strong);
+  color: var(--muted);
+  text-align: center;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+@media (max-width: 920px) {
+  .page-shell {
+    width: min(100% - 20px, 1560px);
+    padding-top: 18px;
+  }
+
+  .hero {
+    display: grid;
+    padding: 22px;
+  }
+
+  .panel-left {
+    width: min(320px, calc(100vw - 28px));
+    top: 12px;
+    left: 12px;
+    max-height: calc(100vh - 180px);
+  }
+
+  .canvas-viewport {
+    min-height: 580px;
+  }
+
+  .canvas-surface {
+    width: 1800px;
+    height: 1400px;
+  }
+
+  .workflow-node[data-type="step"] {
+    width: 380px;
+  }
+
+  .form-row,
+  .node-row {
+    grid-template-columns: 1fr;
+  }
+
+  .config-panel {
+    padding: 18px;
+  }
+}

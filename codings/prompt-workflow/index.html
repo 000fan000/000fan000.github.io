@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompt Workflow Lab</title>
+  <meta name="description" content="A GitHub Pages-friendly visual prompt workflow editor that exports reusable LLM JSON.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Visual LLM Design Surface</p>
+        <h1>Prompt Workflow Lab</h1>
+        <p class="hero-copy">
+          Design prompt-engineering workflows on a canvas, tune each LLM step, and export reusable JSON with recursive refinement settings.
+        </p>
+      </div>
+      <div class="hero-actions">
+        <button class="ghost-button" id="loadSampleButton" type="button">Load sample</button>
+        <button class="ghost-button" id="openConfigButton" type="button">Configure Providers</button>
+        <a class="ghost-button" href="../index.html">Back to codings</a>
+      </div>
+    </header>
+
+    <section class="workspace">
+      <aside class="panel panel-left is-collapsed" id="leftSidebar">
+        <div class="panel-headline panel-headline-tight">
+          <div>
+            <p class="panel-kicker">Workflow tools</p>
+            <h3 class="panel-title">Node library</h3>
+          </div>
+          <button class="mini-button" id="closeSidebarButton" type="button">Hide</button>
+        </div>
+
+        <div class="panel-block">
+          <p class="panel-kicker">Workflow name</p>
+          <div class="field-group compact-field">
+            <label class="sr-only" for="workflowNameInput">Workflow name</label>
+            <input id="workflowNameInput" type="text" placeholder="Reusable prompt workflow">
+          </div>
+        </div>
+
+        <div class="panel-block">
+          <p class="panel-kicker">Add nodes</p>
+          <div class="tool-grid">
+            <button class="tool-button" data-node-type="input" type="button">
+              <strong>Input</strong>
+              <span>Reusable variables</span>
+            </button>
+            <button class="tool-button" data-node-type="step" type="button">
+              <strong>Step</strong>
+              <span>Prompt + model tuning</span>
+            </button>
+            <button class="tool-button" data-node-type="output" type="button">
+              <strong>Output</strong>
+              <span>Named result targets</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="panel-block">
+          <p class="panel-kicker">Flow guide</p>
+          <ul class="tip-list">
+            <li>Use the drag chip on each node to move it around.</li>
+            <li>Edit fields directly inside the node cards.</li>
+            <li>Configure global providers and models from the top-right button.</li>
+            <li>Double-click the canvas to drop a new workflow step instantly.</li>
+          </ul>
+        </div>
+
+        <div class="panel-block">
+          <p class="panel-kicker">Workflow actions</p>
+          <div class="stacked-actions">
+            <button id="copyJsonButton" type="button">Copy JSON</button>
+            <button id="copyCompactButton" type="button">Copy compact</button>
+            <button id="downloadJsonButton" type="button">Download JSON</button>
+            <button id="importJsonButton" type="button">Import JSON</button>
+            <button id="resetBoardButton" type="button">Reset board</button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="canvas-panel">
+        <div class="canvas-header">
+          <div>
+            <p class="panel-kicker">Canvas</p>
+            <h2 id="workflowTitle">Reusable prompt workflow</h2>
+          </div>
+          <div class="canvas-toolbar">
+            <button class="ghost-button toolbar-button" id="toggleSidebarButton" type="button">Tools</button>
+            <button class="ghost-button toolbar-button" data-node-type="input" type="button">+ Input</button>
+            <button class="ghost-button toolbar-button" data-node-type="step" type="button">+ Step</button>
+            <button class="ghost-button toolbar-button" data-node-type="output" type="button">+ Output</button>
+          </div>
+          <div class="status-row">
+            <span class="status-pill" id="graphStatus">Ready</span>
+            <span class="micro-copy" id="graphMeta">0 nodes</span>
+          </div>
+        </div>
+
+        <div class="canvas-viewport" id="boardViewport">
+          <div class="canvas-surface" id="boardSurface">
+            <svg class="connections-layer" id="connectionsLayer" aria-hidden="true"></svg>
+            <div class="nodes-layer" id="nodesLayer"></div>
+          </div>
+        </div>
+      </main>
+    </section>
+  </div>
+
+      <section class="config-overlay is-hidden" id="configOverlay" aria-hidden="true">
+    <div class="config-panel" role="dialog" aria-modal="true" aria-labelledby="configTitle">
+      <div class="panel-headline panel-headline-tight">
+        <div>
+          <p class="panel-kicker">Universal config</p>
+          <h3 class="panel-title" id="configTitle">LLM providers and model presets</h3>
+          <p class="stack-note">These settings are shared across this app in local browser storage. API keys are kept local and exported only as refs.</p>
+        </div>
+        <div class="config-actions">
+          <button class="ghost-button toolbar-button" id="addEndpointButton" type="button">Add provider</button>
+          <button class="mini-button" id="closeConfigButton" type="button">Close</button>
+        </div>
+      </div>
+      <div id="endpointConfigList" class="endpoint-list"></div>
+    </div>
+  </section>
+
+  <input id="importJsonInput" type="file" accept="application/json" hidden>
+
+  <script src="app.js"></script>
+</body>
+</html>
