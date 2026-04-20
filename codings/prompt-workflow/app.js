@@ -165,7 +165,11 @@ const state = {
   dragState: null,
   sidebarOpen: false,
   configOpen: false,
-  runStates: {}
+  runStates: {},
+  workflowRunState: {
+    status: "idle",
+    message: ""
+  }
 };
 
 const elements = {
@@ -186,6 +190,7 @@ const elements = {
   graphMeta: document.getElementById("graphMeta"),
   warningPopover: document.getElementById("warningPopover"),
   warningList: document.getElementById("warningList"),
+  runWorkflowButton: document.getElementById("runWorkflowButton"),
   workflowNameInput: document.getElementById("workflowNameInput"),
   importJsonInput: document.getElementById("importJsonInput")
 };
@@ -362,6 +367,10 @@ function hydrateState(snapshot) {
   state.sidebarOpen = false;
   state.configOpen = false;
   state.runStates = {};
+  state.workflowRunState = {
+    status: "idle",
+    message: ""
+  };
   ensureStepConfigReferences();
 }
 
@@ -743,6 +752,10 @@ function getNodeMarkup(node) {
         <div class="debug-toolbar">
           <button class="subtle-button node-run" type="button">Run step</button>
           <span class="run-status">${escapeHtml(state.runStates[node.id]?.message || "Ready to run this step.")}</span>
+        </div>
+        <div class="node-field">
+          <label>Prettified response</label>
+          <pre class="pretty-output">${escapeHtml(node.data.lastOutputText || "No extracted text yet.")}</pre>
         </div>
         <div class="node-field">
           <label>Raw LLM response</label>
@@ -1297,7 +1310,7 @@ async function callProvider(provider, apiKey, node, renderedSystemPrompt, render
 async function runStep(nodeId) {
   const node = getNode(nodeId);
   if (!node || node.type !== "step") {
-    return;
+    return false;
   }
 
   const providerConfig = getEndpointConfig(node.data.endpointId);
@@ -1307,7 +1320,7 @@ async function runStep(nodeId) {
       message: "Add an API key in Configure Providers first."
     };
     renderNodes();
-    return;
+    return false;
   }
 
   const context = collectStepContext(nodeId);
@@ -1338,13 +1351,57 @@ async function runStep(nodeId) {
     };
     render();
     persistState();
+    return true;
   } catch (error) {
     state.runStates[nodeId] = {
       status: "error",
       message: error instanceof Error ? error.message : "Run failed."
     };
     renderNodes();
+    return false;
   }
+}
+
+async function runWorkflow() {
+  const topo = topologicalSort();
+  const orderedStepIds = topo.ordered
+    .map((id) => getNode(id))
+    .filter((node) => node && node.type === "step")
+    .map((node) => node.id);
+
+  if (!orderedStepIds.length) {
+    state.workflowRunState = {
+      status: "error",
+      message: "Add at least one step node first."
+    };
+    renderRunWorkflowButton();
+    return;
+  }
+
+  state.workflowRunState = {
+    status: "running",
+    message: `Running ${orderedStepIds.length} step${orderedStepIds.length === 1 ? "" : "s"}...`
+  };
+  renderRunWorkflowButton();
+
+  for (const stepId of orderedStepIds) {
+    const success = await runStep(stepId);
+    if (!success) {
+      const stepNode = getNode(stepId);
+      state.workflowRunState = {
+        status: "error",
+        message: `Workflow stopped at ${stepNode?.data.title || stepId}.`
+      };
+      renderRunWorkflowButton();
+      return;
+    }
+  }
+
+  state.workflowRunState = {
+    status: "success",
+    message: `Workflow finished: ${orderedStepIds.length} step${orderedStepIds.length === 1 ? "" : "s"} run.`
+  };
+  renderRunWorkflowButton();
 }
 
 function getHandleCenter(nodeId, selector) {
@@ -1744,6 +1801,13 @@ function renderStatus() {
   elements.warningList.innerHTML = warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("");
 }
 
+function renderRunWorkflowButton() {
+  const isRunning = state.workflowRunState.status === "running";
+  elements.runWorkflowButton.disabled = isRunning;
+  elements.runWorkflowButton.textContent = isRunning ? "Running workflow..." : "Run workflow";
+  elements.runWorkflowButton.title = state.workflowRunState.message || "Run all step nodes in workflow order";
+}
+
 function renderSidebar() {
   elements.leftSidebar.classList.toggle("is-collapsed", !state.sidebarOpen);
   elements.toggleSidebarButton.textContent = state.sidebarOpen ? "Hide tools" : "Tools";
@@ -1761,6 +1825,7 @@ function render() {
   renderNodes();
   renderConnections();
   renderStatus();
+  renderRunWorkflowButton();
 }
 
 function afterStateChange() {
@@ -1876,6 +1941,9 @@ function wireUi() {
   });
 
   elements.addEndpointButton.addEventListener("click", addEndpointConfig);
+  elements.runWorkflowButton.addEventListener("click", async () => {
+    await runWorkflow();
+  });
 
   document.getElementById("copyJsonButton").addEventListener("click", () => copyWorkflowJson(false));
   document.getElementById("copyCompactButton").addEventListener("click", () => copyWorkflowJson(true));
