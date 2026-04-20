@@ -1,6 +1,7 @@
 const BOARD_SIZE = { width: 2200, height: 1400 };
 const STORAGE_KEY = "prompt-workflow-lab-v5";
 const INITIAL_WORKFLOW_NAME = "Reusable prompt workflow";
+const DEFAULT_ZOOM = 1;
 
 function uid(prefix) {
   return `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
@@ -163,9 +164,11 @@ const state = {
   selectedNodeId: null,
   linkDraft: null,
   dragState: null,
+  panState: null,
   sidebarOpen: false,
   configOpen: false,
   runStates: {},
+  zoom: DEFAULT_ZOOM,
   workflowRunState: {
     status: "idle",
     message: ""
@@ -183,6 +186,7 @@ const elements = {
   addEndpointButton: document.getElementById("addEndpointButton"),
   nodesLayer: document.getElementById("nodesLayer"),
   connectionsLayer: document.getElementById("connectionsLayer"),
+  boardStage: document.getElementById("boardStage"),
   boardSurface: document.getElementById("boardSurface"),
   boardViewport: document.getElementById("boardViewport"),
   workflowTitle: document.getElementById("workflowTitle"),
@@ -191,6 +195,8 @@ const elements = {
   warningPopover: document.getElementById("warningPopover"),
   warningList: document.getElementById("warningList"),
   runWorkflowButton: document.getElementById("runWorkflowButton"),
+  zoomSlider: document.getElementById("zoomSlider"),
+  zoomValue: document.getElementById("zoomValue"),
   workflowNameInput: document.getElementById("workflowNameInput"),
   importJsonInput: document.getElementById("importJsonInput")
 };
@@ -364,9 +370,11 @@ function hydrateState(snapshot) {
   state.selectedNodeId = state.nodes[0]?.id || null;
   state.linkDraft = null;
   state.dragState = null;
+  state.panState = null;
   state.sidebarOpen = false;
   state.configOpen = false;
   state.runStates = {};
+  state.zoom = DEFAULT_ZOOM;
   state.workflowRunState = {
     status: "idle",
     message: ""
@@ -455,8 +463,8 @@ function connectNodes(fromId, toId) {
 function getBoardPoint(clientX, clientY) {
   const rect = elements.boardSurface.getBoundingClientRect();
   return {
-    x: clientX - rect.left,
-    y: clientY - rect.top
+    x: (clientX - rect.left) / state.zoom,
+    y: (clientY - rect.top) / state.zoom
   };
 }
 
@@ -586,6 +594,25 @@ function beginLink(event, nodeId) {
   renderConnections();
 }
 
+function beginViewportPan(event) {
+  if (event.button !== 0) {
+    return;
+  }
+  if (event.target.closest(".workflow-node")) {
+    return;
+  }
+
+  state.panState = {
+    startX: event.clientX,
+    startY: event.clientY,
+    scrollLeft: elements.boardViewport.scrollLeft,
+    scrollTop: elements.boardViewport.scrollTop
+  };
+  elements.boardViewport.classList.add("is-panning");
+  window.addEventListener("pointermove", handlePointerMove);
+  window.addEventListener("pointerup", handlePointerUp, { once: true });
+}
+
 function handlePointerMove(event) {
   if (state.dragState) {
     const point = getBoardPoint(event.clientX, event.clientY);
@@ -605,6 +632,14 @@ function handlePointerMove(event) {
     return;
   }
 
+  if (state.panState) {
+    const deltaX = event.clientX - state.panState.startX;
+    const deltaY = event.clientY - state.panState.startY;
+    elements.boardViewport.scrollLeft = state.panState.scrollLeft - deltaX;
+    elements.boardViewport.scrollTop = state.panState.scrollTop - deltaY;
+    return;
+  }
+
   if (state.linkDraft) {
     const point = getBoardPoint(event.clientX, event.clientY);
     state.linkDraft.x = point.x;
@@ -617,6 +652,8 @@ function handlePointerUp() {
   const movedNode = Boolean(state.dragState);
   state.dragState = null;
   state.linkDraft = null;
+  state.panState = null;
+  elements.boardViewport.classList.remove("is-panning");
   window.removeEventListener("pointermove", handlePointerMove);
   renderConnections();
   if (movedNode) {
@@ -1419,8 +1456,8 @@ function getHandleCenter(nodeId, selector) {
   const surfaceRect = elements.boardSurface.getBoundingClientRect();
 
   return {
-    x: handleRect.left - surfaceRect.left + handleRect.width / 2,
-    y: handleRect.top - surfaceRect.top + handleRect.height / 2
+    x: (handleRect.left - surfaceRect.left + handleRect.width / 2) / state.zoom,
+    y: (handleRect.top - surfaceRect.top + handleRect.height / 2) / state.zoom
   };
 }
 
@@ -1808,6 +1845,14 @@ function renderRunWorkflowButton() {
   elements.runWorkflowButton.title = state.workflowRunState.message || "Run all step nodes in workflow order";
 }
 
+function renderZoom() {
+  elements.boardStage.style.width = `${Math.round(BOARD_SIZE.width * state.zoom)}px`;
+  elements.boardStage.style.height = `${Math.round(BOARD_SIZE.height * state.zoom)}px`;
+  elements.boardSurface.style.transform = `scale(${state.zoom})`;
+  elements.zoomSlider.value = String(Math.round(state.zoom * 100));
+  elements.zoomValue.textContent = `${Math.round(state.zoom * 100)}%`;
+}
+
 function renderSidebar() {
   elements.leftSidebar.classList.toggle("is-collapsed", !state.sidebarOpen);
   elements.toggleSidebarButton.textContent = state.sidebarOpen ? "Hide tools" : "Tools";
@@ -1822,6 +1867,7 @@ function render() {
   renderSidebar();
   renderConfigOverlay();
   renderEndpointConfigs();
+  renderZoom();
   renderNodes();
   renderConnections();
   renderStatus();
@@ -1944,6 +1990,11 @@ function wireUi() {
   elements.runWorkflowButton.addEventListener("click", async () => {
     await runWorkflow();
   });
+  elements.zoomSlider.addEventListener("input", (event) => {
+    state.zoom = Number(event.target.value) / 100;
+    renderZoom();
+    renderConnections();
+  });
 
   document.getElementById("copyJsonButton").addEventListener("click", () => copyWorkflowJson(false));
   document.getElementById("copyCompactButton").addEventListener("click", () => copyWorkflowJson(true));
@@ -1967,6 +2018,7 @@ function wireUi() {
   });
 
   elements.boardViewport.addEventListener("scroll", renderConnections);
+  elements.boardViewport.addEventListener("pointerdown", beginViewportPan);
   elements.boardSurface.addEventListener("click", (event) => {
     if (event.target.closest(".workflow-node")) {
       return;

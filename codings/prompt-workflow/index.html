@@ -97,6 +97,11 @@
             <button class="ghost-button toolbar-button" data-node-type="step" type="button">+ Step</button>
             <button class="ghost-button toolbar-button" data-node-type="output" type="button">+ Output</button>
             <button class="ghost-button toolbar-button" id="runWorkflowButton" type="button">Run workflow</button>
+            <div class="zoom-controls">
+              <label class="zoom-label" for="zoomSlider">Zoom</label>
+              <input id="zoomSlider" class="zoom-slider" type="range" min="50" max="160" step="10" value="100">
+              <span class="zoom-value" id="zoomValue">100%</span>
+            </div>
           </div>
           <div class="status-row">
             <span class="status-pill" id="graphStatus">Ready</span>
@@ -109,9 +114,11 @@
         </div>
 
         <div class="canvas-viewport" id="boardViewport">
-          <div class="canvas-surface" id="boardSurface">
-            <svg class="connections-layer" id="connectionsLayer" aria-hidden="true"></svg>
-            <div class="nodes-layer" id="nodesLayer"></div>
+          <div class="canvas-stage" id="boardStage">
+            <div class="canvas-surface" id="boardSurface">
+              <svg class="connections-layer" id="connectionsLayer" aria-hidden="true"></svg>
+              <div class="nodes-layer" id="nodesLayer"></div>
+            </div>
           </div>
         </div>
       </main>
