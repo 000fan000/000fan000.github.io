@@ -207,51 +207,40 @@ const elements = {
 
 function getSampleState() {
   return {
-    workflowName: "Recursive launch copy workflow",
+    workflowName: "Reusable prompt workflow",
     endpointConfigs: getDefaultEndpointConfigs(),
     selectedNodeId: null,
     linkDraft: null,
     dragState: null,
     nodes: [
       {
-        id: "input_topic",
+        id: "input_1",
         type: "input",
         x: 110,
         y: 220,
         data: {
-          title: "Topic",
-          key: "topic",
-          defaultValue: "AI notebook for product teams"
+          title: "Input",
+          key: "input",
+          defaultValue: ""
         }
       },
-      {
-        id: "input_audience",
-        type: "input",
-        x: 110,
-        y: 430,
-        data: {
-          title: "Audience",
-          key: "audience",
-          defaultValue: "technical founders"
-        }
-      },
-      {
-        id: "step_draft",
+{
+        id: "step_1",
         type: "step",
         x: 500,
         y: 210,
         data: {
-          title: "Draft core message",
+          title: "Prompt Step",
           endpointId: "endpoint_openai_primary",
           modelPresetId: "model_fast_draft",
-          systemPrompt: "You are a senior launch copywriter who writes clear, high-conviction product messaging.",
-          prompt: "Write launch copy about {{topic}} for {{audience}}. Give me a sharp hook, three value points, and a CTA.",
+          systemPrompt: "You are a precise prompt-engineering assistant.",
+          prompt: "Process the input: {{input}}",
           provider: "openai",
           model: "gpt-4.1-mini",
           reasoningMode: "off",
-          temperature: 0.7,
+          temperature: 0.4,
           maxTokens: 700,
-          outputKey: "draft_copy",
+          outputKey: "output",
           debugMode: false,
           rawOutput: "",
           lastOutputText: "",
@@ -260,6 +249,26 @@ function getSampleState() {
           stopCondition: "",
           recursionPrompt: ""
         }
+      },
+      {
+        id: "output_1",
+        type: "output",
+        x: 980,
+        y: 220,
+        data: {
+          title: "Output",
+          key: "result",
+          format: "markdown",
+          schemaHint: ""
+        }
+      }
+    ],
+    edges: [
+      { id: uid("edge"), from: "input_1", to: "step_1" },
+      { id: uid("edge"), from: "step_1", to: "output_1" }
+    ]
+  };
+}
       },
       {
         id: "step_refine",
